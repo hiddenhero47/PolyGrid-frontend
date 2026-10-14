@@ -1,0 +1,62 @@
+@import 'tailwindcss';
+
+/*
+ * Colors are NOT defined here. They live in src/theme/ and are injected
+ * as --pg-* CSS variables by src/global.style.js. Use them in classes as:
+ *   bg-(--pg-surface-card)  text-(--pg-text-secondary)  border-(--pg-border-default)
+ *
+ * Typography, spacing, radius and elevation tokens are still open
+ * (frontend-plan §5.3) — they'll get an @theme block here once decided.
+ */
+
+@theme {
+	--font-sans:
+		ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+.ease {
+	transition: all 0.4s;
+	transition-timing-function: ease-in-out;
+}
+
+@layer utilities {
+	.imageHolder {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		position: relative;
+	}
+
+	.imageHolder img {
+		width: 100%;
+		height: 100%;
+		position: absolute;
+		left: 0;
+		top: 0;
+		object-fit: cover;
+		border: none;
+	}
+
+	.scroll_style::-webkit-scrollbar {
+		width: 0;
+		height: 3px;
+	}
+	.scroll_style::-webkit-scrollbar-thumb {
+		background-color: var(--pg-border-muted);
+		border-radius: 40px;
+	}
+	.scroll_style::-webkit-scrollbar-track {
+		background-color: transparent;
+	}
+
+	.Y_scroll_style::-webkit-scrollbar {
+		width: 3px;
+	}
+	.Y_scroll_style::-webkit-scrollbar-thumb {
+		background-color: var(--pg-border-muted);
+		border-radius: 40px;
+	}
+	.Y_scroll_style::-webkit-scrollbar-track {
+		background-color: transparent;
+	}
+}
