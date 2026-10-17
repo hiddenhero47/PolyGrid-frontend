@@ -30,9 +30,16 @@ const axiosInstance = axios.create({
 	timeout: 60000,
 });
 
+// The token only goes to our own backend — never to a third-party URL
+// (Cloudinary, etc.), which would otherwise receive a working login token.
+const isOurApi = (url = '') =>
+	!/^https?:\/\//i.test(url) || (BASE_URL && url.startsWith(BASE_URL));
+
 axiosInstance.interceptors.request.use((req) => {
 	const { token } = store.getState().auth;
-	if (token) req.headers.Authorization = `Bearer ${token}`;
+	if (token && isOurApi(req.url)) {
+		req.headers.Authorization = `Bearer ${token}`;
+	}
 	return req;
 });
 
