@@ -110,24 +110,40 @@ fixed, because polygrid-backend's CORS allow-list includes it. Copy
   react-toastify directly.
 - Stripe: `getStripe()` from `features/services/stripe.js`; wrap only
   payment pages in `<Elements>`, not the app.
-- redux-persist storage is imported from `redux-persist/es/storage` —
-  the `lib/` path breaks under Vite 8's CJS interop.
+- Store (`store/index.js`) mirrors HM: `blacklist` of slices not to
+  persist, and `createWebStorage('local')` with a no-op fallback when
+  there's no `window`. Import `createWebStorage` from
+  `redux-persist/es/storage/createWebStorage` — HM's `lib/` path breaks
+  under Vite 8's CJS interop.
 
 ### Colors / themes — `src/theme/`
 
 Multiple themes (light, dark, later seasonal ones) share one token
-shape. Layers, in order:
-1. `palette.js` — raw hex primitives. The only place a hex is typed.
-2. `themes/light.js`, `themes/dark.js` — semantic tokens grouped by
-   role (`surface`, `text`, `border`, `accent`, `status`, `state`,
-   `skeleton`), each mapped onto a palette color. **light.js is the
-   contract** — every theme must have exactly its keys (a dev-mode
-   check in `themes/index.js` logs any mismatch).
-3. `themes/index.js` — the `THEMES` registry (`{ label, mode, tokens }`).
-   A new theme = a file (or `extendTheme(dark, { accent: {...} })`) +
-   one registry line. Nothing else changes.
-4. `css-vars.js` — turns every token into `--pg-<group>-<token>`,
-   injected per theme under `[data-theme='…']` by `global.style.js`.
+shape. Files:
+- `themes/schema.js` — `THEME_SCHEMA`: the list of every allowed group
+  and token name (no colors). An array is a group
+  (`surface: ['card', …]` → `surface.card` → `--pg-surface-card`);
+  anything else is a single, un-nested color (`brand: ''` → `brand` →
+  `--pg-brand`). **New token = register it here first**, then give it
+  a value in every theme.
+- `themes/light.js`, `themes/dark.js` — each theme's colors, hex written
+  inline, grouped by role (`surface`, `text`, `border`, `accent`,
+  `status`, `state`, `skeleton`) or as single top-level colors. Never
+  deeper than group → token.
+- `themes/validation.js` — the yup schemas + `validateTheme`, which
+    **throws** if a theme is empty, nests deeper than group → token, is
+    missing a registered token, has one that isn't registered, or gives
+    a group where the schema has a single color (or vice versa).
+    `index.js` runs it on every theme under `import.meta.env.DEV`.
+- `index.js` — everything else:
+  - `extendTheme(base, overrides)` — build a theme by stating only what
+    changes; typo'd keys are kept so validation catches them.
+  - `THEMES` registry (`{ label, mode, tokens }`) — a new theme is a
+    file (or an `extendTheme` call) + one line here.
+  - CSS variable generation: every token → `--pg-<group>-<token>`,
+    output per theme under `[data-theme='…']` (`themeCss`, injected by
+    `global.style.js`) and as `var()` refs for styled-components
+    (`themeVars`).
 
 Use tokens, never hex, in components:
 - Tailwind: `bg-(--pg-surface-card) text-(--pg-text-secondary)`
@@ -137,9 +153,11 @@ Use tokens, never hex, in components:
 - Raw hex (chart.js, Stripe `appearance`): `THEMES[name].tokens`.
 
 Switch with `setTheme(name)` / `toggleTheme()` from
-`store/slice/app-theme.js`; `layouts/theme-root.jsx` applies it to
-`<html data-theme>` and saves it, and index.html's inline script
-re-applies it before first paint.
+`store/slice/app-theme.js` — same reducers as HM, plus a check that the
+theme is registered. The slice saves the choice under its own
+localStorage key (`THEME_STORAGE_KEY`, used only there — the `themes`
+slice is kept out of redux-persist) and sets `<body data-theme>`;
+`layouts/theme-root.jsx` sets it on render too, HM-style.
 
 Known open item: white text on `accent.default` (#FF5B3D) is 3.1:1 —
 passes WCAG AA only for large/bold text. Decide (darker accent fill,

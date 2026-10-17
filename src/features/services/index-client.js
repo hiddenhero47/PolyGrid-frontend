@@ -20,6 +20,11 @@ export const getErrorMessage = (error) =>
 	error?.message ||
 	'Something went wrong. Please try again.';
 
+// baseURL does what HM's request interceptor did by hand:
+//   axiosCall({ url: '/api/users/login' })      → BASE_URL + /api/users/login
+//   axiosCall({ url: 'https://other.server/x' }) → used as-is, BASE_URL skipped
+// Slashes are joined correctly either way, so VITE_API_URL needs no
+// trailing slash.
 const axiosInstance = axios.create({
 	baseURL: BASE_URL,
 	timeout: 60000,

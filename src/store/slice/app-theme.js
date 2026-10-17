@@ -1,47 +1,48 @@
+import { getFromLocalStorage } from '../../utilities/basic-functions';
 import { createSlice } from '@reduxjs/toolkit';
-import {
-	THEMES,
-	DEFAULT_THEME,
-	THEME_STORAGE_KEY,
-	isThemeName,
-} from '../../theme';
+import { THEMES, DEFAULT_THEME, isThemeName } from '../../theme';
 
-// Saved choice → OS preference → default. The inline script in
-// index.html runs this same lookup before React loads, so the first
-// paint is already in the right theme (no light-to-dark flash).
-const getInitialTheme = () => {
-	try {
-		const saved = localStorage.getItem(THEME_STORAGE_KEY);
-		if (isThemeName(saved)) return saved;
-	} catch {
-		// storage blocked (private mode etc.) — fall through
-	}
-	if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
-		return 'dark';
-	}
-	return DEFAULT_THEME;
-};
+// The theme is saved under its own localStorage key, outside redux-persist
+// (store/index.js leaves `themes` out of its whitelist). This is the only
+// place the key is used.
+const THEME_STORAGE_KEY = 'appThemes';
+
+const savedTheme = getFromLocalStorage(THEME_STORAGE_KEY);
 
 const initialState = {
-	theme: getInitialTheme(),
+	// a saved name that's no longer registered falls back to the default
+	theme: isThemeName(savedTheme) ? savedTheme : DEFAULT_THEME,
 };
 
-// Pure reducers only — applying the theme to <html> and saving it to
-// localStorage happens in layouts/theme-root.jsx.
+const applyTheme = (theme) => {
+	localStorage.setItem(THEME_STORAGE_KEY, theme);
+
+	if (typeof document !== 'undefined') {
+		document.body?.setAttribute('data-theme', theme);
+	}
+};
+
 const themeSlice = createSlice({
 	name: 'themes',
 	initialState,
 	reducers: {
-		setTheme: (state, action) => {
-			if (isThemeName(action.payload)) state.theme = action.payload;
-		},
 		// Flips between the plain light and dark themes. From a seasonal
 		// theme it goes to the plain theme of the opposite mode.
 		toggleTheme: (state) => {
-			state.theme = THEMES[state.theme].mode === 'dark' ? 'light' : 'dark';
+			const newTheme = THEMES[state.theme].mode === 'dark' ? 'light' : 'dark';
+			state.theme = newTheme;
+			applyTheme(newTheme);
+		},
+		setTheme: (state, action) => {
+			if (!isThemeName(action.payload)) {
+				console.warn(`[theme] "${action.payload}" isn't a registered theme`);
+				return;
+			}
+			state.theme = action.payload;
+			applyTheme(action.payload);
 		},
 	},
 });
 
-export const { setTheme, toggleTheme } = themeSlice.actions;
+export const { toggleTheme, setTheme } = themeSlice.actions;
 export default themeSlice.reducer;

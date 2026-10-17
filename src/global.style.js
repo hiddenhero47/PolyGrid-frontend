@@ -1,7 +1,7 @@
 import { createGlobalStyle } from 'styled-components';
 import { themeCss } from './theme';
 
-// Every registered theme's tokens as CSS variables (see theme/css-vars.js),
+// Every registered theme's tokens as CSS variables (see src/theme/index.js),
 // plus app-wide base styles that depend on them.
 const GlobalStyleInjector = createGlobalStyle`
   ${themeCss}

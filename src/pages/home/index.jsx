@@ -1,11 +1,11 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { THEMES } from '../../theme';
+import { THEMES, themeVars } from '../../theme';
 import { setTheme } from '../../store/slice/app-theme';
 import { Swatch, AccentButton } from './elements/index.style';
 
 // Placeholder until §A.1 Home is designed — a live preview of every token
-// in the active theme, so palette changes can be checked by eye.
+// in the active theme, so color changes can be checked by eye.
 // Uses both styling paths on purpose (Tailwind + styled-components).
 function Home() {
 	const dispatch = useDispatch();
@@ -42,12 +42,17 @@ function Home() {
 						{group}
 					</h2>
 					<div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-						{Object.entries(values).map(([name, value]) => (
+						{/* a single color shows as one swatch named after itself */}
+						{(typeof values === 'string'
+							? [[group, values, themeVars[group]]]
+							: Object.entries(values).map(([name, value]) => [
+									name,
+									value,
+									themeVars[group][name],
+								])
+						).map(([name, value, cssVar]) => (
 							<Swatch key={name}>
-								<div
-									className="swatch-chip"
-									style={{ background: `var(--pg-${group}-${name})` }}
-								/>
+								<div className="swatch-chip" style={{ background: cssVar }} />
 								<span className="swatch-name">{name}</span>
 								<span className="swatch-value">{value}</span>
 							</Swatch>

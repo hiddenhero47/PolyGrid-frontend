@@ -10,21 +10,6 @@
 		/>
 		<meta name="theme-color" content="#F7F7F7" />
 		<link rel="preconnect" href="https://js.stripe.com" />
-
-		<!-- Apply the saved theme before first paint, so a dark-theme user
-		     never sees a flash of light. Keys match THEME_STORAGE_KEY in
-		     src/theme/themes/index.js; layouts/theme-root.jsx writes them. -->
-		<script>
-			try {
-				var theme = localStorage.getItem('pg-theme');
-				var bg = localStorage.getItem('pg-theme-bg');
-				if (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-					theme = 'dark';
-				}
-				if (theme) document.documentElement.dataset.theme = theme;
-				if (bg) document.documentElement.style.backgroundColor = bg;
-			} catch (e) {}
-		</script>
 	</head>
 	<body>
 		<div id="root"></div>
