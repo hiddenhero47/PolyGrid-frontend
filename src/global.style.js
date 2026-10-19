@@ -53,16 +53,17 @@ const GlobalStyleInjector = createGlobalStyle`
     cursor: not-allowed;
   }
 
-  /* react-toastify picks its colors from these */
+  /* react-toastify only places and times toasts — the look is
+     layouts/toast/components/custom-toast.jsx. Its own stylesheet loads
+     after ours, so its box is cleared through the variables it reads. */
   .Toastify {
-    --toastify-color-light: var(--pg-surface-elevated);
-    --toastify-color-dark: var(--pg-surface-elevated);
-    --toastify-text-color-light: var(--pg-text-primary);
-    --toastify-text-color-dark: var(--pg-text-primary);
-    --toastify-color-success: var(--pg-status-success);
-    --toastify-color-error: var(--pg-status-error);
-    --toastify-color-warning: var(--pg-status-warning);
-    --toastify-color-info: var(--pg-status-info);
+    --toastify-color-light: transparent;
+    --toastify-color-dark: transparent;
+    --toastify-toast-shadow: none;
+    --toastify-toast-padding: 0;
+    --toastify-toast-min-height: 0;
+    --toastify-toast-width: auto;
+    --toastify-toast-bd-radius: 12px;
   }
 `;
 

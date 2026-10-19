@@ -5,6 +5,8 @@ import ChoiceFields from './elements/choice-fields';
 import FormikDemo from './elements/formik-demo';
 import TableDemo from './elements/table-demo';
 import ModalDemo from './elements/modal-demo';
+import FeedbackDemo from './elements/feedback-demo';
+import ConsultantPreview from './elements/consultant-preview';
 import { Tabs } from '../home/elements/index.style';
 
 // Development-only page (/lab): every shared component in every state, for
@@ -19,6 +21,8 @@ const SECTIONS = [
 	{ id: 'formik', label: 'Live form' },
 	{ id: 'tables', label: 'Table' },
 	{ id: 'modals', label: 'Modals' },
+	{ id: 'feedback', label: 'Feedback' },
+	{ id: 'consultant-cards', label: 'Cards' },
 ];
 
 const VARIANTS = ['filled', 'outline'];
@@ -79,6 +83,8 @@ function Lab() {
 
 			<TableDemo />
 			<ModalDemo />
+			<FeedbackDemo />
+			<ConsultantPreview />
 		</div>
 	);
 }

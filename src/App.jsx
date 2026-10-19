@@ -10,6 +10,8 @@ import AuthLayout from './layouts/auth-layout';
 import AppToast from './layouts/toast/index-toast';
 // pages
 import Home from './pages/home';
+import BrowseConsultants from './pages/engineering';
+import ConsultantProfile from './pages/engineering/profile';
 import NotFound from './pages/not-found';
 import Register from './pages/auth/register';
 import Login from './pages/auth/login';
@@ -46,6 +48,11 @@ function App() {
 							{/* Public / Basic View — frontend-plan §A */}
 							<Route element={<IndexLayout />}>
 								<Route path="/" element={<Home />} />
+								<Route path="/engineering" element={<BrowseConsultants />} />
+								<Route
+									path="/engineering/:idOrSlug"
+									element={<ConsultantProfile />}
+								/>
 								{import.meta.env.DEV && (
 									<>
 										<Route

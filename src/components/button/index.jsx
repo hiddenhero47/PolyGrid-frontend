@@ -31,7 +31,7 @@ export function AppButton({
 			{...rest}
 		>
 			{children}
-			{icon && <span className="sc_icon inline-flex">{icon}</span>}
+			{icon && <span className="sc_btnIcon inline-flex">{icon}</span>}
 		</ButtonBase>
 	);
 }
@@ -50,7 +50,7 @@ export function ArrowLink({ to, href, children, className }) {
 	return (
 		<ArrowLinkBase {...asProps({ to, href })} className={className}>
 			{children}
-			<LuArrowRight className="sc_icon" aria-hidden="true" />
+			<LuArrowRight className="sc_btnIcon" aria-hidden="true" />
 		</ArrowLinkBase>
 	);
 }

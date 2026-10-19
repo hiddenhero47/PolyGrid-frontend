@@ -11,6 +11,9 @@ function AppToast() {
 			theme={THEMES[theme].mode}
 			hideProgressBar
 			newestOnTop
+			closeButton={false}
+			icon={false}
+			autoClose={4500}
 		/>
 	);
 }

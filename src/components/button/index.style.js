@@ -56,12 +56,12 @@ export const ButtonBase = styled.button`
 	${({ $size }) => sizes[$size] || sizes.md}
 	${({ $variant }) => variants[$variant] || variants.primary}
 
-	.sc_icon {
+	.sc_btnIcon {
 		font-size: 1.25em;
 		transition: transform 0.2s ease;
 	}
 
-	&:hover .sc_icon {
+	&:hover .sc_btnIcon {
 		transform: translateX(3px);
 	}
 
@@ -88,12 +88,12 @@ export const ArrowLinkBase = styled.a`
 	text-decoration: none;
 	color: ${({ theme }) => theme.text.link};
 
-	.sc_icon {
+	.sc_btnIcon {
 		font-size: 1.2em;
 		transition: transform 0.2s ease;
 	}
 
-	&:hover .sc_icon {
+	&:hover .sc_btnIcon {
 		transform: translateX(4px);
 	}
 `;

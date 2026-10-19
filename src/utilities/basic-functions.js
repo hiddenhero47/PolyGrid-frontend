@@ -21,3 +21,37 @@ export const enumToOptions = (enumObject, labels = {}) =>
 		value,
 		label: labels[value] ?? humanize(value),
 	}));
+
+// 'NG' → 'Nigeria' (falls back to the code)
+export const countryName = (code) => {
+	if (!code) return '';
+	try {
+		return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code;
+	} catch {
+		return code;
+	}
+};
+
+// 1500, 'USD' → '$1,500'
+export const formatMoney = (amount, currency = 'USD') => {
+	try {
+		return new Intl.NumberFormat('en', {
+			style: 'currency',
+			currency,
+			maximumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+		}).format(amount);
+	} catch {
+		return `${currency} ${amount}`;
+	}
+};
+
+// 'Ada Okafor' → 'AO', 'Form & Frame' → 'FF' (skips symbols)
+export const initials = (name = '') =>
+	name
+		.trim()
+		.split(/\s+/)
+		.filter((word) => /^[\p{L}\p{N}]/u.test(word))
+		.slice(0, 2)
+		.map((word) => word[0])
+		.join('')
+		.toUpperCase();

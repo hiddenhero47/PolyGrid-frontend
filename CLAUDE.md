@@ -79,11 +79,14 @@ drawn from.
 **Phase 1 in progress.** Built: the React + Vite setup, store, API
 client, multi-theme color system, public layout (`layouts/index-layout`:
 navbar, footer, first-visit intro), Home (`pages/home`), the shared
-component kit (form controls, table, pagination, status badge, modals —
-all on `/lab`, dev only; token preview on `/theme-preview`), and auth
-(`pages/auth`: register, login with 2FA step, forgot / reset password,
-in `layouts/auth-layout`). Next: the shared "unavailable" state, then
-the public browse + profile pages. Remaining form controls
+component kit (form controls, table, pagination, status badge, modals,
+loader, empty / unavailable states, themed toasts, rating stars,
+profile avatar, reviews block — all on `/lab`, dev only), auth
+(`pages/auth`), and PolyGrid Engineering: Browse Consultants
+(`/engineering`) and the Consultant profile (`/engineering/:idOrSlug`).
+Next: the other pillars' browse + profile pages on the same pattern
+(contractors, stores, digital creators, workers, client profiles) and
+the tender / SiteForce public teasers. Remaining form controls
 (search-select, chips, file upload) wait until a page needs them. The backend is fully built: all four pillars, account suspension, review
 moderation, message-report resolution, per-profile avatars, a real
 notification system, SiteForce geo search, public board teasers, and a
@@ -282,6 +285,41 @@ Known backend-side gap (not a frontend bug): the local backend has no
 "MAILGUN_API_KEY is not set" — forgot-password shows that toast and
 keeps the form. Reset emails work once the key is added to the
 backend's `.env`.
+
+### Feedback & profile building blocks
+
+- `components/loader` — `AppLoader` (3×3 grid wave; `fullPage`,
+  `showLabel`).
+- `components/empty-state` — `EmptyState` (icon, eyebrow, title, text,
+  actions; tones neutral / accent / success / error) and
+  `UnavailableState` for the backend's `200 { available: false,
+  message }` (banned / unverified / unsubscribed) — never the 404 page.
+- Toasts: `toast.success / error / info / warning(message, { title,
+  actionText, onAction })` render `layouts/toast/components/
+  custom-toast.jsx`; react-toastify's own box is cleared through its
+  CSS variables in `global.style.js`.
+- `components/rating-stars`, `components/profile-avatar` (avatar url or
+  initials), `components/reviews` (`ReviewsBlock` — the one reviews
+  block every profile page embeds, `GET /api/reviews`).
+- `AppButton`'s icon class is `sc_btnIcon` — don't reuse that name, and
+  don't style a bare `.sc_icon` in a wrapper that may contain buttons.
+
+### Browse + profile pattern (PolyGrid Engineering is the template)
+
+- Browse page: filters in the URL (`useSearchParams` —
+  `?specialization=&country=&page=`), only filters the backend supports,
+  sidebar on desktop / `Modal.Right` drawer on small screens, removable
+  filter pills, skeleton cards, empty (with / without filters) and
+  error states, `Pagination` with the backend's object.
+- Profile page: loader → 404 `EmptyState` / error / `UnavailableState`
+  → content. Hiring buttons say "Sign in to hire" (logged out) until the
+  Job flow exists (Phase 3).
+- Hooks per resource in `features/services/custom-hooks/`
+  (`consultancy.js`, `reviews.js`, `reference.js`); `keepPreviousData`
+  so the old page stays visible while the next loads.
+- Backend gaps noticed (not fixed — read-only): public
+  `GET /api/reviews` returns `toAdminReview` (moderation fields), and
+  `mentorship.ratePerSession` has no currency of its own.
 
 ### Modals — `src/components/modal/`
 

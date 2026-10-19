@@ -16,7 +16,13 @@ export const ROUTES = {
 	SITEFORCE: '/siteforce',
 	WORKERS: '/siteforce/workers',
 
+	// detail pages — build with the helpers below
+	CONSULTANT: '/engineering/:idOrSlug',
+
 	ABOUT: '/about-us',
 	PRIVACY: '/privacy-policy',
 	TERMS: '/terms-and-conditions',
 };
+
+export const consultantPath = (profile) =>
+	`/engineering/${encodeURIComponent(profile?.slug || profile?.id || '')}`;
