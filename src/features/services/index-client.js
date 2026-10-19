@@ -8,7 +8,12 @@ import { toast } from '../../layouts/toast/toast-handler';
 // A yup validation failure (src/validators/validate.ts) is a 400 whose
 // `message` is every failing field's message joined with ", ".
 
-const BASE_URL = import.meta.env.VITE_API_URL?.trim();
+// In development, requests stay on this origin (/api/...) and Vite's dev
+// proxy forwards them to VITE_API_URL — see vite.config.js. A production
+// build calls VITE_API_URL directly.
+const BASE_URL = import.meta.env.DEV
+	? ''
+	: import.meta.env.VITE_API_URL?.trim();
 
 // Codes the caller handles itself — no generic error toast.
 // 2FA_REQUIRED / 2FA_INVALID come from userController's enforceTwoFactor:

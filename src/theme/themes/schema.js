@@ -23,6 +23,7 @@ export const THEME_SCHEMA = {
 		'inverse',
 		'onAccent',
 		'link',
+		'highlight', // accent word in headings, pillar eyebrows
 	],
 	border: ['default', 'strong', 'muted', 'focus', 'error'],
 	accent: ['default', 'emphasis', 'subtle', 'soft'],
@@ -42,4 +43,86 @@ export const THEME_SCHEMA = {
 	],
 	state: ['hover', 'pressed', 'selected', 'disabledOpacity'],
 	skeleton: ['base', 'highlight'],
+
+	// ── By design purpose ──
+	logo: ['base', 'accent'],
+	button: [
+		'primaryBg',
+		'primaryHover',
+		'primaryText',
+		'secondaryBg',
+		'secondaryHover',
+		'secondaryText',
+		'secondaryBorder',
+	],
+	chip: [
+		'background',
+		'text',
+		'border',
+		'accentBg',
+		'accentText',
+		'accentBorder',
+	],
+	// icon tiles: default, accent and success tones
+	icon: [
+		'background',
+		'border',
+		'color',
+		'accentBackground',
+		'accentBorder',
+		'accentColor',
+		'successBackground',
+		'successBorder',
+		'successColor',
+	],
+	// every form control (frontend-plan §3 states: normal, filled, active,
+	// error, disabled)
+	form: [
+		'background', // filled variant
+		'border',
+		'borderHover',
+		'focus', // Active state ring/border
+		'text',
+		'placeholder',
+		'label',
+		'hint',
+		'error',
+		'disabledBg',
+		'disabledText',
+		'disabledBorder',
+		'menuBg', // select dropdowns
+		'menuBorder',
+		'optionHover',
+		'optionSelectedBg',
+		'optionSelectedText',
+		'control', // checked checkbox / radio / switch
+		'controlBorder',
+		'controlMark', // the tick on a checked checkbox
+		'switchTrack',
+		'switchThumb',
+	],
+	// numbered / counter badges
+	badge: ['background', 'text'],
+	tab: ['activeBg', 'activeText'],
+	// frosted labels laid over photos — light text in every theme, since
+	// they always sit on a photo's dark overlay
+	glass: ['background', 'border', 'text', 'sbText'],
+
+	// ── By component / feature ──
+	navbar: ['background', 'border', 'link', 'linkHover', 'menuBg'],
+	card: ['background', 'border', 'borderHover', 'imageOverlay'],
+	footer: ['background', 'border', 'heading', 'link', 'linkHover', 'text'],
+	intro: ['background', 'gridLine', 'glow', 'text', 'sbText'],
+	modal: ['backdrop', 'background', 'border', 'divider', 'handle'],
+	table: [
+		'headerBg',
+		'headerText',
+		'cellText',
+		'rowBorder',
+		'rowHover',
+		'stripe',
+	],
+
+	// ── By area ──
+	hero: ['glow', 'imageOverlay'],
 };

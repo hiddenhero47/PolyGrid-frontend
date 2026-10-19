@@ -6,6 +6,16 @@ import { themeCss } from './theme';
 const GlobalStyleInjector = createGlobalStyle`
   ${themeCss}
 
+  /* An open modal (dialog.showModal) locks page scroll — no JS needed.
+     scrollbar-gutter keeps the page from shifting when the bar hides. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
   body {
     margin: 0;
     overflow-x: hidden;

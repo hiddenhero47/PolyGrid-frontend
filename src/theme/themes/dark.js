@@ -23,6 +23,7 @@ const dark = {
 		inverse: '#0B0D12',
 		onAccent: '#FFFFFF',
 		link: '#FF8C70',
+		highlight: '#FF5B3D',
 	},
 
 	border: {
@@ -65,6 +66,144 @@ const dark = {
 	skeleton: {
 		base: 'rgba(242, 242, 242, 0.04)',
 		highlight: 'rgba(242, 242, 242, 0.08)',
+	},
+	// ── By design purpose ──
+	logo: {
+		base: '#F2F2F2',
+		accent: '#FF5B3D',
+	},
+
+	button: {
+		primaryBg: '#FF5B3D',
+		primaryHover: '#FF7A5C',
+		primaryText: '#1A0A06',
+		secondaryBg: '#1C202B',
+		secondaryHover: '#282D3B',
+		secondaryText: '#F2F2F2',
+		secondaryBorder: '#282D3B',
+	},
+
+	chip: {
+		background: '#1C202B',
+		text: '#C9CDD5',
+		border: '#282D3B',
+		accentBg: 'rgba(255, 91, 61, 0.12)',
+		accentText: '#FF8C70',
+		accentBorder: 'transparent',
+	},
+
+	icon: {
+		background: '#1C202B',
+		border: 'transparent',
+		color: '#FF5B3D',
+		accentBackground: 'rgba(255, 91, 61, 0.2)',
+		accentBorder: 'transparent',
+		accentColor: '#FF5B3D',
+		successBackground: 'rgba(16, 185, 129, 0.2)',
+		successBorder: 'transparent',
+		successColor: '#10B981',
+	},
+
+	// Fields sit darker than the cards they're on (Stitch Browse
+	// Consultants), with a coral ring when active.
+	form: {
+		background: '#0E1117',
+		border: '#282D3B',
+		borderHover: '#3A4052',
+		focus: '#FF5B3D',
+		text: '#F2F2F2',
+		placeholder: '#6B7280',
+		label: '#C9CDD5',
+		hint: '#9CA3AF',
+		error: '#FF7A90',
+		disabledBg: '#14171F',
+		disabledText: '#4B5263',
+		disabledBorder: '#1C202B',
+		menuBg: '#1C202B',
+		menuBorder: '#282D3B',
+		optionHover: 'rgba(242, 242, 242, 0.06)',
+		optionSelectedBg: 'rgba(255, 91, 61, 0.14)',
+		optionSelectedText: '#FF8C70',
+		control: '#FF5B3D',
+		controlBorder: '#3A4052',
+		controlMark: '#1A0A06',
+		switchTrack: '#282D3B',
+		switchThumb: '#F2F2F2',
+	},
+
+	badge: {
+		background: '#FF5B3D',
+		text: '#1A0A06',
+	},
+
+	tab: {
+		activeBg: '#FF5B3D',
+		activeText: '#1A0A06',
+	},
+
+	glass: {
+		background: 'rgba(11, 13, 18, 0.62)',
+		border: 'rgba(242, 242, 242, 0.1)',
+		text: '#F2F2F2',
+		sbText: 'rgba(242, 242, 242, 0.7)',
+	},
+
+	// ── By component / feature ──
+	navbar: {
+		background: 'rgba(11, 13, 18, 0.85)',
+		border: '#1C202B',
+		link: '#9CA3AF',
+		linkHover: '#F2F2F2',
+		menuBg: '#14171F',
+	},
+
+	card: {
+		background: '#14171F',
+		border: '#1C202B',
+		borderHover: '#3A4052',
+		imageOverlay:
+			'linear-gradient(180deg, rgba(11, 13, 18, 0) 30%, rgba(11, 13, 18, 0.85) 100%)',
+	},
+
+	footer: {
+		background: '#080A0E',
+		border: '#1C202B',
+		heading: '#F2F2F2',
+		link: '#9CA3AF',
+		linkHover: '#FF8C70',
+		text: '#6B7280',
+	},
+
+	intro: {
+		background: '#0B0D12',
+		gridLine: 'rgba(242, 242, 242, 0.05)',
+		glow: 'rgba(255, 91, 61, 0.45)',
+		text: '#F2F2F2',
+		sbText: '#FF5B3D',
+	},
+
+	modal: {
+		backdrop: 'rgba(5, 6, 9, 0.72)',
+		background: '#14171F',
+		border: '#282D3B',
+		divider: '#1C202B',
+		handle: '#3A4052', // bottom-sheet grab bar
+	},
+
+	table: {
+		headerBg: '#1C202B',
+		headerText: '#9CA3AF',
+		cellText: '#F2F2F2',
+		rowBorder: '#1C202B',
+		rowHover: 'rgba(242, 242, 242, 0.04)',
+		stripe: 'rgba(242, 242, 242, 0.02)',
+	},
+
+	// ── By area ──
+	hero: {
+		glow: 'rgba(255, 91, 61, 0.14)',
+		imageOverlay:
+			'linear-gradient(180deg, rgba(11, 13, 18, 0.25) 0%, rgba(11, 13, 18, 0.85) 100%)',
 	},
 };
 

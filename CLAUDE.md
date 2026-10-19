@@ -76,11 +76,14 @@ drawn from.
 
 ## Current status
 
-**Project scaffolded; no feature pages yet.** The React + Vite setup,
-store, API client and multi-theme color system exist (see "Stack &
-conventions" below). `/` is a temporary token-preview page, not the
-real Home. Form-component colors and typography/spacing tokens are
-deliberately not started yet. The backend is fully built: all four pillars, account suspension, review
+**Home page built (Phase 1 started).** The React + Vite setup, store,
+API client and multi-theme color system exist (see "Stack &
+conventions" below), plus the public layout (`layouts/index-layout`:
+navbar, footer, first-visit intro) and the Home page (`pages/home`).
+The token preview moved to `/theme-preview` (dev only). Core form
+components, table, pagination, status badge and modals are built and
+on `/lab` (dev only); the remaining form controls (search-select,
+chips, file upload, OTP, phone) are next. The backend is fully built: all four pillars, account suspension, review
 moderation, message-report resolution, per-profile avatars, a real
 notification system, SiteForce geo search, public board teasers, and a
 stats route. `docs/frontend-plan.md`'s §1 used to track backend gaps
@@ -97,8 +100,12 @@ store, messages, notifications (Phase 3) → Admin Dashboard (Phase 4).
 Same stack and folder layout as HM-frontend (React 19 + Vite + Redux
 Toolkit + redux-persist + TanStack Query + axios + styled-components +
 Tailwind v4 + Stripe + Formik/yup + react-toastify), plain JS/JSX, tabs
-(`.prettierrc` copied from HM). `npm run dev` serves on **:5173** —
-fixed, because polygrid-backend's CORS allow-list includes it. Copy
+(`.prettierrc` copied from HM). `npm run dev` serves on **:5174** (:5173 is
+used by another app).
+polygrid-backend's CORS allow-list doesn't include :5174, so in
+development the API client uses relative `/api/...` URLs and Vite's dev
+proxy (`vite.config.js`) forwards them to `VITE_API_URL` — same origin,
+no CORS. Production builds call `VITE_API_URL` directly. Copy
 `.env.example` to `.env`; `VITE_API_URL` points at the backend (:4000).
 
 - `src/pages/<page>/index.jsx` + `elements/index.style.js`,
@@ -145,6 +152,12 @@ shape. Files:
     `global.style.js`) and as `var()` refs for styled-components
     (`themeVars`).
 
+**How token groups are organized (the rule):** first by design purpose
+(`button`, `chip`, `logo`, form, loader, …), then by the component or
+feature that uses them (`navbar`, `card`, `footer`, `intro`, modals,
+toolbars, sidebars, …), then by page area only if needed (`hero`).
+That's deliberately different from HM, which grouped by page area.
+
 Use tokens, never hex, in components:
 - Tailwind: `bg-(--pg-surface-card) text-(--pg-text-secondary)`
 - styled-components: `${({ theme }) => theme.surface.card}` — the
@@ -159,9 +172,119 @@ localStorage key (`THEME_STORAGE_KEY`, used only there — the `themes`
 slice is kept out of redux-persist) and sets `<body data-theme>`;
 `layouts/theme-root.jsx` sets it on render too, HM-style.
 
-Known open item: white text on `accent.default` (#FF5B3D) is 3.1:1 —
-passes WCAG AA only for large/bold text. Decide (darker accent fill,
-or dark label) when buttons are designed.
+Coral primary buttons: dark label in dark theme, white label in light
+theme (per the design — note white on #FF5B3D is 3.1:1, AA for large/
+bold text only). In the light design most accents are slate `#456882`
+(`text.highlight`, `chip.accent*`, default `icon` tone, `tab`) for
+supporting details; coral is kept for brand moments and actions —
+primary buttons, arrow links, section eyebrows, the hero's accent word,
+number badges, and accent-tone icons.
+
+### Tailwind vs. styled-components class names
+
+Plain `className`s are Tailwind. A class that's styled inside a
+styled-components block gets an **`sc_` prefix** (`.sc_title`,
+`.sc_link`, `.sc_icon`) so the two are never confused. Don't override a
+styled component with Tailwind `!important` utilities — add a `$prop`
+to the styled component instead. And put Tailwind show/hide utilities
+(`hidden`, `lg:hidden`, `sm:inline-flex`) on a wrapper element, not on
+a styled component: if its styles set `display`, they win.
+
+### Form components — `src/components/form-components/`
+
+Import from the barrel (`components/form-components`). HM's names and
+Formik-friendly props (`value`, `onChange`, `onBlur`, `handleChange` →
+`handleChange(name)(value)`, `setFieldValue`, `isError`,
+`errormessage`, `name`, `id`, `disabled`, `paddingX/Y`), plus `label`,
+`hint`, `required` and `variant` (`'filled'` default | `'outline'`).
+Every control renders through `field/` (`FormField`: label, then the
+hint — or the error in its place — wired with `aria-invalid` /
+`aria-describedby` from `helpers.js`). Colors: the `form` token group.
+
+- `CustomInput` / `CustomPassword` / `CustomTextarea` — native elements
+  inside a shared shell (`fieldShell` in `field/index.style.js`, the
+  five §3 states; `:focus-within` gives the coral Active ring).
+- `CustomSelect` — **Popover API, no `useEffect`, no `<dialog>`**: the
+  menu is a `popover="auto"` element opened by `popoverTarget`, so the
+  browser handles click-outside, Escape, top layer and focus return
+  (works in Safari 17+). Open state is read from its `toggle` event.
+  Positioned with CSS anchor positioning; browsers without it get
+  top/left set in `beforetoggle` (event-driven, still no effect).
+  Keyboard: ↓/↑, Home/End, Enter/Space, type-ahead. `onBlur` fires on
+  close with `{ target: { name } }` so Formik's `handleBlur` marks it
+  touched. Options: `{ value, label, image? }`; `clearable` adds "None".
+- `CustomCheckbox`, `CustomCheckboxGroup` (array value, `max`, `meta`),
+  `CustomRadioGroup` (`variant="rows"` = Stitch filter rows),
+  `CustomToggle` (`role="switch"`) — native inputs with
+  `appearance: none`, so keyboard behavior is the browser's.
+- `CustomDate` — two pickers, one value ('YYYY-MM-DD'): mouse/trackpad
+  gets PolyGrid's own calendar (`date/date-picker.jsx` — a popover like
+  the select, dayjs for date math, WAI-ARIA grid keyboard: arrows,
+  PageUp/Down ±month (+Shift ±year), Home/End, Enter; Today/Clear);
+  touch screens (`(pointer: coarse)`) get the native picker. `native`
+  prop forces either. `min`/`max` block days outside the range
+  (completedAt ≥ startedAt). onChange gets an event-like
+  `{ target: { name, value } }`, so Formik's `handleChange` works.
+  `toDateValue()` in `helpers.js` trims backend ISO strings.
+- Shared popover pieces: `SUPPORTS_ANCHOR`, `anchorName()`,
+  `placePopover()` (fallback placement) in `helpers.js`;
+  `popoverSurface` css in `select/index.style.js`.
+- Build select/radio options from backend enums with
+  `enumToOptions(ENUM, labelOverrides)` (`utilities/basic-functions`).
+
+`/lab` (dev only, `pages/lab`) shows every control in every state plus a
+live Formik + yup form, the table and the modals — build and test
+shared components there first. Still to come: search-select /
+combobox, chips, file upload, OTP, phone.
+
+### Modals — `src/components/modal/`
+
+HM's API, unchanged for callers: `const ref = useRef(null)`,
+`<Modal.Center refName={ref} width="520px" onOpen onClose>…`,
+`ref.current.open()` / `.close()`. Also `Modal.Left`, `Modal.Bottom`
+and new `Modal.Right`; HM's sizing props (`width`, `height`,
+`maxWidth`, `minWidth`, `queryWidth`, `mediaQuery`, `marginOffset`,
+`borderPaddingY`, `animation`) still work. Built on
+`dialog.showModal()` (not HM's `<dialog open>`): top layer, inert page,
+focus trapped and returned to the opener, Escape closes. Backdrop click
+closes (only if the press started on the backdrop). `dismissible={false}`
+blocks both. Page scroll lock is one CSS rule in `global.style.js`
+(`html:has(dialog[open])`). Open and close animate with CSS
+(`@starting-style` + `allow-discrete`) — no `useEffect` anywhere.
+Wrap content in `<Modal.Card eyebrow title subtitle footer>` for the
+standard header/body/footer; it gets `close()` and the title id from
+context (`useModal()`), so it labels the dialog automatically. Colors:
+`modal` token group.
+
+### Tables — `src/components/table/custom-table.jsx`
+
+HM's `CustomTable` API: `fields={[{ Header, accessor, Cell, align?,
+width? }]}`, `dataSource`, `isLoading`, `onCallRow`, `onDoubleCallRow`,
+`emptyIcon/Text/SbText`, `refetch`, `addData`, HM's padding/strip
+props. Added: skeleton loading rows, `isError` state (Retry via
+`refetch`), keyboard-reachable clickable rows, sticky header, `nos`
+counting across pages, and `pagination={data.pagination}` (the
+backend's `{ total, page, limit, totalPages }`) with `changePage`.
+`components/pagination` is the one pagination control (frontend-plan
+§2) — usable on its own. `components/status-badge` is the one status
+badge: `<StatusBadge status={x} map={{ value: { label, tone } }} />`,
+tones from the `status` tokens. Colors: `table` token group.
+
+### Typography
+
+Fonts come from the Stitch design, self-hosted via `@fontsource`
+(imported in `main.jsx`): Tailwind `font-display` = Oswald (uppercase
+headings), `font-sans` = Hanken Grotesk (default body), `font-label` =
+Space Grotesk (small uppercase labels). Defined in `index.css`'s
+`@theme`.
+
+### Brand
+
+`src/assets/brand/logo-mark.svg` is concept A
+(`docs/assets/brand/logo-concept-a.svg`) with its fills swapped for the
+`logo.base` / `logo.accent` tokens; use it through
+`components/logo`. Home images in `src/assets/images/home/` came from
+the Stitch project.
 
 ## Stitch (Google's AI UI design tool)
 
@@ -170,6 +293,12 @@ run from inside this folder, so the MCP config is scoped here (Claude
 Code's local-scope MCP servers are stored per project path). If a
 session here doesn't see Stitch's tools, run `/mcp` to check/approve
 it, or reload the window.
+
+Treat Stitch output as a general idea, not a spec: it doesn't
+reproduce its own designs reliably (its light-theme Home changed
+components, not just colors). The **dark** Home ("PolyGrid — Platform
+Gateway") is the accurate reference, alongside
+`docs/assets/inspiration/home-page-style-reference-exery.webp`.
 
 The *backend* repo tried to add the same connection and hit Claude
 Code's own credential-leakage safety classifier (it blocks file writes

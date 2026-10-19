@@ -10,6 +10,8 @@ import AppToast from './layouts/toast/index-toast';
 // pages
 import Home from './pages/home';
 import NotFound from './pages/not-found';
+import ThemePreview from './pages/theme-preview';
+import Lab from './pages/lab';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -31,6 +33,12 @@ function App() {
 							{/* Public / Basic View — frontend-plan §A */}
 							<Route element={<IndexLayout />}>
 								<Route path="/" element={<Home />} />
+								{import.meta.env.DEV && (
+									<>
+										<Route path="/theme-preview" element={<ThemePreview />} />
+										<Route path="/lab" element={<Lab />} />
+									</>
+								)}
 							</Route>
 
 							{/* User Dashboard (§B) and Admin (§C) layouts go here */}

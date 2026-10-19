@@ -5,13 +5,17 @@
  * as --pg-* CSS variables by src/global.style.js. Use them in classes as:
  *   bg-(--pg-surface-card)  text-(--pg-text-secondary)  border-(--pg-border-default)
  *
- * Typography, spacing, radius and elevation tokens are still open
- * (frontend-plan §5.3) — they'll get an @theme block here once decided.
+ * Spacing, radius and elevation tokens are still open — they'll get added
+ * to this @theme block once decided.
  */
 
 @theme {
+	/* font-sans (default body), font-display (headings), font-label (small caps labels) */
 	--font-sans:
-		ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+		'Hanken Grotesk Variable', ui-sans-serif, system-ui, -apple-system,
+		'Segoe UI', Roboto, sans-serif;
+	--font-display: 'Oswald', 'Arial Narrow', ui-sans-serif, sans-serif;
+	--font-label: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 }
 
 .ease {
