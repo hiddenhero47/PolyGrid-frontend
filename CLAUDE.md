@@ -76,14 +76,15 @@ drawn from.
 
 ## Current status
 
-**Home page built (Phase 1 started).** The React + Vite setup, store,
-API client and multi-theme color system exist (see "Stack &
-conventions" below), plus the public layout (`layouts/index-layout`:
-navbar, footer, first-visit intro) and the Home page (`pages/home`).
-The token preview moved to `/theme-preview` (dev only). Core form
-components, table, pagination, status badge and modals are built and
-on `/lab` (dev only); the remaining form controls (search-select,
-chips, file upload, OTP, phone) are next. The backend is fully built: all four pillars, account suspension, review
+**Phase 1 in progress.** Built: the React + Vite setup, store, API
+client, multi-theme color system, public layout (`layouts/index-layout`:
+navbar, footer, first-visit intro), Home (`pages/home`), the shared
+component kit (form controls, table, pagination, status badge, modals —
+all on `/lab`, dev only; token preview on `/theme-preview`), and auth
+(`pages/auth`: register, login with 2FA step, forgot / reset password,
+in `layouts/auth-layout`). Next: the shared "unavailable" state, then
+the public browse + profile pages. Remaining form controls
+(search-select, chips, file upload) wait until a page needs them. The backend is fully built: all four pillars, account suspension, review
 moderation, message-report resolution, per-profile avatars, a real
 notification system, SiteForce geo search, public board teasers, and a
 stats route. `docs/frontend-plan.md`'s §1 used to track backend gaps
@@ -100,12 +101,15 @@ store, messages, notifications (Phase 3) → Admin Dashboard (Phase 4).
 Same stack and folder layout as HM-frontend (React 19 + Vite + Redux
 Toolkit + redux-persist + TanStack Query + axios + styled-components +
 Tailwind v4 + Stripe + Formik/yup + react-toastify), plain JS/JSX, tabs
-(`.prettierrc` copied from HM). `npm run dev` serves on **:5174** (:5173 is
+(`.prettierrc` copied from HM). `npm run dev` serves on **:5009** (:5173 is
 used by another app).
-polygrid-backend's CORS allow-list doesn't include :5174, so in
+polygrid-backend's CORS allow-list doesn't include :5009, so in
 development the API client uses relative `/api/...` URLs and Vite's dev
 proxy (`vite.config.js`) forwards them to `VITE_API_URL` — same origin,
-no CORS. Production builds call `VITE_API_URL` directly. Copy
+no CORS. If `VITE_API_URL` is an **ngrok** tunnel, the proxy sends
+`ngrok-skip-browser-warning` — without it ngrok answers browser requests
+with an HTML warning page (curl works, the browser doesn't). Production
+builds call `VITE_API_URL` directly. Copy
 `.env.example` to `.env`; `VITE_API_URL` points at the backend (:4000).
 
 - `src/pages/<page>/index.jsx` + `elements/index.style.js`,
@@ -232,10 +236,52 @@ hint — or the error in its place — wired with `aria-invalid` /
 - Build select/radio options from backend enums with
   `enumToOptions(ENUM, labelOverrides)` (`utilities/basic-functions`).
 
+**`/dev-console` (dev only, TEMPORARY — delete `pages/dev-console` and
+its route in `App.jsx` before launch):** runs the backend's
+`POST /api/deployment/setup` and shows each task's result, plus a tiny
+request builder (method, path, JSON body, optional Bearer token,
+history) using plain `fetch` through the dev proxy. The setup route is
+gated by `timeWindowGuard(start, hours)` in
+`polygrid-backend/src/routes/deploymentRoutes.ts`; outside that window
+it answers 403. All dev pages (`/lab`, `/theme-preview`,
+`/dev-console`) are lazy-loaded under `import.meta.env.DEV`, so they're
+not in production builds.
+
 `/lab` (dev only, `pages/lab`) shows every control in every state plus a
 live Formik + yup form, the table and the modals — build and test
 shared components there first. Still to come: search-select /
-combobox, chips, file upload, OTP, phone.
+combobox, chips, file upload.
+
+- `CustomPhone` — value is the backend's `{ number, country }`
+  (`number` normalized to E.164 once valid). Countries from
+  `GET /api/reference/countries`, dial codes + validity from
+  `libphonenumber-js`; searchable country popover. Typed digits live in
+  local state, re-derived during render if the value is replaced from
+  outside (no effect). Validate with `phoneField()` /
+  `isValidPhone()` (`features/validations/common.js`).
+- `CustomOtp` — ONE native input drawn as boxes, so paste, SMS /
+  password-manager autofill (`autocomplete="one-time-code"`) and
+  backspace are native; `onComplete` fires on the last digit.
+
+### Auth — `pages/auth`, `features/services/custom-hooks/auth.js`
+
+Register (`POST /api/users`), login (`POST /api/users/login`; if the
+account has 2FA the first try fails with code `2FA_REQUIRED` — no
+toast, `error.twoFactorCode` — and the page asks for the 6-digit code,
+`2FA_INVALID` = wrong code), forgot (`/request-reset`, always the same
+generic answer) and reset (`/reset-password`; the emailed link is
+`/reset-password/:token`). Success stores the session with
+`setSession` (user + token). **The backend's user id field is `id`,
+not `_id`.** `AuthServices.logout()` also clears the query cache.
+`layouts/auth-layout` sends signed-in users away from these pages
+(except reset). Yup rules in `features/validations/auth-validation.js`
+mirror `polygrid-backend/src/validators/user/userValidator.ts`.
+
+Known backend-side gap (not a frontend bug): the local backend has no
+`MAILGUN_API_KEY` yet, so `POST /api/users/request-reset` returns 500
+"MAILGUN_API_KEY is not set" — forgot-password shows that toast and
+keeps the form. Reset emails work once the key is added to the
+backend's `.env`.
 
 ### Modals — `src/components/modal/`
 

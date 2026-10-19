@@ -20,6 +20,10 @@ export default defineConfig(({ mode }) => {
 				'/api': {
 					target: env.VITE_API_URL || 'http://localhost:4000',
 					changeOrigin: true,
+					// If VITE_API_URL is an ngrok tunnel, ngrok answers browser
+					// requests with an HTML warning page unless this is sent.
+					// Harmless for any other target.
+					headers: { 'ngrok-skip-browser-warning': 'true' },
 				},
 			},
 		},

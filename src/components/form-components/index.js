@@ -10,3 +10,5 @@ export { default as CustomCheckboxGroup } from './choice/custom-checkbox-group';
 export { default as CustomRadioGroup } from './choice/custom-radio-group';
 export { default as CustomToggle } from './choice/custom-toggle';
 export { default as CustomDate } from './date/custom-date';
+export { default as CustomPhone } from './phone/custom-phone';
+export { default as CustomOtp } from './otp/custom-otp';

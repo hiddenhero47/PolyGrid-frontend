@@ -56,6 +56,7 @@ axiosInstance.interceptors.response.use(
 
 		if (SILENT_CODES.includes(code)) {
 			error.is2FARequired = true;
+			error.twoFactorCode = code; // '2FA_REQUIRED' | '2FA_INVALID'
 			return Promise.reject(error);
 		}
 

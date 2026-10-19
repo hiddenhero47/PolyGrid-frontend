@@ -2,10 +2,20 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { LuMenu, LuX, LuSun, LuMoon, LuArrowRight } from 'react-icons/lu';
+import {
+	LuMenu,
+	LuX,
+	LuSun,
+	LuMoon,
+	LuArrowRight,
+	LuLogOut,
+} from 'react-icons/lu';
 import AppLogo from '../../../components/logo';
 import { AppButton } from '../../../components/button';
 import { toggleTheme } from '../../../store/slice/app-theme';
+import { selectIsAuthenticated } from '../../../store/slice/auth';
+import AuthServices from '../../../features/services/custom-hooks/auth';
+import { toast } from '../../toast/toast-handler';
 import { THEMES } from '../../../theme';
 import { ROUTES } from '../../../utilities/app-routes';
 import { NavWrapper, MobileMenu } from './navbar.style';
@@ -21,6 +31,16 @@ function Navbar({ ready = true }) {
 	const dispatch = useDispatch();
 	const { theme } = useSelector((state) => state.themes);
 	const [menuOpen, setMenuOpen] = useState(false);
+	const isAuthenticated = useSelector(selectIsAuthenticated);
+	const { user } = useSelector((state) => state.auth);
+	const logout = AuthServices.logout();
+	const firstName = user?.fullName?.split(' ')[0];
+
+	const handleLogout = () => {
+		logout();
+		setMenuOpen(false);
+		toast.info('Signed out');
+	};
 
 	const isDark = THEMES[theme].mode === 'dark';
 	const closeMenu = () => setMenuOpen(false);
@@ -54,17 +74,42 @@ function Navbar({ ready = true }) {
 						{isDark ? <LuSun /> : <LuMoon />}
 					</button>
 
-					<Link to={ROUTES.LOGIN} className="sc_link hidden sm:inline">
-						Sign in
-					</Link>
+					{isAuthenticated ? (
+						<>
+							<span className="font-label hidden text-xs font-semibold tracking-[0.12em] text-(--pg-navbar-link) uppercase sm:inline">
+								Hi,{' '}
+								<span className="text-(--pg-text-primary)">{firstName}</span>
+							</span>
+							<span className="hidden sm:inline-flex">
+								<AppButton
+									size="sm"
+									variant="secondary"
+									icon={<LuLogOut />}
+									onClick={handleLogout}
+								>
+									Log out
+								</AppButton>
+							</span>
+						</>
+					) : (
+						<>
+							<Link to={ROUTES.LOGIN} className="sc_link hidden sm:inline">
+								Sign in
+							</Link>
 
-					{/* Tailwind show/hide goes on a wrapper: a styled-components
-					    class that sets `display` would override it. */}
-					<span className="hidden sm:inline-flex">
-						<AppButton to={ROUTES.REGISTER} size="sm" icon={<LuArrowRight />}>
-							Join PolyGrid
-						</AppButton>
-					</span>
+							{/* Tailwind show/hide goes on a wrapper: a styled-components
+							    class that sets `display` would override it. */}
+							<span className="hidden sm:inline-flex">
+								<AppButton
+									to={ROUTES.REGISTER}
+									size="sm"
+									icon={<LuArrowRight />}
+								>
+									Join PolyGrid
+								</AppButton>
+							</span>
+						</>
+					)}
 
 					<span className="inline-flex lg:hidden">
 						<button
@@ -97,16 +142,28 @@ function Navbar({ ready = true }) {
 								</NavLink>
 							))}
 							<div className="mt-6 flex flex-col gap-3 sm:hidden">
-								<AppButton to={ROUTES.REGISTER} onClick={closeMenu}>
-									Join PolyGrid
-								</AppButton>
-								<AppButton
-									to={ROUTES.LOGIN}
-									variant="secondary"
-									onClick={closeMenu}
-								>
-									Sign in
-								</AppButton>
+								{isAuthenticated ? (
+									<AppButton
+										variant="secondary"
+										icon={<LuLogOut />}
+										onClick={handleLogout}
+									>
+										Log out
+									</AppButton>
+								) : (
+									<>
+										<AppButton to={ROUTES.REGISTER} onClick={closeMenu}>
+											Join PolyGrid
+										</AppButton>
+										<AppButton
+											to={ROUTES.LOGIN}
+											variant="secondary"
+											onClick={closeMenu}
+										>
+											Sign in
+										</AppButton>
+									</>
+								)}
 							</div>
 						</div>
 					</div>
