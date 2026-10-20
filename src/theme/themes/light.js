@@ -201,6 +201,16 @@ const light = {
 		handle: '#C9CDD5',
 	},
 
+	// active item in slate, like tabs — coral stays for actions
+	sidebar: {
+		background: '#FFFFFF',
+		border: '#E2E3E7',
+		heading: '#8A909C',
+		link: '#5E6573',
+		linkHover: '#393E46',
+		activeBg: '#456882',
+		activeText: '#FFFFFF',
+	},
 	table: {
 		headerBg: '#F3F4F6',
 		headerText: '#5E6573',

@@ -4,6 +4,7 @@ import ScrollToTop from '../scroll-to-top';
 import Intro from '../app-intros/intro';
 import Navbar from './sub-components/navbar';
 import Footer from './sub-components/footer';
+import VerifyEmailBanner from '../../components/verify-email-banner';
 import { LayoutWrapper } from './index.style';
 
 const ENTERED_KEY = 'siteEntered';
@@ -62,6 +63,7 @@ function IndexLayout() {
 				/>
 			)}
 			<Navbar ready={navReady} />
+			<VerifyEmailBanner />
 			<main className="w-full flex-1">
 				<Outlet />
 			</main>

@@ -19,11 +19,18 @@ export const authSlice = createSlice({
 		setToken: (state, action) => {
 			state.token = action.payload;
 		},
-		// register / login responses are the user with `token` mixed in
+		// register / login responses are the user with `token` mixed in.
+		// Outside production the backend also adds verifyEmailToken /
+		// verifyUrl to register — those must never be stored as user data.
 		setSession: (state, action) => {
-			const { token, ...user } = action.payload || {};
+			// eslint-disable-next-line no-unused-vars
+			const { token, verifyEmailToken, verifyUrl, ...user } =
+				action.payload || {};
 			state.user = user;
 			state.token = token || '';
+		},
+		markEmailVerified: (state) => {
+			if (state.user?.id) state.user.verified = true;
 		},
 		// Handled in store/index.js's rootReducer: resets every slice.
 		logout: () => initialState,
@@ -33,5 +40,6 @@ export const authSlice = createSlice({
 export const selectIsAuthenticated = (state) =>
 	Boolean(state.auth.token) && Boolean(state.auth.user?.id);
 
-export const { setUser, setToken, setSession, logout } = authSlice.actions;
+export const { setUser, setToken, setSession, markEmailVerified, logout } =
+	authSlice.actions;
 export default authSlice.reducer;

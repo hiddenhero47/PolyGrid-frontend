@@ -7,6 +7,7 @@ import ThemeRoot from './layouts/theme-root';
 import IndexLayout from './layouts/index-layout/index';
 import WrapperLayout from './layouts/wrapper-layout/index';
 import AuthLayout from './layouts/auth-layout';
+import AdminLayout from './layouts/admin-layout';
 import AppToast from './layouts/toast/index-toast';
 // pages
 import Home from './pages/home';
@@ -17,6 +18,11 @@ import Register from './pages/auth/register';
 import Login from './pages/auth/login';
 import ForgotPassword from './pages/auth/forgot-password';
 import ResetPassword from './pages/auth/reset-password';
+import VerifyEmail from './pages/auth/verify-email';
+import AdminHome from './pages/admin/home';
+import AdminVerifications from './pages/admin/verifications';
+import AdminPlans from './pages/admin/plans';
+import AdminSubscriptions from './pages/admin/subscriptions';
 
 // Development-only pages, loaded lazily so production builds don't
 // include them at all. /dev-console is TEMPORARY — delete before launch.
@@ -92,9 +98,18 @@ function App() {
 									path="/reset-password/:token?"
 									element={<ResetPassword />}
 								/>
+								<Route path="/verify-email/:token" element={<VerifyEmail />} />
 							</Route>
 
-							{/* User Dashboard (§B) and Admin (§C) layouts go here */}
+							{/* Admin Dashboard — frontend-plan §C (staff roles only) */}
+							<Route path="/admin" element={<AdminLayout />}>
+								<Route index element={<AdminHome />} />
+								<Route path="verifications" element={<AdminVerifications />} />
+								<Route path="plans" element={<AdminPlans />} />
+								<Route path="subscriptions" element={<AdminSubscriptions />} />
+							</Route>
+
+							{/* User Dashboard (§B) layout goes here */}
 
 							<Route element={<WrapperLayout />}>
 								<Route path="*" element={<NotFound />} />

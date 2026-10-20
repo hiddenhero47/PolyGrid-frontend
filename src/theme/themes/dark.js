@@ -190,6 +190,16 @@ const dark = {
 		handle: '#3A4052', // bottom-sheet grab bar
 	},
 
+	sidebar: {
+		background: '#14171F',
+		border: '#1C202B',
+		heading: '#6B7280',
+		link: '#9CA3AF',
+		linkHover: '#F2F2F2',
+		activeBg: '#FF5B3D',
+		activeText: '#1A0A06',
+	},
+
 	table: {
 		headerBg: '#1C202B',
 		headerText: '#9CA3AF',

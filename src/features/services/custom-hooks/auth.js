@@ -1,7 +1,11 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDispatch } from 'react-redux';
 import { axiosCall } from '../index-client';
-import { setSession, logout } from '../../../store/slice/auth';
+import {
+	setSession,
+	markEmailVerified,
+	logout,
+} from '../../../store/slice/auth';
 
 // polygrid-backend src/routes/userRoutes.ts. Register and login both
 // answer with toPublicUser() + token, which setSession stores.
@@ -45,6 +49,46 @@ const useResetPasswordMutation = () =>
 			axiosCall({ url: '/api/users/reset-password', method: 'POST', data }),
 	});
 
+// POST /api/users/verify-email { token } — run once when the emailed
+// link (/verify-email/:token) opens. A query, not an effect: keyed by the
+// token, never retried or refetched, so the link is used exactly once per
+// visit. Answers { message } — "Email verified successfully" or "Email
+// already verified"; 400 = invalid / expired link.
+const useVerifyEmailQuery = (token) => {
+	const dispatch = useDispatch();
+	return useQuery({
+		queryKey: ['verify-email', token],
+		queryFn: async () => {
+			const res = await axiosCall({
+				url: '/api/users/verify-email',
+				method: 'POST',
+				data: { token },
+				silent: true,
+			});
+			dispatch(markEmailVerified());
+			return res;
+		},
+		enabled: Boolean(token),
+		retry: false,
+		staleTime: Infinity,
+		gcTime: Infinity,
+		refetchOnWindowFocus: false,
+		refetchOnReconnect: false,
+	});
+};
+
+// POST /api/users/resend-verification { email } — same generic answer
+// whether or not the account exists / is already verified.
+const useResendVerificationMutation = () =>
+	useMutation({
+		mutationFn: (data) =>
+			axiosCall({
+				url: '/api/users/resend-verification',
+				method: 'POST',
+				data,
+			}),
+	});
+
 // Clears the session and every cached query (another user's data must
 // never show after logout).
 const useLogout = () => {
@@ -61,6 +105,8 @@ const AuthServices = {
 	login: useLoginMutation,
 	requestReset: useRequestResetMutation,
 	resetPassword: useResetPasswordMutation,
+	verifyEmail: useVerifyEmailQuery,
+	resendVerification: useResendVerificationMutation,
 	logout: useLogout,
 };
 

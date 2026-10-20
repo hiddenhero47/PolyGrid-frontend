@@ -82,8 +82,15 @@ navbar, footer, first-visit intro), Home (`pages/home`), the shared
 component kit (form controls, table, pagination, status badge, modals,
 loader, empty / unavailable states, themed toasts, rating stars,
 profile avatar, reviews block — all on `/lab`, dev only), auth
-(`pages/auth`), and PolyGrid Engineering: Browse Consultants
-(`/engineering`) and the Consultant profile (`/engineering/:idOrSlug`).
+(`pages/auth`, incl. email verification: `/verify-email/:token` + the
+`components/verify-email-banner` strip under the navbar), and PolyGrid
+Engineering: Browse Consultants (`/engineering`) and the Consultant
+profile (`/engineering/:idOrSlug`).
+
+**Admin Dashboard started early (Phase 4, first slice)** — the
+consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
+Verifications, Plans, Subscriptions) at `/admin`. See "Admin Dashboard"
+below.
 Next: the other pillars' browse + profile pages on the same pattern
 (contractors, stores, digital creators, workers, client profiles) and
 the tender / SiteForce public teasers. Remaining form controls
@@ -317,9 +324,9 @@ backend's `.env`.
 - Hooks per resource in `features/services/custom-hooks/`
   (`consultancy.js`, `reviews.js`, `reference.js`); `keepPreviousData`
   so the old page stays visible while the next loads.
-- Backend gaps noticed (not fixed — read-only): public
-  `GET /api/reviews` returns `toAdminReview` (moderation fields), and
-  `mentorship.ratePerSession` has no currency of its own.
+- Backend gaps noticed (not fixed — read-only) are written up for the
+  backend in **`docs/backend-handoff.md`** — add new ones there, and
+  drop items once the backend fixes them.
 
 ### Modals — `src/components/modal/`
 
@@ -353,6 +360,31 @@ backend's `{ total, page, limit, totalPages }`) with `changePage`.
 §2) — usable on its own. `components/status-badge` is the one status
 badge: `<StatusBadge status={x} map={{ value: { label, tone } }} />`,
 tones from the `status` tokens. Colors: `table` token group.
+
+### Admin Dashboard — `layouts/admin-layout`, `pages/admin/`
+
+HM's dashboard shape (floating panels on the page background: side menu
+card, top bar card, page card) in PolyGrid colors, after the Stitch
+"Governance & Platform Command Console" screen.
+- The layout is the role guard: signed out → `/login` (with `from`);
+  not in `REVIEW_ROLES` → "Staff only". The backend re-checks every
+  call. `customer_care` is read-only — pages hide actions unless
+  `MANAGE_ROLES` (Plans: create/edit is super_admin only).
+- Menu items live in `admin-nav.js` (`roles`, `countKey` for a badge,
+  `soon` for greyed placeholders of unbuilt pages). Collapsible on
+  desktop (remembered in localStorage), a `Modal.Left` drawer below
+  1024px. Colors: the `sidebar` token group (active item coral in dark,
+  slate in light — coral stays for actions).
+- Every page starts with `sub-components/page-header.jsx`; shared tiles,
+  sections and status tabs are in `pages/admin/elements/index.style.js`.
+- Queue filters live in the URL (`?status=&profileType=&page=`,
+  `/admin/subscriptions?userId=`), like the public browse pages.
+- Hooks: `custom-hooks/admin.js` (overview, verifications, signed
+  private-file links, users), `plans.js`, `subscriptions.js`.
+
+A consultant shows on `/engineering` only when verified **and** their
+owner has an active subscription: approve on Verifications → "Grant a
+plan" on the approved card → Subscriptions.
 
 ### Typography
 

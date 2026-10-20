@@ -217,7 +217,10 @@ function BrowseConsultants() {
 							style={{ opacity: isFetching ? 0.6 : 1 }}
 						>
 							{profiles.map((profile) => (
-								<ConsultantCard key={profile.id} profile={profile} />
+								<ConsultantCard
+									key={profile.id || profile.slug || profile.userId}
+									profile={profile}
+								/>
 							))}
 						</div>
 					)}

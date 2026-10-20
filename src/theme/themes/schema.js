@@ -114,6 +114,16 @@ export const THEME_SCHEMA = {
 	footer: ['background', 'border', 'heading', 'link', 'linkHover', 'text'],
 	intro: ['background', 'gridLine', 'glow', 'text', 'sbText'],
 	modal: ['backdrop', 'background', 'border', 'divider', 'handle'],
+	// admin (and later user) dashboard side menu
+	sidebar: [
+		'background',
+		'border',
+		'heading', // section labels
+		'link',
+		'linkHover',
+		'activeBg',
+		'activeText',
+	],
 	table: [
 		'headerBg',
 		'headerText',

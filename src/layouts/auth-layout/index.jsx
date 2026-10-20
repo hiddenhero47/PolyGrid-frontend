@@ -15,8 +15,8 @@ const PILLARS = ['Engineering', 'Tenders', 'Store', 'SiteForce'];
 
 // Shell for register / login / forgot / reset password (frontend-plan
 // §A.2–A.4): brand photo on the left (desktop), the form on the right.
-// Someone already signed in is sent home — except on reset-password, which
-// a signed-in user may legitimately open from an email.
+// Someone already signed in is sent home — except on the reset-password and
+// verify-email links, which they may legitimately open from an email.
 function AuthLayout() {
 	const dispatch = useDispatch();
 	const location = useLocation();
@@ -24,8 +24,11 @@ function AuthLayout() {
 	const isAuthenticated = useSelector(selectIsAuthenticated);
 	const isDark = THEMES[theme].mode === 'dark';
 
-	const onResetPage = location.pathname.startsWith('/reset-password');
-	if (isAuthenticated && !onResetPage) {
+	// reset / verify links come from emails — a signed-in user may open them
+	const fromEmailLink = /^\/(reset-password|verify-email)/.test(
+		location.pathname
+	);
+	if (isAuthenticated && !fromEmailLink) {
 		return <Navigate to={location.state?.from || ROUTES.HOME} replace />;
 	}
 

@@ -55,3 +55,16 @@ export const initials = (name = '') =>
 		.map((word) => word[0])
 		.join('')
 		.toUpperCase();
+
+// ISO string / Date → '19 Oct 2026' ('' for nothing)
+export const formatDate = (value, withTime = false) => {
+	if (!value) return '';
+	const date = new Date(value);
+	if (Number.isNaN(date.getTime())) return '';
+	return date.toLocaleString('en-GB', {
+		day: 'numeric',
+		month: 'short',
+		year: 'numeric',
+		...(withTime && { hour: '2-digit', minute: '2-digit' }),
+	});
+};

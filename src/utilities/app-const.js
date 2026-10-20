@@ -63,3 +63,43 @@ export const PRICING_MODE_LABELS = {
 	hourly: 'per hour',
 	per_session: 'per session',
 };
+
+// Roles that can open the Admin Dashboard — userModel.ts REVIEW_ROLES.
+// customer_care is read-only: every route that changes something stays
+// admin / super_admin.
+export const REVIEW_ROLES = [
+	SYSTEM_ROLE.SUPER_ADMIN,
+	SYSTEM_ROLE.ADMIN,
+	SYSTEM_ROLE.CUSTOMER_CARE,
+];
+export const MANAGE_ROLES = [SYSTEM_ROLE.SUPER_ADMIN, SYSTEM_ROLE.ADMIN];
+
+export const SYSTEM_ROLE_LABELS = {
+	super_admin: 'Super admin',
+	admin: 'Admin',
+	customer_care: 'Customer care',
+	user: 'User',
+};
+
+// src/models/planModel.ts
+export const PLAN_TIER = {
+	FREE: 'free',
+	PRO: 'pro',
+	ENTERPRISE: 'enterprise',
+};
+
+// src/models/verificationModel.ts
+export const VERIFICATION_STATUS = {
+	PENDING: 'pending',
+	APPROVED: 'approved',
+	REJECTED: 'rejected',
+};
+
+export const PROFILE_TYPE_LABELS = {
+	ConsultancyProfile: 'Consultant',
+	StoreProfile: 'Store',
+	DigitalCreatorProfile: 'Digital creator',
+	ContractorProfile: 'Contractor',
+	ClientProfile: 'Client',
+	LaborProfile: 'SiteForce worker',
+};

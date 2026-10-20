@@ -60,7 +60,8 @@ function Register() {
 				{
 					onSuccess: (user) => {
 						toast.success(
-							`Welcome to PolyGrid, ${user.fullName?.split(' ')[0] || ''}`.trim()
+							`We sent a verification link to ${user.email} — open it to confirm your account.`,
+							{ title: `Welcome, ${user.fullName?.split(' ')[0] || ''}`.trim() }
 						);
 						navigate(location.state?.from || ROUTES.HOME, { replace: true });
 					},

@@ -6,6 +6,7 @@ export const ROUTES = {
 	REGISTER: '/register',
 	LOGIN: '/login',
 	FORGOT_PASSWORD: '/forgot-password',
+	VERIFY_EMAIL: '/verify-email/:token',
 
 	// frontend-plan §A — the four pillars' browse pages
 	ENGINEERING: '/engineering',
@@ -18,6 +19,12 @@ export const ROUTES = {
 
 	// detail pages — build with the helpers below
 	CONSULTANT: '/engineering/:idOrSlug',
+
+	// Admin Dashboard — frontend-plan §C
+	ADMIN: '/admin',
+	ADMIN_VERIFICATIONS: '/admin/verifications',
+	ADMIN_PLANS: '/admin/plans',
+	ADMIN_SUBSCRIPTIONS: '/admin/subscriptions',
 
 	ABOUT: '/about-us',
 	PRIVACY: '/privacy-policy',
