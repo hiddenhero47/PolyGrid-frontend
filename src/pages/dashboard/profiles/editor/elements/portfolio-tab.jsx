@@ -17,7 +17,6 @@ import { AppButton } from '../../../../../components/button';
 import { CustomFile } from '../../../../../components/form-components';
 import { Chip } from '../../../../home/elements/index.style';
 import {
-	PROFILE_TYPE,
 	MAX_PORTFOLIO_ITEMS,
 	MAX_MEDIA_PER_ITEM,
 	PORTFOLIO_ACCEPT,
@@ -47,8 +46,8 @@ const warnSkipped = (res) =>
 // Portfolio manager (frontend-plan §B.3a): up to 20 projects, 6 images
 // each. Add a project with its first images; afterwards add or remove
 // images, or delete the project.
-function PortfolioTab({ profile }) {
-	const type = PROFILE_TYPE.CONSULTANCY;
+function PortfolioTab({ profileType, profile }) {
+	const type = profileType;
 	const addRef = useRef(null);
 	const manageRef = useRef(null);
 	const confirmRef = useRef(null);
@@ -272,6 +271,7 @@ function PortfolioTab({ profile }) {
 }
 
 PortfolioTab.propTypes = {
+	profileType: PropTypes.string.isRequired,
 	profile: PropTypes.object.isRequired,
 };
 

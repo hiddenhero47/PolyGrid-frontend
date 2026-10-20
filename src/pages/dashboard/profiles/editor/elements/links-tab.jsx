@@ -8,7 +8,6 @@ import { toast } from '../../../../../layouts/toast/toast-handler';
 import { AppButton } from '../../../../../components/button';
 import { CustomInput } from '../../../../../components/form-components';
 import { linkSchema } from '../../../../../features/validations/profile-validation';
-import { PROFILE_TYPE } from '../../../../../utilities/app-const';
 import { ListRow } from './index.style';
 
 const MAX_LINKS = 10; // models/profileLink.ts MAX_PROFILE_LINKS
@@ -16,8 +15,8 @@ const MAX_LINKS = 10; // models/profileLink.ts MAX_PROFILE_LINKS
 // External links only (website, LinkedIn, a portfolio site) — never raw
 // phone numbers or emails; contact goes through PolyGrid. Saved as one
 // array via PATCH /me.
-function LinksTab({ profile }) {
-	const update = ProfileServices.updateProfile(PROFILE_TYPE.CONSULTANCY);
+function LinksTab({ profileType, profile }) {
+	const update = ProfileServices.updateProfile(profileType);
 
 	const form = useFormik({
 		enableReinitialize: true,
@@ -117,6 +116,7 @@ function LinksTab({ profile }) {
 }
 
 LinksTab.propTypes = {
+	profileType: PropTypes.string.isRequired,
 	profile: PropTypes.object.isRequired,
 };
 

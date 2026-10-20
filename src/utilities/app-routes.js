@@ -24,6 +24,9 @@ export const ROUTES = {
 	DASHBOARD: '/dashboard',
 	DASHBOARD_PROFILES: '/dashboard/profiles',
 	DASHBOARD_CONSULTANCY: '/dashboard/profiles/consultancy',
+	DASHBOARD_CONTRACTOR: '/dashboard/profiles/contractor',
+	DASHBOARD_CLIENT: '/dashboard/profiles/client',
+	DASHBOARD_SETTINGS: '/dashboard/settings',
 	DASHBOARD_VERIFICATION: '/dashboard/verification',
 	DASHBOARD_SUBSCRIPTION: '/dashboard/subscription',
 

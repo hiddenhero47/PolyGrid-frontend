@@ -22,7 +22,7 @@ const ICONS = {
 // "Go live" checklist (Stitch editor screen): the three things a profile
 // needs before it appears in public search, each linking to where it's
 // fixed.
-function GoLive({ profileType, profile, editTo }) {
+function GoLive({ profileType, profile, editTo, liveText }) {
 	const state = useGoLiveState(profileType, profile);
 	const verifyTo = `${ROUTES.DASHBOARD_VERIFICATION}?profileType=${profileType}`;
 
@@ -70,8 +70,9 @@ function GoLive({ profileType, profile, editTo }) {
 				</span>
 				<span className="sc_sub">
 					{state.live
-						? 'This profile shows in public search.'
-						: 'All four are needed before this profile shows in public search.'}
+						? liveText?.on || 'This profile shows in public search.'
+						: liveText?.off ||
+							'All four are needed before this profile shows in public search.'}
 				</span>
 			</div>
 			<ol className="sc_steps">
@@ -101,6 +102,7 @@ GoLive.propTypes = {
 	profileType: PropTypes.string.isRequired,
 	profile: PropTypes.object.isRequired,
 	editTo: PropTypes.string,
+	liveText: PropTypes.shape({ on: PropTypes.string, off: PropTypes.string }),
 };
 
 export default GoLive;

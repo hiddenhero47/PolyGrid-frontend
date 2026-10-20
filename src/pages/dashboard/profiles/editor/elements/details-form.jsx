@@ -10,38 +10,35 @@ import {
 	CustomSelect,
 	CustomCheckboxGroup,
 } from '../../../../../components/form-components';
-import { consultancyDetailsSchema } from '../../../../../features/validations/profile-validation';
-import {
-	SPECIALIZATION,
-	SPECIALIZATION_LABELS,
-} from '../../../../../utilities/app-const';
-import { enumToOptions } from '../../../../../utilities/basic-functions';
+import { profileDetailsSchema } from '../../../../../features/validations/profile-validation';
 
-const SPECIALIZATION_OPTIONS = enumToOptions(
-	SPECIALIZATION,
-	SPECIALIZATION_LABELS
-);
-
-const detailsFromProfile = (profile = {}) => ({
-	headline: profile.headline || '',
+const fromProfile = (config, profile = {}) => ({
+	[config.nameField]: profile[config.nameField] || '',
 	country: profile.country || '',
 	city: profile.city || '',
-	yearsOfExperience: profile.yearsOfExperience ?? '',
-	specializations: profile.specializations || [],
 	bio: profile.bio || '',
+	...(config.years && { yearsOfExperience: profile.yearsOfExperience ?? '' }),
+	...(config.disciplines && {
+		[config.disciplines.field]: profile[config.disciplines.field] || [],
+	}),
 });
 
-// Only what the form edits — '' optional fields are left out on create
-// and sent as '' on edit (clears them).
-const toBody = (values, creating) => {
+// Only what the form edits. On create, empty optional fields are left
+// out; on edit they're sent as '' (clears them).
+const toBody = (config, values, creating) => {
 	const body = {
-		headline: values.headline.trim(),
+		[config.nameField]: values[config.nameField].trim(),
 		country: values.country,
-		specializations: values.specializations,
 		city: values.city.trim(),
 		bio: values.bio.trim(),
 	};
-	if (values.yearsOfExperience !== '' && values.yearsOfExperience != null) {
+	if (config.disciplines)
+		body[config.disciplines.field] = values[config.disciplines.field];
+	if (
+		config.years &&
+		values.yearsOfExperience !== '' &&
+		values.yearsOfExperience != null
+	) {
 		body.yearsOfExperience = Number(values.yearsOfExperience);
 	}
 	if (creating) {
@@ -51,9 +48,11 @@ const toBody = (values, creating) => {
 	return body;
 };
 
-// Headline, disciplines, location, experience and bio — the create form
-// and the editor's Details tab (POST / PATCH /api/consultancy-profiles).
+// Name, what-I-do, location, experience and bio — the create form and the
+// editor's Details tab for every business profile (POST / PATCH
+// <base>/me). Which of those fields exist comes from the editor config.
 function DetailsForm({
+	config,
 	profile,
 	onSubmit,
 	isPending,
@@ -63,16 +62,17 @@ function DetailsForm({
 	const { data: countries = [] } = ReferenceServices.getCountries();
 
 	const form = useFormik({
-		initialValues: detailsFromProfile(profile),
+		initialValues: fromProfile(config, profile),
 		enableReinitialize: true,
-		validationSchema: consultancyDetailsSchema,
-		onSubmit: (values) => onSubmit(toBody(values, creating)),
+		validationSchema: profileDetailsSchema(config),
+		onSubmit: (values) => onSubmit(toBody(config, values, creating)),
 	});
 	const { data: cities = [] } = ReferenceServices.getCities(
 		form.values.country
 	);
 	const err = (name) => (form.touched[name] && form.errors[name]) || false;
-	const listId = 'consultancy-city-suggestions';
+	const listId = `${config.nameField}-city-suggestions`;
+	const disciplines = config.disciplines;
 
 	return (
 		<form
@@ -82,34 +82,37 @@ function DetailsForm({
 		>
 			<div className="lg:col-span-2">
 				<CustomInput
-					label="Headline"
-					name="headline"
+					label={config.nameLabel}
+					name={config.nameField}
 					required
-					placeholder="e.g. Okonkwo Structural Consult"
-					hint="Your practice or professional name — it’s the title of your public page."
-					value={form.values.headline}
+					placeholder={config.namePlaceholder}
+					hint={config.nameHint}
+					value={form.values[config.nameField]}
 					onChange={form.handleChange}
 					onBlur={form.handleBlur}
-					isError={err('headline')}
-					errormessage={form.errors.headline}
+					isError={err(config.nameField)}
+					errormessage={form.errors[config.nameField]}
 				/>
 			</div>
 
-			<div className="lg:col-span-2">
-				<CustomCheckboxGroup
-					label="Disciplines"
-					name="specializations"
-					required
-					options={SPECIALIZATION_OPTIONS}
-					value={form.values.specializations}
-					setFieldValue={(name, value) => {
-						form.setFieldValue(name, value);
-						form.setFieldTouched(name, true, false);
-					}}
-					isError={err('specializations')}
-					errormessage={form.errors.specializations}
-				/>
-			</div>
+			{disciplines && (
+				<div className="lg:col-span-2">
+					<CustomCheckboxGroup
+						label={disciplines.label}
+						name={disciplines.field}
+						required
+						options={disciplines.options}
+						columns={disciplines.columns}
+						value={form.values[disciplines.field]}
+						setFieldValue={(name, value) => {
+							form.setFieldValue(name, value);
+							form.setFieldTouched(name, true, false);
+						}}
+						isError={err(disciplines.field)}
+						errormessage={form.errors[disciplines.field]}
+					/>
+				</div>
+			)}
 
 			<CustomSelect
 				label="Country"
@@ -152,25 +155,29 @@ function DetailsForm({
 				</datalist>
 			</div>
 
-			<CustomInput
-				label="Years of experience"
-				name="yearsOfExperience"
-				type="number"
-				inputMode="numeric"
-				min="0"
-				value={form.values.yearsOfExperience}
-				onChange={form.handleChange}
-				onBlur={form.handleBlur}
-				isError={err('yearsOfExperience')}
-				errormessage={form.errors.yearsOfExperience}
-			/>
-			<div className="hidden lg:block" />
+			{config.years && (
+				<>
+					<CustomInput
+						label="Years of experience"
+						name="yearsOfExperience"
+						type="number"
+						inputMode="numeric"
+						min="0"
+						value={form.values.yearsOfExperience}
+						onChange={form.handleChange}
+						onBlur={form.handleBlur}
+						isError={err('yearsOfExperience')}
+						errormessage={form.errors.yearsOfExperience}
+					/>
+					<div className="hidden lg:block" />
+				</>
+			)}
 
 			<div className="lg:col-span-2">
 				<CustomTextarea
 					label="About"
 					name="bio"
-					placeholder="What you design, check or inspect, the kinds of projects you take on, and where you work."
+					placeholder={config.bioPlaceholder}
 					minHeight="150px"
 					maxLength={2000}
 					value={form.values.bio}
@@ -205,6 +212,7 @@ function DetailsForm({
 }
 
 DetailsForm.propTypes = {
+	config: PropTypes.object.isRequired,
 	profile: PropTypes.object,
 	onSubmit: PropTypes.func.isRequired,
 	isPending: PropTypes.bool,

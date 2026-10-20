@@ -10,6 +10,7 @@ import AuthLayout from './layouts/auth-layout';
 import AdminLayout from './layouts/admin-layout';
 import DashboardLayout from './layouts/dashboard-layout';
 import AppToast from './layouts/toast/index-toast';
+import { PROFILE_TYPE } from './utilities/app-const';
 // pages
 import Home from './pages/home';
 import BrowseConsultants from './pages/engineering';
@@ -22,9 +23,10 @@ import ResetPassword from './pages/auth/reset-password';
 import VerifyEmail from './pages/auth/verify-email';
 import DashboardHome from './pages/dashboard/home';
 import MyProfiles from './pages/dashboard/profiles';
-import ConsultancyEditor from './pages/dashboard/profiles/consultancy';
+import ProfileEditor from './pages/dashboard/profiles/editor';
 import VerificationCenter from './pages/dashboard/verification';
 import MySubscription from './pages/dashboard/subscription';
+import AccountSettings from './pages/dashboard/settings';
 import AdminHome from './pages/admin/home';
 import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
@@ -121,10 +123,34 @@ function App() {
 								<Route path="profiles" element={<MyProfiles />} />
 								<Route
 									path="profiles/consultancy"
-									element={<ConsultancyEditor />}
+									element={
+										<ProfileEditor
+											key="consultancy"
+											profileType={PROFILE_TYPE.CONSULTANCY}
+										/>
+									}
+								/>
+								<Route
+									path="profiles/contractor"
+									element={
+										<ProfileEditor
+											key="contractor"
+											profileType={PROFILE_TYPE.CONTRACTOR}
+										/>
+									}
+								/>
+								<Route
+									path="profiles/client"
+									element={
+										<ProfileEditor
+											key="client"
+											profileType={PROFILE_TYPE.CLIENT}
+										/>
+									}
 								/>
 								<Route path="verification" element={<VerificationCenter />} />
 								<Route path="subscription" element={<MySubscription />} />
+								<Route path="settings" element={<AccountSettings />} />
 							</Route>
 
 							<Route element={<WrapperLayout />}>

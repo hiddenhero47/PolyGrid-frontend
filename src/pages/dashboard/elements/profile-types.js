@@ -31,7 +31,8 @@ export const PROFILE_TYPES = [
 		pillar: 'PolyGrid Tenders',
 		icon: LuHardHat,
 		pitch: 'Bid on sealed tender projects and get hired directly for builds.',
-		name: (p) => p.headline || p.displayName,
+		editor: ROUTES.DASHBOARD_CONTRACTOR,
+		name: (p) => p.headline,
 	},
 	{
 		type: PROFILE_TYPE.LABOR,
@@ -64,6 +65,7 @@ export const PROFILE_TYPES = [
 		pillar: 'Tenders & SiteForce',
 		icon: LuClipboardList,
 		pitch: 'Post tender projects and site jobs, and hire the people who bid.',
+		editor: ROUTES.DASHBOARD_CLIENT,
 		name: (p) => p.displayName,
 	},
 ];

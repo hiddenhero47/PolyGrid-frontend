@@ -23,20 +23,16 @@ project and uploading all its images again.
 **Request:** `PATCH <base>/me/portfolio/:itemId` taking those fields (the
 same rules as `addPortfolioItemSchema`, all optional).
 
-### 2. There's no way to subscribe to a free ($0) plan
+### 2. (Question) A password change signs the current device out too
 
-**Where:** `POST /api/payments/intent` with `targetType: "Subscription"`.
+**Where:** `updateUserProfile` in `userController.ts` (`PUT /api/users/profile`
+with `password`).
 
-**What happens:** subscribing goes through a Stripe PaymentIntent, and
-Stripe can't charge $0. Pro is currently free (the product owner wants
-5,000 NGN-equivalent later), so today only an admin can put someone on
-it, using `POST /api/subscriptions`.
-
-**Request:** either a self-serve route that activates a plan when its
-price is 0 (e.g. `POST /api/subscriptions/free { planTier }`, refused
-when the plan's price > 0), or have the intent route activate a $0 plan
-directly and return no `clientSecret`. Until one exists, the frontend
-Subscription page shows "Online checkout soon".
+**What happens:** it rotates `sessionId`, so every token stops working,
+including the one that made the request, and the response has no new
+token. The frontend handles this: it ends the session and sends the user
+to sign in with the new password. If you'd rather keep this device signed
+in, return a fresh token alongside `user` and the frontend will store it.
 
 ### 3. (Nice to have) One route for "all my business profiles"
 
@@ -56,5 +52,10 @@ The backend fixed every item from the first list in commit `be7859f`:
 - customer_care can open verification documents;
 - the whole platform is locked to USD (`PLATFORM_CURRENCY`).
 
-The frontend now uses all of these. The dev database's NGN data (the Pro
+The frontend now uses all of these.
+
+Also resolved: free ($0) plans now activate through `POST /api/payments/intent`
+(`requiresPayment: false`), and unused days carry over (commit `0bd63cc`). The
+Subscription page uses it. The admin profile-review route (`e86fab4`) is used
+by the Verifications queue's "View profile" drawer. The dev database's NGN data (the Pro
 plan and Charles Okonkwo's services) was converted to USD through the API.

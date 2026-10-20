@@ -54,6 +54,8 @@ export const DASHBOARD_NAV = [
 	},
 	{
 		heading: 'Account',
-		items: [{ label: 'Settings', icon: LuSettings, soon: true }],
+		items: [
+			{ label: 'Settings', to: ROUTES.DASHBOARD_SETTINGS, icon: LuSettings },
+		],
 	},
 ];

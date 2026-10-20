@@ -92,12 +92,12 @@ consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
 Verifications, Plans, Subscriptions) at `/admin`. See "Admin Dashboard"
 below.
 
-**User Dashboard started (Phase 2, first slice)** — `/dashboard`:
-home, Business Profile hub, the Consultancy profile editor (details,
-services, mentorship, portfolio, links, avatar, on-a-break switch),
-Verification Center (template-driven form + documents + history) and
-Subscription (current plan, plans, history; checkout comes with
-payments). See "User Dashboard" below.
+**User Dashboard (Phase 2)** — `/dashboard`: home, Business Profile
+hub, profile editors for consultant, contractor and client (one generic
+editor driven by `pages/dashboard/profiles/editor/config.js`),
+Verification Center (template-driven form + documents + history),
+Subscription (self-serve: free plans activate at once, paid ones go
+through Stripe) and Account Settings. See "User Dashboard" below.
 Next: the other pillars' browse + profile pages on the same pattern
 (contractors, stores, digital creators, workers, client profiles) and
 the tender / SiteForce public teasers. Remaining form controls
@@ -420,8 +420,34 @@ link.
 
 - `elements/profile-types.js` — one entry per business profile type
   (label, pillar, icon, pitch, `editor` route once built, `publicPath`,
-  `name(profile)`). Only consultancy has an editor so far; the other
-  five show "Coming soon".
+  `name(profile)`) for the hub. Labor, store and digital creator still
+  show "Coming soon".
+- `profiles/editor/` — ONE editor page for every pillar
+  (`<ProfileEditor profileType=…>`), shaped by `config.js`
+  (`PROFILE_EDITORS`): the name field (`headline` / `displayName`), an
+  optional disciplines list (`specializations` / `specialties`),
+  years of experience, which tabs exist (services and mentorship are
+  consultancy-only; portfolio and links are shared) and the go-live
+  wording. A new pillar is mostly a config entry plus any tab of its
+  own. Store / digital creator need product managers on top.
+- Subscription (`subscription/`): `PaymentServices.subscribe`
+  (`POST /api/payments/intent`). `requiresPayment: false` means the plan
+  is already active; otherwise the Stripe Payment Element opens in
+  `elements/checkout-modal.jsx` (themed from `THEMES[name].tokens`, the
+  only `<Elements>` in the app). Stripe's webhook activates the plan, so
+  `SubscriptionServices.awaitActivation` polls until the new
+  subscription is current, then refreshes plan / profile caches.
+  Unused days carry over (backend). Locally, paid plans need Stripe's
+  webhook forwarded to the backend (`stripe listen`) to ever activate.
+- Settings (`settings/`): profile (name, phone, account photo),
+  account type, password (the backend ends EVERY session on a change,
+  this one too — the app signs out and sends the user to /login), 2FA
+  (identity check → QR → first code turns it on; turning off needs a
+  code), payout account, log out everywhere. Hooks:
+  `custom-hooks/account.js` — writes go straight into the auth slice.
+- `components/modal/confirm-identity-modal.jsx` — frontend-plan §2's
+  confirm-with-password-or-2FA pattern: `await ref.current.ask({ action })`
+  → `{ currentPassword }` | `{ otpToken }` | null.
 - `elements/go-live.jsx` + `go-live-state.js` — the go-live checklist
   (details · verification · subscription · taking work): a profile is
   public only when it's verified, active and its owner has a live plan.

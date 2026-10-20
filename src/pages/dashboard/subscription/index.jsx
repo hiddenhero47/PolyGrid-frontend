@@ -1,11 +1,22 @@
-import React from 'react';
-import { LuCheck, LuCreditCard, LuCalendarClock } from 'react-icons/lu';
+import React, { useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import {
+	LuCheck,
+	LuCreditCard,
+	LuCalendarClock,
+	LuLoaderCircle,
+} from 'react-icons/lu';
 import SubscriptionServices from '../../../features/services/custom-hooks/subscriptions';
 import PlanServices from '../../../features/services/custom-hooks/plans';
+import PaymentServices, {
+	refreshSubscription,
+} from '../../../features/services/custom-hooks/payments';
 import PageHeader from '../../../layouts/dashboard-shell/sub-components/page-header';
+import { toast } from '../../../layouts/toast/toast-handler';
 import CustomTable from '../../../components/table/custom-table';
 import StatusBadge from '../../../components/status-badge';
 import EmptyState from '../../../components/empty-state';
+import ConfirmModal from '../../../components/modal/confirm-modal';
 import { AppButton } from '../../../components/button';
 import { SkeletonBar } from '../../../components/table/index.style';
 import { TierCard } from '../../admin/plans/elements/index.style';
@@ -15,13 +26,22 @@ import {
 	formatMoney,
 	humanize,
 } from '../../../utilities/basic-functions';
+import CheckoutModal from './elements/checkout-modal';
 
-const BADGES = {
+const SUBSCRIPTION_BADGES = {
 	pending: { label: 'Pending', tone: 'warning' },
 	active: { label: 'Active', tone: 'success' },
 	past_due: { label: 'Past due', tone: 'error' },
 	canceled: { label: 'Ended', tone: 'neutral' },
 	expired: { label: 'Expired', tone: 'neutral' },
+};
+
+const PAYMENT_BADGES = {
+	pending: { label: 'Pending', tone: 'warning' },
+	success: { label: 'Paid', tone: 'success' },
+	failed: { label: 'Failed', tone: 'error' },
+	refunded: { label: 'Refunded', tone: 'info' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
 };
 
 const HISTORY_FIELDS = [
@@ -33,7 +53,9 @@ const HISTORY_FIELDS = [
 	{
 		Header: 'Status',
 		accessor: 'status',
-		Cell: ({ value }) => <StatusBadge status={value} map={BADGES} />,
+		Cell: ({ value }) => (
+			<StatusBadge status={value} map={SUBSCRIPTION_BADGES} />
+		),
 	},
 	{
 		Header: 'Started',
@@ -47,25 +69,117 @@ const HISTORY_FIELDS = [
 	},
 ];
 
+const PAYMENT_FIELDS = [
+	{
+		Header: 'Date',
+		accessor: 'createdAt',
+		Cell: ({ value }) => formatDate(value, true),
+	},
+	{
+		Header: 'For',
+		accessor: 'targetType',
+		Cell: ({ value }) => humanize(value),
+	},
+	{
+		Header: 'Amount',
+		accessor: 'amount',
+		Cell: ({ value, row }) =>
+			value === 0 ? 'Free' : formatMoney(value, row.original.currency),
+	},
+	{
+		Header: 'Via',
+		accessor: 'provider',
+		Cell: ({ value }) => (value === 'manual' ? 'PolyGrid' : humanize(value)),
+	},
+	{
+		Header: 'Status',
+		accessor: 'status',
+		Cell: ({ value }) => <StatusBadge status={value} map={PAYMENT_BADGES} />,
+	},
+];
+
 const daysLeft = (date) =>
 	Math.max(0, Math.ceil((new Date(date) - Date.now()) / 86400000));
 
 // frontend-plan §B.5 — Subscription & Billing. A live subscription is what
-// keeps verified business profiles in public search. Online checkout
-// (Stripe, POST /api/payments/intent) comes with the payments slice; until
-// then plans are granted by the PolyGrid team.
+// keeps verified business profiles in public search. Subscribing is
+// POST /api/payments/intent: a free plan is active immediately; a paid
+// one opens Stripe's card form and Stripe's webhook activates it, so the
+// page polls the current plan until the new subscription shows up.
 function MySubscription() {
+	const queryClient = useQueryClient();
+	const checkoutRef = useRef(null);
+	const confirmRef = useRef(null);
+	const [checkout, setCheckout] = useState(null); // { plan, clientSecret, subscriptionId }
+	const [awaiting, setAwaiting] = useState(null); // subscriptionId waiting on the webhook
+
 	const current = SubscriptionServices.getCurrentSubscription();
+	SubscriptionServices.awaitActivation(awaiting, (subscription) => {
+		setAwaiting(null);
+		refreshSubscription(queryClient);
+		toast.success(`${humanize(subscription.planTier)} plan is active`);
+	});
 	const plans = PlanServices.getPlans();
 	const history = SubscriptionServices.getMySubscriptions();
+	const payments = PaymentServices.getMyPayments();
+	const subscribe = PaymentServices.subscribe();
 	const sub = current.data;
+	const confirming = Boolean(awaiting);
+
+	const choose = async (plan) => {
+		if (sub) {
+			const ok = await confirmRef.current.ask({
+				title:
+					sub.planTier === plan.planTier
+						? `Renew ${humanize(plan.planTier)}?`
+						: `Switch to ${humanize(plan.planTier)}?`,
+				text: `Your current plan has ${daysLeft(sub.expiresAt)} days left — they carry over onto the new period.`,
+				confirmLabel: plan.price === 0 ? 'Confirm' : 'Continue to payment',
+			});
+			if (!ok) return;
+		}
+		subscribe.mutate(
+			{ planTier: plan.planTier },
+			{
+				onSuccess: (res) => {
+					if (!res.requiresPayment) {
+						toast.success(`${humanize(plan.planTier)} plan is active`);
+						return;
+					}
+					setCheckout({
+						plan,
+						clientSecret: res.clientSecret,
+						subscriptionId: res.subscriptionId,
+					});
+					checkoutRef.current.open();
+				},
+			}
+		);
+	};
+
+	const paid = () => {
+		setAwaiting(checkout.subscriptionId);
+		checkoutRef.current.close();
+	};
+
+	const buttonLabel = (plan, isCurrent) => {
+		if (
+			subscribe.isPending &&
+			subscribe.variables?.planTier === plan.planTier
+		) {
+			return 'Starting…';
+		}
+		if (isCurrent) return 'Renew';
+		if (plan.price === 0) return 'Activate free plan';
+		return `Subscribe · ${formatMoney(plan.price, plan.currency)}`;
+	};
 
 	return (
 		<>
 			<PageHeader
 				eyebrow="Business"
 				title="Subscription"
-				subtitle="An active plan keeps your verified profiles listed in public search."
+				subtitle="An active plan keeps your verified profiles listed in public search. Switching or renewing carries any unused days over."
 			/>
 
 			<Section aria-labelledby="current-heading">
@@ -74,6 +188,19 @@ function MySubscription() {
 						Current plan
 					</h3>
 				</div>
+				{confirming && (
+					<p
+						role="status"
+						className="mb-4 flex items-center gap-3 rounded-xl bg-(--pg-status-infoSoft) px-4 py-3 text-[15px] text-(--pg-text-primary)"
+					>
+						<LuLoaderCircle
+							className="shrink-0 animate-spin text-(--pg-status-info)"
+							aria-hidden="true"
+						/>
+						Payment received — confirming with Stripe. This usually takes a few
+						seconds.
+					</p>
+				)}
 				{current.isPending ? (
 					<SkeletonBar $width="40%" style={{ height: 80 }} />
 				) : sub ? (
@@ -86,12 +213,12 @@ function MySubscription() {
 								{humanize(sub.planTier)} plan
 							</p>
 							<p className="mt-1 inline-flex items-center gap-1.5 text-[15px] text-(--pg-text-secondary)">
-								<LuCalendarClock aria-hidden="true" /> Renews or ends{' '}
+								<LuCalendarClock aria-hidden="true" /> Ends{' '}
 								{formatDate(sub.expiresAt)} · {daysLeft(sub.expiresAt)} days
 								left
 							</p>
 						</div>
-						<StatusBadge status={sub.status} map={BADGES} />
+						<StatusBadge status={sub.status} map={SUBSCRIPTION_BADGES} />
 					</div>
 				) : (
 					<EmptyState
@@ -115,9 +242,14 @@ function MySubscription() {
 						const isCurrent = sub?.planTier === plan.planTier;
 						return (
 							<TierCard key={plan._id} $featured={isCurrent}>
-								<div>
-									<p className="sc_tier">{humanize(plan.planTier)} tier</p>
-									<h4 className="sc_name">{plan.name}</h4>
+								<div className="flex items-start justify-between gap-3">
+									<div>
+										<p className="sc_tier">{humanize(plan.planTier)} tier</p>
+										<h4 className="sc_name">{plan.name}</h4>
+									</div>
+									{isCurrent && (
+										<StatusBadge label="Your plan" tone="success" />
+									)}
 								</div>
 								<p className="sc_price">
 									{plan.price === 0
@@ -134,9 +266,10 @@ function MySubscription() {
 								</ul>
 								<AppButton
 									variant={isCurrent ? 'secondary' : 'primary'}
-									disabled
+									disabled={subscribe.isPending || confirming}
+									onClick={() => choose(plan)}
 								>
-									{isCurrent ? 'Your plan' : 'Online checkout soon'}
+									{buttonLabel(plan, isCurrent)}
 								</AppButton>
 							</TierCard>
 						);
@@ -167,6 +300,33 @@ function MySubscription() {
 					emptyText="No subscriptions yet"
 				/>
 			</Section>
+
+			<Section aria-labelledby="payments-heading">
+				<div className="sc_sectionHead">
+					<h3 id="payments-heading" className="sc_sectionTitle">
+						Payments
+					</h3>
+				</div>
+				<CustomTable
+					ariaLabel="Payments"
+					fields={PAYMENT_FIELDS}
+					dataSource={payments.data?.data || []}
+					isLoading={payments.isPending}
+					isError={payments.isError}
+					refetch={payments.refetch}
+					showPagination={false}
+					loadingRows={2}
+					emptyText="No payments yet"
+				/>
+			</Section>
+
+			<CheckoutModal
+				refName={checkoutRef}
+				plan={checkout?.plan}
+				clientSecret={checkout?.clientSecret}
+				onPaid={paid}
+			/>
+			<ConfirmModal refName={confirmRef} />
 		</>
 	);
 }

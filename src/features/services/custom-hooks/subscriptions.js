@@ -65,7 +65,32 @@ const useGetMySubscriptionsQuery = ({ page = 1, limit = 10 } = {}) =>
 		placeholderData: keepPreviousData,
 	});
 
+// After a card payment: poll GET /api/subscriptions/current until Stripe's
+// webhook has made `subscriptionId` the live subscription, then call
+// onActive once (from the fetch itself, not from render). Stops on its
+// own; idle when subscriptionId is null.
+const useAwaitActivationQuery = (subscriptionId, onActive) =>
+	useQuery({
+		queryKey: ['await-activation', subscriptionId],
+		queryFn: async () => {
+			const res = await axiosCall({
+				url: '/api/subscriptions/current',
+				method: 'GET',
+				silent: true,
+			});
+			if (res?.currentPlan?._id === subscriptionId) {
+				onActive?.(res.currentPlan);
+				return 'active';
+			}
+			return 'waiting';
+		},
+		enabled: Boolean(subscriptionId),
+		refetchInterval: (query) => (query.state.data === 'active' ? false : 2500),
+		gcTime: 0,
+	});
+
 const SubscriptionServices = {
+	awaitActivation: useAwaitActivationQuery,
 	getCurrentSubscription: useGetCurrentSubscriptionQuery,
 	getMySubscriptions: useGetMySubscriptionsQuery,
 	getUserSubscriptions: useGetUserSubscriptionsQuery,

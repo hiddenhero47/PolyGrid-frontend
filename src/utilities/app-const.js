@@ -114,3 +114,28 @@ export const MAX_MEDIA_PER_ITEM = 6;
 export const PORTFOLIO_ACCEPT = 'image/jpeg,image/png,image/avif';
 // avatar / logo uploads (IMAGE_ONLY_MIME_TYPES)
 export const AVATAR_ACCEPT = 'image/jpeg,image/png,image/webp,image/avif';
+
+// src/models/contractorProfileModel.ts
+export const CONTRACTOR_SPECIALTY = {
+	GENERAL_CONTRACTING: 'general_contracting',
+	STRUCTURAL: 'structural',
+	ELECTRICAL: 'electrical',
+	PLUMBING: 'plumbing',
+	ROOFING: 'roofing',
+	ARCHITECTURAL_DESIGN: 'architectural_design',
+	EXCAVATION_EARTHWORKS: 'excavation_earthworks',
+	HVAC: 'hvac',
+	MASONRY: 'masonry',
+	CARPENTRY: 'carpentry',
+	PAINTING_FINISHING: 'painting_finishing',
+	LANDSCAPING: 'landscaping',
+	OTHER: 'other',
+};
+
+export const CONTRACTOR_SPECIALTY_LABELS = {
+	general_contracting: 'General contracting',
+	architectural_design: 'Architectural design',
+	excavation_earthworks: 'Excavation & earthworks',
+	hvac: 'HVAC',
+	painting_finishing: 'Painting & finishing',
+};

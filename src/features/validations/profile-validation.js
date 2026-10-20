@@ -16,24 +16,35 @@ const optionalNumber = (label) =>
 		.typeError(`${label} must be a number`)
 		.nullable();
 
-export const consultancyDetailsSchema = yup.object({
-	headline: yup
-		.string()
-		.trim()
-		.max(120, 'Keep it under 120 characters')
-		.required('Add a headline — your practice or professional name'),
-	country: yup.string().required('Choose your country'),
-	city: yup.string().trim().max(80),
-	yearsOfExperience: optionalNumber('Years of experience')
-		.integer('Whole years only')
-		.min(0, 'Can’t be negative')
-		.max(70, 'That seems a bit high'),
-	specializations: yup
-		.array()
-		.of(yup.string())
-		.min(1, 'Pick at least one discipline'),
-	bio: yup.string().trim().max(2000, 'Keep it under 2,000 characters'),
-});
+// The Details form of any business profile, shaped by its editor config
+// (pages/dashboard/profiles/editor/config.js): the name field, an
+// optional disciplines list, optional years of experience.
+export const profileDetailsSchema = (config) =>
+	yup.object({
+		[config.nameField]: yup
+			.string()
+			.trim()
+			.max(120, 'Keep it under 120 characters')
+			.required(`Add a ${config.nameLabel.toLowerCase()}`),
+		country: yup.string().required('Choose your country'),
+		city: yup.string().trim().max(80),
+		...(config.years && {
+			yearsOfExperience: optionalNumber('Years of experience')
+				.integer('Whole years only')
+				.min(0, 'Can’t be negative')
+				.max(70, 'That seems a bit high'),
+		}),
+		...(config.disciplines && {
+			[config.disciplines.field]: yup
+				.array()
+				.of(yup.string())
+				.min(
+					1,
+					`Pick at least one ${config.disciplines.label.toLowerCase().replace(/s$/, '')}`
+				),
+		}),
+		bio: yup.string().trim().max(2000, 'Keep it under 2,000 characters'),
+	});
 
 export const serviceSchema = yup.object({
 	title: yup.string().trim().max(120).required('Name the service'),
