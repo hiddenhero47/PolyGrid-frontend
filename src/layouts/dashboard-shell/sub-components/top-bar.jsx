@@ -1,29 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { LuMenu, LuSun, LuMoon, LuLogOut } from 'react-icons/lu';
+import { LuMenu, LuSun, LuMoon } from 'react-icons/lu';
 import { toggleTheme } from '../../../store/slice/app-theme';
 import { THEMES } from '../../../theme';
-import AuthServices from '../../../features/services/custom-hooks/auth';
-import ProfileAvatar from '../../../components/profile-avatar';
-import { ROUTES } from '../../../utilities/app-routes';
+import AccountMenu from '../../../components/account-menu';
 import { TopBar as Bar, IconButton } from '../index.style';
 
 // HM's dashboard nav bar: menu toggle (drawer, below desktop), where you
-// are (each page has its own heading), theme toggle, then who's signed in and with which role.
+// are (each page has its own heading), theme toggle, then the account menu
+// (who's signed in, their role, Dashboard / Settings / Log out).
 function TopBar({ eyebrow, title, roleLabel, onOpenMenu }) {
 	const dispatch = useDispatch();
-	const navigate = useNavigate();
-	const logout = AuthServices.logout();
 	const { theme } = useSelector((state) => state.themes);
-	const { user } = useSelector((state) => state.auth);
 	const isDark = THEMES[theme].mode === 'dark';
-
-	const signOut = () => {
-		logout();
-		navigate(ROUTES.LOGIN, { replace: true });
-	};
 
 	return (
 		<Bar>
@@ -47,26 +37,9 @@ function TopBar({ eyebrow, title, roleLabel, onOpenMenu }) {
 				{isDark ? <LuSun /> : <LuMoon />}
 			</IconButton>
 
-			<div className="flex items-center gap-3 border-l border-(--pg-border-default) pl-3">
-				<ProfileAvatar avatar={user?.avatar} name={user?.fullName} size={38} />
-				<div className="hidden min-w-0 sm:block">
-					<p className="max-w-[180px] truncate text-sm font-semibold text-(--pg-text-primary)">
-						{user?.fullName}
-					</p>
-					<p className="font-label text-[10.5px] font-semibold tracking-[0.14em] text-(--pg-text-highlight) uppercase">
-						{roleLabel}
-					</p>
-				</div>
+			<div className="border-l border-(--pg-border-default) pl-2">
+				<AccountMenu compactLabel={roleLabel} />
 			</div>
-
-			<IconButton
-				type="button"
-				onClick={signOut}
-				aria-label="Log out"
-				title="Log out"
-			>
-				<LuLogOut />
-			</IconButton>
 		</Bar>
 	);
 }

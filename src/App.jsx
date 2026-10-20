@@ -15,6 +15,9 @@ import { PROFILE_TYPE } from './utilities/app-const';
 import Home from './pages/home';
 import BrowseConsultants from './pages/engineering';
 import ConsultantProfile from './pages/engineering/profile';
+import Tenders from './pages/tenders';
+import BrowseContractors from './pages/contractors';
+import ContractorProfile from './pages/contractors/profile';
 import NotFound from './pages/not-found';
 import Register from './pages/auth/register';
 import Login from './pages/auth/login';
@@ -66,6 +69,12 @@ function App() {
 								<Route
 									path="/engineering/:idOrSlug"
 									element={<ConsultantProfile />}
+								/>
+								<Route path="/tenders" element={<Tenders />} />
+								<Route path="/contractors" element={<BrowseContractors />} />
+								<Route
+									path="/contractors/:idOrSlug"
+									element={<ContractorProfile />}
 								/>
 								{import.meta.env.DEV && (
 									<>

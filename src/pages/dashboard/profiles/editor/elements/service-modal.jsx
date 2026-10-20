@@ -122,7 +122,7 @@ function ServiceModal({ refName, service, onSave, isPending }) {
 						variant="rows"
 						options={PRICING_OPTIONS}
 						value={form.values.pricingMode}
-						onChange={form.handleChange}
+						onChange={(value) => form.setFieldValue('pricingMode', value)}
 					/>
 					<div className="grid gap-5 sm:grid-cols-2">
 						<CustomInput

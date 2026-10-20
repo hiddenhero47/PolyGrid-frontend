@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
 	LuMenu,
@@ -10,6 +10,7 @@ import {
 	LuArrowRight,
 	LuLogOut,
 	LuLayoutDashboard,
+	LuSettings,
 } from 'react-icons/lu';
 import AppLogo from '../../../components/logo';
 import { AppButton } from '../../../components/button';
@@ -19,11 +20,13 @@ import AuthServices from '../../../features/services/custom-hooks/auth';
 import { toast } from '../../toast/toast-handler';
 import { THEMES } from '../../../theme';
 import { ROUTES, homeForUser } from '../../../utilities/app-routes';
+import AccountMenu from '../../../components/account-menu';
 import { NavWrapper, MobileMenu } from './navbar.style';
 
 const PILLAR_LINKS = [
 	{ label: 'Engineering', to: ROUTES.ENGINEERING },
-	{ label: 'Tenders', to: ROUTES.TENDERS },
+	// Contractors belong to the Tenders pillar (direct hire)
+	{ label: 'Tenders', to: ROUTES.TENDERS, also: [ROUTES.CONTRACTORS] },
 	{ label: 'Store', to: ROUTES.STORE },
 	{ label: 'SiteForce', to: ROUTES.SITEFORCE },
 ];
@@ -35,7 +38,6 @@ function Navbar({ ready = true }) {
 	const isAuthenticated = useSelector(selectIsAuthenticated);
 	const { user } = useSelector((state) => state.auth);
 	const logout = AuthServices.logout();
-	const firstName = user?.fullName?.split(' ')[0];
 	const isStaff = homeForUser(user) === ROUTES.ADMIN;
 
 	const handleLogout = () => {
@@ -44,6 +46,7 @@ function Navbar({ ready = true }) {
 		toast.info('Signed out');
 	};
 
+	const { pathname } = useLocation();
 	const isDark = THEMES[theme].mode === 'dark';
 	const closeMenu = () => setMenuOpen(false);
 
@@ -55,9 +58,16 @@ function Navbar({ ready = true }) {
 				</Link>
 
 				<ul className="hidden items-center gap-9 lg:flex">
-					{PILLAR_LINKS.map(({ label, to }) => (
+					{PILLAR_LINKS.map(({ label, to, also }) => (
 						<li key={to}>
-							<NavLink to={to} className="sc_link">
+							<NavLink
+								to={to}
+								className={({ isActive }) =>
+									isActive || also?.some((path) => pathname.startsWith(path))
+										? 'sc_link active'
+										: 'sc_link'
+								}
+							>
 								{label}
 							</NavLink>
 						</li>
@@ -78,10 +88,6 @@ function Navbar({ ready = true }) {
 
 					{isAuthenticated ? (
 						<>
-							<span className="font-label hidden text-xs font-semibold tracking-[0.12em] text-(--pg-navbar-link) uppercase xl:inline">
-								Hi,{' '}
-								<span className="text-(--pg-text-primary)">{firstName}</span>
-							</span>
 							<span className="hidden sm:inline-flex">
 								<AppButton
 									to={homeForUser(user)}
@@ -91,17 +97,7 @@ function Navbar({ ready = true }) {
 									{isStaff ? 'Admin' : 'Dashboard'}
 								</AppButton>
 							</span>
-							<span className="hidden sm:inline-flex">
-								<button
-									type="button"
-									className="sc_iconBtn"
-									onClick={handleLogout}
-									aria-label="Log out"
-									title="Log out"
-								>
-									<LuLogOut />
-								</button>
-							</span>
+							<AccountMenu showName={false} />
 						</>
 					) : (
 						<>
@@ -162,6 +158,14 @@ function Navbar({ ready = true }) {
 											onClick={closeMenu}
 										>
 											{isStaff ? 'Admin' : 'Dashboard'}
+										</AppButton>
+										<AppButton
+											to={ROUTES.DASHBOARD_SETTINGS}
+											variant="secondary"
+											icon={<LuSettings />}
+											onClick={closeMenu}
+										>
+											Settings
 										</AppButton>
 										<AppButton
 											variant="secondary"

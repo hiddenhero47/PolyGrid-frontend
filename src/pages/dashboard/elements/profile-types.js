@@ -7,7 +7,11 @@ import {
 	LuClipboardList,
 } from 'react-icons/lu';
 import { PROFILE_TYPE } from '../../../utilities/app-const';
-import { ROUTES, consultantPath } from '../../../utilities/app-routes';
+import {
+	ROUTES,
+	consultantPath,
+	contractorPath,
+} from '../../../utilities/app-routes';
 
 // What each business profile is, for the Profiles hub (frontend-plan
 // §B.3). `editor` = its editor route once built; `publicPath` = its
@@ -32,6 +36,7 @@ export const PROFILE_TYPES = [
 		icon: LuHardHat,
 		pitch: 'Bid on sealed tender projects and get hired directly for builds.',
 		editor: ROUTES.DASHBOARD_CONTRACTOR,
+		publicPath: contractorPath,
 		name: (p) => p.headline,
 	},
 	{

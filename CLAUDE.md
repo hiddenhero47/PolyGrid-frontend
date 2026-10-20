@@ -85,7 +85,12 @@ profile avatar, reviews block — all on `/lab`, dev only), auth
 (`pages/auth`, incl. email verification: `/verify-email/:token` + the
 `components/verify-email-banner` strip under the navbar), and PolyGrid
 Engineering: Browse Consultants (`/engineering`) and the Consultant
-profile (`/engineering/:idOrSlug`).
+profile (`/engineering/:idOrSlug`). PolyGrid Tenders: the `/tenders`
+landing (public teaser — open-project counts only, plus find / post /
+bid entry points), Browse Contractors (`/contractors`) and the
+Contractor profile (`/contractors/:idOrSlug`), on the Engineering
+pattern (the filter is `specialty`; Tenders stays highlighted in the
+navbar on contractor pages).
 
 **Admin Dashboard started early (Phase 4, first slice)** — the
 consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
@@ -415,6 +420,12 @@ menu: `admin-layout` (staff roles, `admin-nav.js`) and
 / register, `homeForUser(user)` (`app-routes.js`) sends staff to
 `/admin` and everyone else to `/dashboard`; the navbar shows the same
 link.
+
+`components/account-menu` — the signed-in user's avatar button and
+popover menu (Admin console for staff, Dashboard, Business profiles,
+Settings, Log out), used in the public navbar and the dashboards' top
+bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
+(fallback placement in `beforetoggle`), like CustomSelect's menu.
 
 ### User Dashboard — `pages/dashboard/`
 

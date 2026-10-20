@@ -74,11 +74,7 @@ function ConfirmIdentityModal({ refName }) {
 						>
 							Cancel
 						</AppButton>
-						<AppButton
-							type="submit"
-							form={formId}
-							icon={<LuShieldCheck />}
-						>
+						<AppButton type="submit" form={formId} icon={<LuShieldCheck />}>
 							Confirm
 						</AppButton>
 					</>

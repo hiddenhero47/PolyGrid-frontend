@@ -19,6 +19,7 @@ export const ROUTES = {
 
 	// detail pages — build with the helpers below
 	CONSULTANT: '/engineering/:idOrSlug',
+	CONTRACTOR: '/contractors/:idOrSlug',
 
 	// User Dashboard — frontend-plan §B
 	DASHBOARD: '/dashboard',
@@ -49,3 +50,6 @@ export const homeForUser = (user) =>
 
 export const consultantPath = (profile) =>
 	`/engineering/${encodeURIComponent(profile?.slug || profile?.id || '')}`;
+
+export const contractorPath = (profile) =>
+	`/contractors/${encodeURIComponent(profile?.slug || profile?.id || '')}`;

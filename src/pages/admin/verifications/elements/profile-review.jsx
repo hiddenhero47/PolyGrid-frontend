@@ -28,7 +28,16 @@ import {
 	formatMoney,
 	humanize,
 } from '../../../../utilities/basic-functions';
-import { consultantPath } from '../../../../utilities/app-routes';
+import {
+	consultantPath,
+	contractorPath,
+} from '../../../../utilities/app-routes';
+
+// Pillars with a public page so far.
+const PUBLIC_PATHS = {
+	[PROFILE_TYPE.CONSULTANCY]: consultantPath,
+	[PROFILE_TYPE.CONTRACTOR]: contractorPath,
+};
 
 // Every pillar names itself with one of these, never more than one.
 const profileName = (p) =>
@@ -253,16 +262,16 @@ function ProfileReview({ profileType, profileId }) {
 				</section>
 			)}
 
-			{profileType === PROFILE_TYPE.CONSULTANCY && (
+			{PUBLIC_PATHS[profileType] && (
 				<p className="text-sm text-(--pg-text-secondary)">
 					Public page:{' '}
 					<a
-						href={consultantPath(p)}
+						href={PUBLIC_PATHS[profileType](p)}
 						target="_blank"
 						rel="noopener noreferrer"
 						className="font-semibold text-(--pg-text-link) hover:underline"
 					>
-						{consultantPath(p)}
+						{PUBLIC_PATHS[profileType](p)}
 					</a>{' '}
 					— shows only once verified and subscribed.
 				</p>
