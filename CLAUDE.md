@@ -388,8 +388,14 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
 - Queue filters live in the URL (`?status=&profileType=&page=`,
   `/admin/subscriptions?userId=`), like the public browse pages.
 - Hooks: `custom-hooks/admin.js` (overview, verifications, signed
-  private-file links, users with `?q=` search), `plans.js`,
-  `subscriptions.js`.
+  private-file links, users with `?q=` search, `getProfileForReview`),
+  `plans.js`, `subscriptions.js`.
+- Reviewing a profile: the public profile page hides anything
+  unverified / unsubscribed — i.e. everything in the queue — so the
+  Verifications card's "View profile" opens a `Modal.Right` drawer
+  (`verifications/elements/profile-review.jsx`) fed by
+  `GET /api/admin/profiles/:profileType/:id` (REVIEW_ROLES, read-only,
+  any pillar; renders whichever common sections the profile has).
 - Money is **USD only** (`PLATFORM_CURRENCY` in `app-const.js`, mirrors
   the backend's `currencyReference.ts`) — forms send it, never ask.
 

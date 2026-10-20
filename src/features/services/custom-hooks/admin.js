@@ -116,7 +116,23 @@ const useGetUsersQuery = (
 		...options,
 	});
 
+// GET /api/admin/profiles/:profileType/:id — REVIEW_ROLES, read-only.
+// Any profile in full, whatever its public state (unverified,
+// unsubscribed, banned) — what a reviewer needs before approving it.
+// Same shape as that pillar's public profile, without the avatar fallback.
+const useGetProfileForReviewQuery = ({ profileType, id }) =>
+	useQuery({
+		queryKey: ['admin-profile', profileType, id],
+		queryFn: () =>
+			axiosCall({
+				url: `/api/admin/profiles/${profileType}/${id}`,
+				method: 'GET',
+			}),
+		enabled: Boolean(profileType && id),
+	});
+
 const AdminServices = {
+	getProfileForReview: useGetProfileForReviewQuery,
 	getOverview: useGetOverviewQuery,
 	getVerifications: useGetVerificationsQuery,
 	approveVerification: useApproveVerificationMutation,

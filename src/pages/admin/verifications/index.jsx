@@ -20,6 +20,8 @@ import { enumToOptions } from '../../../utilities/basic-functions';
 import SegmentedControl from '../../../components/segmented-control';
 import VerificationCard from './elements/verification-card';
 import RejectModal from './elements/reject-modal';
+import ProfileReview from './elements/profile-review';
+import Modal from '../../../components/modal/index_modal';
 
 const LIMIT = 10;
 
@@ -41,7 +43,9 @@ function AdminVerifications() {
 	const { user } = useSelector((state) => state.auth);
 	const canManage = MANAGE_ROLES.includes(user?.systemRole);
 	const rejectRef = useRef(null);
+	const profileRef = useRef(null);
 	const [rejecting, setRejecting] = useState(null);
+	const [viewing, setViewing] = useState(null);
 
 	const status = params.get('status') || VERIFICATION_STATUS.PENDING;
 	const profileType = params.get('profileType') || '';
@@ -83,6 +87,11 @@ function AdminVerifications() {
 					`${verification.user?.fullName || 'Profile'} is verified`
 				),
 		});
+
+	const openProfile = (verification) => {
+		setViewing(verification);
+		profileRef.current.open();
+	};
 
 	const openReject = (verification) => {
 		setRejecting(verification);
@@ -198,6 +207,7 @@ function AdminVerifications() {
 							canManage={canManage}
 							onApprove={handleApprove}
 							onReject={openReject}
+							onViewProfile={openProfile}
 							busy={approve.isPending && approve.variables === verification._id}
 						/>
 					))}
@@ -209,6 +219,26 @@ function AdminVerifications() {
 					<Pagination pagination={data.pagination} changePage={changePage} />
 				</div>
 			)}
+
+			<Modal.Right
+				refName={profileRef}
+				width="520px"
+				queryWidth="100%"
+				onClose={() => setViewing(null)}
+			>
+				<Modal.Card
+					eyebrow="Under review"
+					title={viewing?.user?.fullName || 'Profile'}
+					subtitle={viewing?.user?.email}
+				>
+					{viewing && (
+						<ProfileReview
+							profileType={viewing.profileType}
+							profileId={String(viewing.profileId)}
+						/>
+					)}
+				</Modal.Card>
+			</Modal.Right>
 
 			{canManage && (
 				<RejectModal

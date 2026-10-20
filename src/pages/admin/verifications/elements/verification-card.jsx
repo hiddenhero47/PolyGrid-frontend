@@ -11,6 +11,7 @@ import {
 	LuCheck,
 	LuX,
 	LuCreditCard,
+	LuEye,
 } from 'react-icons/lu';
 import AdminServices from '../../../../features/services/custom-hooks/admin';
 import ProfileAvatar from '../../../../components/profile-avatar';
@@ -27,7 +28,7 @@ import {
 	formatDate,
 	humanize,
 } from '../../../../utilities/basic-functions';
-import { consultantPath, ROUTES } from '../../../../utilities/app-routes';
+import { ROUTES } from '../../../../utilities/app-routes';
 import { ReviewCard, DocChip } from './index.style';
 
 const VERIFICATION_BADGES = {
@@ -41,12 +42,6 @@ const fileSize = (bytes) => {
 	if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
 	return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
-
-// Only consultants have a public page so far — other pillars come later.
-const publicProfilePath = (verification) =>
-	verification.profileType === PROFILE_TYPE.CONSULTANCY
-		? consultantPath({ id: verification.profileId })
-		: null;
 
 // Form answers and documents are keyed by the VerificationTemplate
 // (`fields[].key`, `documents[].type`); the backend populates `templateId`
@@ -70,6 +65,7 @@ function VerificationCard({
 	canManage,
 	onApprove,
 	onReject,
+	onViewProfile,
 	busy,
 }) {
 	const fileLink = AdminServices.getFileLink();
@@ -81,7 +77,6 @@ function VerificationCard({
 	]
 		.filter(Boolean)
 		.join(', ');
-	const profilePath = publicProfilePath(verification);
 	const isPending = verification.status === VERIFICATION_STATUS.PENDING;
 	// populated by the backend; a bare id if the template was deleted
 	const template =
@@ -189,15 +184,15 @@ function VerificationCard({
 				)}
 
 			<div className="sc_actions">
-				{profilePath && (
-					<Link
-						to={profilePath}
-						target="_blank"
-						className="inline-flex items-center gap-1.5 text-sm font-semibold text-(--pg-text-link) hover:underline"
-					>
-						Public profile <LuExternalLink aria-hidden="true" />
-					</Link>
-				)}
+				{/* the public page hides unverified / unsubscribed profiles —
+				    exactly the ones under review — so staff get their own view */}
+				<button
+					type="button"
+					onClick={() => onViewProfile(verification)}
+					className="inline-flex items-center gap-1.5 text-sm font-semibold text-(--pg-text-link) hover:underline"
+				>
+					<LuEye aria-hidden="true" /> View profile
+				</button>
 				{verification.reviewedAt && (
 					<span className="text-sm text-(--pg-text-secondary)">
 						Reviewed {formatDate(verification.reviewedAt, true)}
@@ -248,6 +243,7 @@ VerificationCard.propTypes = {
 	canManage: PropTypes.bool,
 	onApprove: PropTypes.func,
 	onReject: PropTypes.func,
+	onViewProfile: PropTypes.func.isRequired,
 	busy: PropTypes.bool,
 };
 
