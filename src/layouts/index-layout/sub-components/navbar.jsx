@@ -9,6 +9,7 @@ import {
 	LuMoon,
 	LuArrowRight,
 	LuLogOut,
+	LuLayoutDashboard,
 } from 'react-icons/lu';
 import AppLogo from '../../../components/logo';
 import { AppButton } from '../../../components/button';
@@ -17,7 +18,7 @@ import { selectIsAuthenticated } from '../../../store/slice/auth';
 import AuthServices from '../../../features/services/custom-hooks/auth';
 import { toast } from '../../toast/toast-handler';
 import { THEMES } from '../../../theme';
-import { ROUTES } from '../../../utilities/app-routes';
+import { ROUTES, homeForUser } from '../../../utilities/app-routes';
 import { NavWrapper, MobileMenu } from './navbar.style';
 
 const PILLAR_LINKS = [
@@ -35,6 +36,7 @@ function Navbar({ ready = true }) {
 	const { user } = useSelector((state) => state.auth);
 	const logout = AuthServices.logout();
 	const firstName = user?.fullName?.split(' ')[0];
+	const isStaff = homeForUser(user) === ROUTES.ADMIN;
 
 	const handleLogout = () => {
 		logout();
@@ -76,19 +78,29 @@ function Navbar({ ready = true }) {
 
 					{isAuthenticated ? (
 						<>
-							<span className="font-label hidden text-xs font-semibold tracking-[0.12em] text-(--pg-navbar-link) uppercase sm:inline">
+							<span className="font-label hidden text-xs font-semibold tracking-[0.12em] text-(--pg-navbar-link) uppercase xl:inline">
 								Hi,{' '}
 								<span className="text-(--pg-text-primary)">{firstName}</span>
 							</span>
 							<span className="hidden sm:inline-flex">
 								<AppButton
+									to={homeForUser(user)}
 									size="sm"
-									variant="secondary"
-									icon={<LuLogOut />}
-									onClick={handleLogout}
+									icon={<LuLayoutDashboard />}
 								>
-									Log out
+									{isStaff ? 'Admin' : 'Dashboard'}
 								</AppButton>
+							</span>
+							<span className="hidden sm:inline-flex">
+								<button
+									type="button"
+									className="sc_iconBtn"
+									onClick={handleLogout}
+									aria-label="Log out"
+									title="Log out"
+								>
+									<LuLogOut />
+								</button>
 							</span>
 						</>
 					) : (
@@ -143,13 +155,22 @@ function Navbar({ ready = true }) {
 							))}
 							<div className="mt-6 flex flex-col gap-3 sm:hidden">
 								{isAuthenticated ? (
-									<AppButton
-										variant="secondary"
-										icon={<LuLogOut />}
-										onClick={handleLogout}
-									>
-										Log out
-									</AppButton>
+									<>
+										<AppButton
+											to={homeForUser(user)}
+											icon={<LuLayoutDashboard />}
+											onClick={closeMenu}
+										>
+											{isStaff ? 'Admin' : 'Dashboard'}
+										</AppButton>
+										<AppButton
+											variant="secondary"
+											icon={<LuLogOut />}
+											onClick={handleLogout}
+										>
+											Log out
+										</AppButton>
+									</>
 								) : (
 									<>
 										<AppButton to={ROUTES.REGISTER} onClick={closeMenu}>

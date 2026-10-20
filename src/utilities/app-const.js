@@ -107,3 +107,10 @@ export const PROFILE_TYPE_LABELS = {
 	ClientProfile: 'Client',
 	LaborProfile: 'SiteForce worker',
 };
+
+// models/portfolioItem.ts + helpers/fileStorage.ts — portfolio images
+export const MAX_PORTFOLIO_ITEMS = 20;
+export const MAX_MEDIA_PER_ITEM = 6;
+export const PORTFOLIO_ACCEPT = 'image/jpeg,image/png,image/avif';
+// avatar / logo uploads (IMAGE_ONLY_MIME_TYPES)
+export const AVATAR_ACCEPT = 'image/jpeg,image/png,image/webp,image/avif';

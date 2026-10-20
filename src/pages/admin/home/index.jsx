@@ -13,7 +13,7 @@ import {
 	LuCloudOff,
 } from 'react-icons/lu';
 import AdminServices from '../../../features/services/custom-hooks/admin';
-import AdminPageHeader from '../../../layouts/admin-layout/sub-components/page-header';
+import AdminPageHeader from '../../../layouts/dashboard-shell/sub-components/page-header';
 import EmptyState from '../../../components/empty-state';
 import { AppButton } from '../../../components/button';
 import { SkeletonBar } from '../../../components/table/index.style';

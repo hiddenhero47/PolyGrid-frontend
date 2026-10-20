@@ -8,7 +8,7 @@ export const DESKTOP = '(min-width: 1024px)';
 const SIDEBAR_WIDTH = 'clamp(248px, 22vw, 272px)';
 const SIDEBAR_COLLAPSED = '78px';
 
-export const AdminShell = styled.div`
+export const ShellFrame = styled.div`
 	display: flex;
 	gap: 12px;
 	min-height: 100vh;

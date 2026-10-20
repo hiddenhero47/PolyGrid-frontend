@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { LuInbox, LuCloudOff, LuRotateCw, LuPartyPopper } from 'react-icons/lu';
 import AdminServices from '../../../features/services/custom-hooks/admin';
-import AdminPageHeader from '../../../layouts/admin-layout/sub-components/page-header';
+import AdminPageHeader from '../../../layouts/dashboard-shell/sub-components/page-header';
 import { toast } from '../../../layouts/toast/toast-handler';
 import EmptyState from '../../../components/empty-state';
 import Pagination from '../../../components/pagination';
@@ -17,7 +17,7 @@ import {
 	VERIFICATION_STATUS,
 } from '../../../utilities/app-const';
 import { enumToOptions } from '../../../utilities/basic-functions';
-import { QueueTabs } from '../elements/index.style';
+import SegmentedControl from '../../../components/segmented-control';
 import VerificationCard from './elements/verification-card';
 import RejectModal from './elements/reject-modal';
 
@@ -109,23 +109,16 @@ function AdminVerifications() {
 			/>
 
 			<div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-				<QueueTabs role="group" aria-label="Status">
-					{TABS.map((tab) => (
-						<button
-							key={tab.value}
-							type="button"
-							aria-pressed={status === tab.value}
-							onClick={() =>
-								setFilter({
-									status:
-										tab.value === VERIFICATION_STATUS.PENDING ? '' : tab.value,
-								})
-							}
-						>
-							{tab.label}
-						</button>
-					))}
-				</QueueTabs>
+				<SegmentedControl
+					label="Status"
+					options={TABS}
+					value={status}
+					onChange={(value) =>
+						setFilter({
+							status: value === VERIFICATION_STATUS.PENDING ? '' : value,
+						})
+					}
+				/>
 				<div className="w-full lg:w-[260px]">
 					<CustomSelect
 						name="profileType"

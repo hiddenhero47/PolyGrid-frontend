@@ -41,7 +41,33 @@ const useGrantSubscriptionMutation = () => {
 	});
 };
 
+// GET /api/subscriptions/current — { currentPlan: subscription | null }
+// (null = no live subscription; an expired one is null too).
+const useGetCurrentSubscriptionQuery = (options = {}) =>
+	useQuery({
+		queryKey: ['my-subscription'],
+		queryFn: () =>
+			axiosCall({ url: '/api/subscriptions/current', method: 'GET' }),
+		select: (res) => res?.currentPlan ?? null,
+		...options,
+	});
+
+// GET /api/subscriptions/me — my history, newest first
+const useGetMySubscriptionsQuery = ({ page = 1, limit = 10 } = {}) =>
+	useQuery({
+		queryKey: ['my-subscriptions', { page, limit }],
+		queryFn: () =>
+			axiosCall({
+				url: '/api/subscriptions/me',
+				method: 'GET',
+				params: { page, limit },
+			}),
+		placeholderData: keepPreviousData,
+	});
+
 const SubscriptionServices = {
+	getCurrentSubscription: useGetCurrentSubscriptionQuery,
+	getMySubscriptions: useGetMySubscriptionsQuery,
 	getUserSubscriptions: useGetUserSubscriptionsQuery,
 	grantSubscription: useGrantSubscriptionMutation,
 };

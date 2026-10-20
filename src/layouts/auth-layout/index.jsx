@@ -7,7 +7,7 @@ import AppLogo from '../../components/logo';
 import { toggleTheme } from '../../store/slice/app-theme';
 import { selectIsAuthenticated } from '../../store/slice/auth';
 import { THEMES } from '../../theme';
-import { ROUTES } from '../../utilities/app-routes';
+import { ROUTES, homeForUser } from '../../utilities/app-routes';
 import heroImage from '../../assets/images/home/hero-bridge.jpg';
 import { AuthWrapper } from './index.style';
 
@@ -22,6 +22,7 @@ function AuthLayout() {
 	const location = useLocation();
 	const { theme } = useSelector((state) => state.themes);
 	const isAuthenticated = useSelector(selectIsAuthenticated);
+	const { user } = useSelector((state) => state.auth);
 	const isDark = THEMES[theme].mode === 'dark';
 
 	// reset / verify links come from emails — a signed-in user may open them
@@ -29,7 +30,7 @@ function AuthLayout() {
 		location.pathname
 	);
 	if (isAuthenticated && !fromEmailLink) {
-		return <Navigate to={location.state?.from || ROUTES.HOME} replace />;
+		return <Navigate to={location.state?.from || homeForUser(user)} replace />;
 	}
 
 	return (

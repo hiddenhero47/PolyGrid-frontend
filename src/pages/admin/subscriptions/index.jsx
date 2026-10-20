@@ -2,7 +2,7 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { LuUsers } from 'react-icons/lu';
 import AdminServices from '../../../features/services/custom-hooks/admin';
-import AdminPageHeader from '../../../layouts/admin-layout/sub-components/page-header';
+import AdminPageHeader from '../../../layouts/dashboard-shell/sub-components/page-header';
 import CustomTable from '../../../components/table/custom-table';
 import StatusBadge from '../../../components/status-badge';
 import ProfileAvatar from '../../../components/profile-avatar';

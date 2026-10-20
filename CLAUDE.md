@@ -91,6 +91,13 @@ profile (`/engineering/:idOrSlug`).
 consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
 Verifications, Plans, Subscriptions) at `/admin`. See "Admin Dashboard"
 below.
+
+**User Dashboard started (Phase 2, first slice)** — `/dashboard`:
+home, Business Profile hub, the Consultancy profile editor (details,
+services, mentorship, portfolio, links, avatar, on-a-break switch),
+Verification Center (template-driven form + documents + history) and
+Subscription (current plan, plans, history; checkout comes with
+payments). See "User Dashboard" below.
 Next: the other pillars' browse + profile pages on the same pattern
 (contractors, stores, digital creators, workers, client profiles) and
 the tender / SiteForce public teasers. Remaining form controls
@@ -260,7 +267,8 @@ not in production builds.
 `/lab` (dev only, `pages/lab`) shows every control in every state plus a
 live Formik + yup form, the table and the modals — build and test
 shared components there first. Still to come: search-select /
-combobox, chips, file upload.
+combobox. (`CustomFile` and `CustomTags` exist but aren't on `/lab`
+yet.)
 
 - `CustomPhone` — value is the backend's `{ number, country }`
   (`number` normalized to E.164 once valid). Countries from
@@ -388,6 +396,48 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
 A consultant shows on `/engineering` only when verified **and** their
 owner has an active subscription: approve on Verifications → "Grant a
 plan" on the approved card → Subscriptions.
+
+### Dashboards — `layouts/dashboard-shell`
+
+Both dashboards use `DashboardShell` (`sections`, `counts`,
+`consoleLabel`, `eyebrow`, `roleLabel`, `collapseKey`): side menu card
+(`sub-components/sidebar-nav.jsx`), top bar, page card with `<Outlet />`,
+Modal.Left drawer on small screens. Every dashboard page starts with
+`sub-components/page-header.jsx`. The layouts only add their guard and
+menu: `admin-layout` (staff roles, `admin-nav.js`) and
+`dashboard-layout` (any signed-in user, `dashboard-nav.js`). After login
+/ register, `homeForUser(user)` (`app-routes.js`) sends staff to
+`/admin` and everyone else to `/dashboard`; the navbar shows the same
+link.
+
+### User Dashboard — `pages/dashboard/`
+
+- `elements/profile-types.js` — one entry per business profile type
+  (label, pillar, icon, pitch, `editor` route once built, `publicPath`,
+  `name(profile)`). Only consultancy has an editor so far; the other
+  five show "Coming soon".
+- `elements/go-live.jsx` + `go-live-state.js` — the go-live checklist
+  (details · verification · subscription · taking work): a profile is
+  public only when it's verified, active and its owner has a live plan.
+- Hooks: `custom-hooks/profiles.js` (`PROFILE_API` per type; `/me`
+  404 → `null`; `getMyProfiles` = six parallel `/me` queries; every
+  write replaces the `['my-profile', type]` cache with the returned
+  profile), `verification.js` (template lookup, submit, history),
+  `subscriptions.js` (`getCurrentSubscription`, `getMySubscriptions`).
+- Multipart uploads (portfolio, verification) send the non-file fields as
+  one JSON `data` field plus the files — the backend's
+  `parseMultipartData` convention.
+- Verification forms are built from the template at runtime:
+  `features/validations/template-form.js` copies the backend's
+  `templateFormSchema.ts`.
+- Profile form rules: `features/validations/profile-validation.js`.
+
+New shared pieces: `CustomFile` (drop zone + native file input;
+`File[]` or `File`; type/size checked client-side, previews revoked on
+remove), `CustomTags` (Enter/comma chips, `string[]`),
+`components/segmented-control` (status tabs, editor sections),
+`components/modal/confirm-modal.jsx` (`await ref.current.ask({ title,
+text, confirmLabel })` → boolean).
 
 ### Typography
 

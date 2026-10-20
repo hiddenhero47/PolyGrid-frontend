@@ -7,13 +7,12 @@ import { toggleTheme } from '../../../store/slice/app-theme';
 import { THEMES } from '../../../theme';
 import AuthServices from '../../../features/services/custom-hooks/auth';
 import ProfileAvatar from '../../../components/profile-avatar';
-import { SYSTEM_ROLE_LABELS } from '../../../utilities/app-const';
 import { ROUTES } from '../../../utilities/app-routes';
 import { TopBar as Bar, IconButton } from '../index.style';
 
 // HM's dashboard nav bar: menu toggle (drawer, below desktop), where you
 // are (each page has its own heading), theme toggle, then who's signed in and with which role.
-function TopBar({ title, onOpenMenu }) {
+function TopBar({ eyebrow, title, roleLabel, onOpenMenu }) {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const logout = AuthServices.logout();
@@ -35,7 +34,7 @@ function TopBar({ title, onOpenMenu }) {
 			</span>
 
 			<div className="sc_title">
-				<span className="sc_eyebrow">Admin console</span>
+				<span className="sc_eyebrow">{eyebrow}</span>
 				<span className="sc_page">{title}</span>
 			</div>
 
@@ -55,7 +54,7 @@ function TopBar({ title, onOpenMenu }) {
 						{user?.fullName}
 					</p>
 					<p className="font-label text-[10.5px] font-semibold tracking-[0.14em] text-(--pg-text-highlight) uppercase">
-						{SYSTEM_ROLE_LABELS[user?.systemRole] || user?.systemRole}
+						{roleLabel}
 					</p>
 				</div>
 			</div>
@@ -73,6 +72,8 @@ function TopBar({ title, onOpenMenu }) {
 }
 
 TopBar.propTypes = {
+	eyebrow: PropTypes.string,
+	roleLabel: PropTypes.string,
 	title: PropTypes.string,
 	onOpenMenu: PropTypes.func,
 };

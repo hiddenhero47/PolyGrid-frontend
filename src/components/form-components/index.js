@@ -12,3 +12,5 @@ export { default as CustomToggle } from './choice/custom-toggle';
 export { default as CustomDate } from './date/custom-date';
 export { default as CustomPhone } from './phone/custom-phone';
 export { default as CustomOtp } from './otp/custom-otp';
+export { default as CustomFile } from './file/custom-file';
+export { default as CustomTags } from './tags/custom-tags';

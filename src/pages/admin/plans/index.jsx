@@ -9,7 +9,7 @@ import {
 	LuUsers,
 } from 'react-icons/lu';
 import PlanServices from '../../../features/services/custom-hooks/plans';
-import AdminPageHeader from '../../../layouts/admin-layout/sub-components/page-header';
+import AdminPageHeader from '../../../layouts/dashboard-shell/sub-components/page-header';
 import { toast } from '../../../layouts/toast/toast-handler';
 import EmptyState from '../../../components/empty-state';
 import StatusBadge from '../../../components/status-badge';

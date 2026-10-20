@@ -20,6 +20,13 @@ export const ROUTES = {
 	// detail pages — build with the helpers below
 	CONSULTANT: '/engineering/:idOrSlug',
 
+	// User Dashboard — frontend-plan §B
+	DASHBOARD: '/dashboard',
+	DASHBOARD_PROFILES: '/dashboard/profiles',
+	DASHBOARD_CONSULTANCY: '/dashboard/profiles/consultancy',
+	DASHBOARD_VERIFICATION: '/dashboard/verification',
+	DASHBOARD_SUBSCRIPTION: '/dashboard/subscription',
+
 	// Admin Dashboard — frontend-plan §C
 	ADMIN: '/admin',
 	ADMIN_VERIFICATIONS: '/admin/verifications',
@@ -30,6 +37,12 @@ export const ROUTES = {
 	PRIVACY: '/privacy-policy',
 	TERMS: '/terms-and-conditions',
 };
+
+// Where a signed-in user "lives": staff land on the Admin Dashboard,
+// everyone else on their workspace (frontend-plan §B.1).
+const STAFF_ROLES = ['super_admin', 'admin', 'customer_care'];
+export const homeForUser = (user) =>
+	STAFF_ROLES.includes(user?.systemRole) ? ROUTES.ADMIN : ROUTES.DASHBOARD;
 
 export const consultantPath = (profile) =>
 	`/engineering/${encodeURIComponent(profile?.slug || profile?.id || '')}`;

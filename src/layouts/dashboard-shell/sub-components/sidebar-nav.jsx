@@ -3,28 +3,27 @@ import PropTypes from 'prop-types';
 import { LuPanelLeftClose, LuPanelLeftOpen, LuArrowLeft } from 'react-icons/lu';
 import AppLogo from '../../../components/logo';
 import { ROUTES } from '../../../utilities/app-routes';
-import { navForRole } from '../admin-nav';
 import { NavShell, NavItemLink, NavItemSoon, IconButton } from '../index.style';
 
-// The admin menu — rendered in the desktop side card and, on smaller
-// screens, inside a Modal.Left drawer (`onNavigate` closes it).
-// `counts` fills an item's countKey badge (e.g. pending verifications).
+// A dashboard menu (admin or user) — rendered in the desktop side card
+// and, on smaller screens, inside a Modal.Left drawer (`onNavigate`
+// closes it). `sections` = [{ heading, items: [{ label, to, icon, end?,
+// countKey?, soon? }] }]; `counts` fills an item's countKey badge.
 function SidebarNav({
-	role,
+	sections = [],
+	consoleLabel,
 	counts = {},
 	collapsed = false,
 	onToggleCollapse,
 	onNavigate,
 }) {
-	const sections = navForRole(role);
-
 	return (
-		<NavShell $collapsed={collapsed} aria-label="Admin">
+		<NavShell $collapsed={collapsed} aria-label={consoleLabel || 'Dashboard'}>
 			<div className="sc_brand">
 				{!collapsed && (
 					<div>
 						<AppLogo size={28} textSize="text-[19px]" />
-						<span className="sc_console">Command console</span>
+						{consoleLabel && <span className="sc_console">{consoleLabel}</span>}
 					</div>
 				)}
 				{onToggleCollapse && (
@@ -106,7 +105,8 @@ function SidebarNav({
 }
 
 SidebarNav.propTypes = {
-	role: PropTypes.string,
+	sections: PropTypes.array,
+	consoleLabel: PropTypes.string,
 	counts: PropTypes.object,
 	collapsed: PropTypes.bool,
 	onToggleCollapse: PropTypes.func,

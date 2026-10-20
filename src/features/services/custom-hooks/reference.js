@@ -21,8 +21,42 @@ const useGetCountriesQuery = () =>
 		gcTime: Infinity,
 	});
 
+// GET /api/reference/countries/:code/cities → { data: [{ name, stateCode }] }
+// Used as type-ahead suggestions; the backend accepts any city string.
+const useGetCitiesQuery = (countryCode) =>
+	useQuery({
+		queryKey: ['reference', 'cities', countryCode],
+		queryFn: () =>
+			axiosCall({
+				url: `/api/reference/countries/${countryCode}/cities`,
+				method: 'GET',
+				silent: true,
+			}),
+		select: (res) => res?.data ?? [],
+		enabled: Boolean(countryCode),
+		staleTime: Infinity,
+		gcTime: 30 * 60 * 1000,
+	});
+
+// GET /api/reference/countries/:code/states → { data: [{ isoCode, name }] }
+const useGetStatesQuery = (countryCode) =>
+	useQuery({
+		queryKey: ['reference', 'states', countryCode],
+		queryFn: () =>
+			axiosCall({
+				url: `/api/reference/countries/${countryCode}/states`,
+				method: 'GET',
+				silent: true,
+			}),
+		select: (res) => res?.data ?? [],
+		enabled: Boolean(countryCode),
+		staleTime: Infinity,
+	});
+
 const ReferenceServices = {
 	getCountries: useGetCountriesQuery,
+	getCities: useGetCitiesQuery,
+	getStates: useGetStatesQuery,
 };
 
 export default ReferenceServices;

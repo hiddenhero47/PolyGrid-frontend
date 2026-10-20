@@ -81,12 +81,3 @@ export const navForRole = (role) =>
 		...section,
 		items: section.items.filter((item) => item.roles.includes(role)),
 	})).filter((section) => section.items.length);
-
-// The page title for the top bar: the deepest nav item matching the path.
-export const titleForPath = (pathname) => {
-	const items = ADMIN_NAV.flatMap((s) => s.items).filter((i) => i.to);
-	const match = items
-		.filter((i) => (i.end ? pathname === i.to : pathname.startsWith(i.to)))
-		.sort((a, b) => b.to.length - a.to.length)[0];
-	return match?.label || 'Admin';
-};

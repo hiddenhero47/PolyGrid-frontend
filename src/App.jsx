@@ -8,6 +8,7 @@ import IndexLayout from './layouts/index-layout/index';
 import WrapperLayout from './layouts/wrapper-layout/index';
 import AuthLayout from './layouts/auth-layout';
 import AdminLayout from './layouts/admin-layout';
+import DashboardLayout from './layouts/dashboard-layout';
 import AppToast from './layouts/toast/index-toast';
 // pages
 import Home from './pages/home';
@@ -19,6 +20,11 @@ import Login from './pages/auth/login';
 import ForgotPassword from './pages/auth/forgot-password';
 import ResetPassword from './pages/auth/reset-password';
 import VerifyEmail from './pages/auth/verify-email';
+import DashboardHome from './pages/dashboard/home';
+import MyProfiles from './pages/dashboard/profiles';
+import ConsultancyEditor from './pages/dashboard/profiles/consultancy';
+import VerificationCenter from './pages/dashboard/verification';
+import MySubscription from './pages/dashboard/subscription';
 import AdminHome from './pages/admin/home';
 import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
@@ -109,7 +115,17 @@ function App() {
 								<Route path="subscriptions" element={<AdminSubscriptions />} />
 							</Route>
 
-							{/* User Dashboard (§B) layout goes here */}
+							{/* User Dashboard — frontend-plan §B (any signed-in account) */}
+							<Route path="/dashboard" element={<DashboardLayout />}>
+								<Route index element={<DashboardHome />} />
+								<Route path="profiles" element={<MyProfiles />} />
+								<Route
+									path="profiles/consultancy"
+									element={<ConsultancyEditor />}
+								/>
+								<Route path="verification" element={<VerificationCenter />} />
+								<Route path="subscription" element={<MySubscription />} />
+							</Route>
 
 							<Route element={<WrapperLayout />}>
 								<Route path="*" element={<NotFound />} />
