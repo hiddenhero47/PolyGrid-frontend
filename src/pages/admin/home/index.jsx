@@ -23,6 +23,7 @@ import {
 	VERIFICATION_STATUS,
 } from '../../../utilities/app-const';
 import { ROUTES } from '../../../utilities/app-routes';
+import { formatMoney } from '../../../utilities/basic-functions';
 import { StatTile, StatTileLink, AdminSection } from '../elements/index.style';
 
 const greeting = () => {
@@ -68,9 +69,11 @@ function AdminHome() {
 			label: 'Completed jobs',
 			value: stats?.completedJobs,
 			icon: LuBriefcase,
-			// summed across currencies by the backend — a rough volume only
-			note: stats?.completedJobs
-				? `${num(stats.completedJobsGrossAmount)} gross (mixed currencies)`
+			// [{ currency, total }] — one entry per currency jobs were paid in
+			note: stats?.completedJobsGrossAmount?.length
+				? `${stats.completedJobsGrossAmount
+						.map(({ currency, total }) => formatMoney(total, currency))
+						.join(' + ')} gross`
 				: null,
 		},
 		{

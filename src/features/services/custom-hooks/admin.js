@@ -79,8 +79,8 @@ const useRejectVerificationMutation = () => {
 	});
 };
 
-// GET /api/files/private/:ownerId/:fileName/link — owner or admin /
-// super_admin (customer_care gets 403). Returns short-lived signed
+// GET /api/files/private/:ownerId/:fileName/link — owner, admin /
+// super_admin, or customer_care for a verification document. Returns short-lived signed
 // { requestUrl, downloadUrl }, so it's fetched on click, never cached.
 const useGetFileLinkMutation = () =>
 	useMutation({
@@ -91,14 +91,15 @@ const useGetFileLinkMutation = () =>
 			}),
 	});
 
-// GET /api/users?systemRole=&userId=&page=&limit= — super_admin only.
-// { data: [user (lean — `_id`, not `id`)], pagination }
+// GET /api/users?systemRole=&userId=&q=&page=&limit= — admin / super_admin
+// (read only). `q` matches email or full name. { data: [user (lean —
+// `_id`, not `id`)], pagination }
 const useGetUsersQuery = (
-	{ systemRole, userId, page = 1, limit = 10 },
+	{ systemRole, userId, q, page = 1, limit = 10 },
 	options = {}
 ) =>
 	useQuery({
-		queryKey: ['admin-users', { systemRole, userId, page, limit }],
+		queryKey: ['admin-users', { systemRole, userId, q, page, limit }],
 		queryFn: () =>
 			axiosCall({
 				url: '/api/users',
@@ -106,6 +107,7 @@ const useGetUsersQuery = (
 				params: {
 					systemRole: systemRole || undefined,
 					userId: userId || undefined,
+					q: q || undefined,
 					page,
 					limit,
 				},

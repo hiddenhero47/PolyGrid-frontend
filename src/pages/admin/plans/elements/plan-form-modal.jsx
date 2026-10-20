@@ -10,9 +10,12 @@ import {
 	CustomToggle,
 } from '../../../../components/form-components';
 import { humanize } from '../../../../utilities/basic-functions';
+import { PLATFORM_CURRENCY } from '../../../../utilities/app-const';
 
 // Mirrors polygrid-backend validators/plan/planValidator.ts. `privileges`
-// is edited one per line; the tier is fixed once a plan exists.
+// is edited one per line; the tier is fixed once a plan exists. Prices
+// are always USD (PLATFORM_CURRENCY) — sent on every save, so a plan made
+// before the USD lock is moved over when it's next edited.
 const planSchema = yup.object({
 	name: yup.string().trim().required('Give the plan a name'),
 	duration: yup
@@ -26,10 +29,6 @@ const planSchema = yup.object({
 		.typeError('Enter a price')
 		.min(0, 'Can’t be negative')
 		.required('Enter a price (0 for free)'),
-	currency: yup
-		.string()
-		.trim()
-		.matches(/^[A-Za-z]{3}$/, 'A 3-letter code, e.g. USD or NGN'),
 	maxUsers: yup
 		.number()
 		.transform((value, original) => (original === '' ? null : value))
@@ -56,7 +55,6 @@ function PlanFormModal({ refName, tier, plan, onSubmit, isPending }) {
 			name: plan?.name ?? (tier ? `${humanize(tier)} plan` : ''),
 			duration: plan?.duration ?? 30,
 			price: plan?.price ?? '',
-			currency: plan?.currency ?? 'USD',
 			maxUsers: plan?.maxUsers ?? '',
 			privileges: (plan?.privileges || []).join('\n'),
 			isActive: plan?.isActive ?? true,
@@ -67,7 +65,7 @@ function PlanFormModal({ refName, tier, plan, onSubmit, isPending }) {
 				name: values.name.trim(),
 				duration: Number(values.duration),
 				price: Number(values.price),
-				currency: values.currency.trim().toUpperCase() || undefined,
+				currency: PLATFORM_CURRENCY,
 				privileges: toLines(values.privileges),
 			};
 			// empty = no limit; on an edit, null clears an existing limit
@@ -127,7 +125,7 @@ function PlanFormModal({ refName, tier, plan, onSubmit, isPending }) {
 						/>
 					</div>
 					<CustomInput
-						label="Price"
+						label="Price (USD)"
 						name="price"
 						type="number"
 						inputMode="decimal"
@@ -139,17 +137,6 @@ function PlanFormModal({ refName, tier, plan, onSubmit, isPending }) {
 						onBlur={form.handleBlur}
 						isError={err('price')}
 						errormessage={form.errors.price}
-					/>
-					<CustomInput
-						label="Currency"
-						name="currency"
-						hint="ISO code — USD if left empty"
-						maxLength={3}
-						value={form.values.currency}
-						onChange={form.handleChange}
-						onBlur={form.handleBlur}
-						isError={err('currency')}
-						errormessage={form.errors.currency}
 					/>
 					<CustomInput
 						label="Duration (days)"

@@ -287,11 +287,11 @@ not `_id`.** `AuthServices.logout()` also clears the query cache.
 (except reset). Yup rules in `features/validations/auth-validation.js`
 mirror `polygrid-backend/src/validators/user/userValidator.ts`.
 
-Known backend-side gap (not a frontend bug): the local backend has no
-`MAILGUN_API_KEY` yet, so `POST /api/users/request-reset` returns 500
-"MAILGUN_API_KEY is not set" — forgot-password shows that toast and
-keeps the form. Reset emails work once the key is added to the
-backend's `.env`.
+Outside production the backend also returns the verify link / reset token
+in those responses (`verifyUrl`, `verifyEmailToken`, `token`) — handy
+for testing without an inbox; `setSession` never stores them. Real
+emails go through the Mailgun sandbox (authorized recipients only;
+check spam).
 
 ### Feedback & profile building blocks
 
@@ -380,7 +380,10 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
 - Queue filters live in the URL (`?status=&profileType=&page=`,
   `/admin/subscriptions?userId=`), like the public browse pages.
 - Hooks: `custom-hooks/admin.js` (overview, verifications, signed
-  private-file links, users), `plans.js`, `subscriptions.js`.
+  private-file links, users with `?q=` search), `plans.js`,
+  `subscriptions.js`.
+- Money is **USD only** (`PLATFORM_CURRENCY` in `app-const.js`, mirrors
+  the backend's `currencyReference.ts`) — forms send it, never ask.
 
 A consultant shows on `/engineering` only when verified **and** their
 owner has an active subscription: approve on Verifications → "Grant a

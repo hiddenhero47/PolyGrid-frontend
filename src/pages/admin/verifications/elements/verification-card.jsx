@@ -48,8 +48,18 @@ const publicProfilePath = (verification) =>
 		? consultantPath({ id: verification.profileId })
 		: null;
 
-// Form answers are template-driven (VerificationTemplate), so keys are
-// shown humanized: fullName → Full Name.
+// Form answers and documents are keyed by the VerificationTemplate
+// (`fields[].key`, `documents[].type`); the backend populates `templateId`
+// with those definitions, so their labels are shown. A key is humanized
+// only if the template doesn't list it.
+const fieldLabel = (template, key) =>
+	template?.fields?.find((field) => field.key === key)?.label ||
+	humanize(key.replace(/([a-z])([A-Z])/g, '$1 $2'));
+
+const documentLabel = (template, type) =>
+	template?.documents?.find((doc) => doc.type === type)?.label ||
+	humanize(type);
+
 const formEntries = (form = {}) =>
 	Object.entries(form).filter(
 		([, value]) => value !== '' && value != null && typeof value !== 'object'
@@ -73,6 +83,11 @@ function VerificationCard({
 		.join(', ');
 	const profilePath = publicProfilePath(verification);
 	const isPending = verification.status === VERIFICATION_STATUS.PENDING;
+	// populated by the backend; a bare id if the template was deleted
+	const template =
+		typeof verification.templateId === 'object'
+			? verification.templateId
+			: null;
 
 	// The signed link is fetched on click; the tab is opened first so popup
 	// blockers allow it, then pointed at the file.
@@ -135,9 +150,7 @@ function VerificationCard({
 				<dl className="sc_details">
 					{formEntries(verification.form).map(([key, value]) => (
 						<div key={key}>
-							<dt className="sc_term">
-								{humanize(key.replace(/([a-z])([A-Z])/g, '$1 $2'))}
-							</dt>
+							<dt className="sc_term">{fieldLabel(template, key)}</dt>
 							<dd className="sc_def">{String(value)}</dd>
 						</div>
 					))}
@@ -151,21 +164,17 @@ function VerificationCard({
 							key={doc.fileName}
 							type="button"
 							onClick={() => openDocument(doc)}
-							disabled={!canManage || fileLink.isPending}
-							title={
-								canManage
-									? 'Open in a new tab'
-									: 'Only admins can open documents'
-							}
+							disabled={fileLink.isPending}
+							title="Open in a new tab"
 						>
 							{doc.mime?.startsWith('image/') ? (
 								<LuImage className="sc_docIcon" aria-hidden="true" />
 							) : (
 								<LuFileText className="sc_docIcon" aria-hidden="true" />
 							)}
-							{humanize(doc.type)}
+							{documentLabel(template, doc.type)}
 							<span className="sc_size">{fileSize(doc.size)}</span>
-							{canManage && <LuExternalLink aria-hidden="true" />}
+							<LuExternalLink aria-hidden="true" />
 						</DocChip>
 					))}
 				</div>

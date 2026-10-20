@@ -81,6 +81,10 @@ export const SYSTEM_ROLE_LABELS = {
 	user: 'User',
 };
 
+// helpers/currencyReference.ts — the platform is USD-only for now; every
+// money field the backend accepts must be this.
+export const PLATFORM_CURRENCY = 'USD';
+
 // src/models/planModel.ts
 export const PLAN_TIER = {
 	FREE: 'free',

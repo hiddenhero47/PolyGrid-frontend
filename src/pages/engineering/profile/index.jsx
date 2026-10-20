@@ -29,6 +29,7 @@ import {
 	PROFILE_TYPE,
 	SPECIALIZATION_LABELS,
 	PRICING_MODE_LABELS,
+	PLATFORM_CURRENCY,
 } from '../../../utilities/app-const';
 import { countryName, formatMoney } from '../../../utilities/basic-functions';
 import { ROUTES } from '../../../utilities/app-routes';
@@ -276,10 +277,9 @@ function ConsultantProfile() {
 								</div>
 							)}
 							<p className="mt-4 font-semibold text-(--pg-text-primary)">
-								{/* the backend's mentorship.ratePerSession has no currency
-								    of its own — shown in the profile's service currency */}
+								{/* platform is USD-only, so the rate has no currency field */}
 								{mentorship.ratePerSession
-									? `${formatMoney(mentorship.ratePerSession, profile.services?.[0]?.currency || 'USD')} per session`
+									? `${formatMoney(mentorship.ratePerSession, PLATFORM_CURRENCY)} per session`
 									: 'Free mentorship'}
 							</p>
 						</ProfileSection>
