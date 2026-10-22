@@ -11,7 +11,7 @@ import { CustomSelect } from '../../../components/form-components';
 import { SYSTEM_ROLE, SYSTEM_ROLE_LABELS } from '../../../utilities/app-const';
 import { enumToOptions, formatDate } from '../../../utilities/basic-functions';
 import GrantPanel from './elements/grant-panel';
-import UserSearch from './elements/user-search';
+import UserSearch from '../elements/user-search';
 
 const LIMIT = 10;
 const OBJECT_ID = /^[a-f\d]{24}$/i;

@@ -403,6 +403,13 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   (`verifications/elements/profile-review.jsx`) fed by
   `GET /api/admin/profiles/:profileType/:id` (REVIEW_ROLES, read-only,
   any pillar; renders whichever common sections the profile has).
+- Users (`/admin/users`, frontend-plan §C.2): search / role filter for
+  admin + super_admin; only super_admin sees "Add staff"
+  (`admin-create` always makes an admin — customer care is a role change
+  straight after) and per-row "Manage" (role select, suspend /
+  reinstate, both behind ConfirmModal). Never offered for yourself or
+  the Super Admin. `pages/admin/elements/user-search.jsx` is shared with
+  Subscriptions.
 - Money is **USD only** (`PLATFORM_CURRENCY` in `app-const.js`, mirrors
   the backend's `currencyReference.ts`) — forms send it, never ask.
 

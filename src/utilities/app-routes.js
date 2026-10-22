@@ -38,6 +38,7 @@ export const ROUTES = {
 	ADMIN_VERIFICATIONS: '/admin/verifications',
 	ADMIN_PLANS: '/admin/plans',
 	ADMIN_SUBSCRIPTIONS: '/admin/subscriptions',
+	ADMIN_USERS: '/admin/users',
 
 	ABOUT: '/about-us',
 	PRIVACY: '/privacy-policy',

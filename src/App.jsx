@@ -34,6 +34,7 @@ import AdminHome from './pages/admin/home';
 import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
 import AdminSubscriptions from './pages/admin/subscriptions';
+import AdminUsers from './pages/admin/users';
 
 // Development-only pages, loaded lazily so production builds don't
 // include them at all. /dev-console is TEMPORARY — delete before launch.
@@ -146,6 +147,7 @@ function App() {
 								<Route path="verifications" element={<AdminVerifications />} />
 								<Route path="plans" element={<AdminPlans />} />
 								<Route path="subscriptions" element={<AdminSubscriptions />} />
+								<Route path="users" element={<AdminUsers />} />
 							</Route>
 
 							{/* User Dashboard — frontend-plan §B (any signed-in account) */}

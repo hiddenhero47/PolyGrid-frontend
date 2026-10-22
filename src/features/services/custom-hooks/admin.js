@@ -131,7 +131,62 @@ const useGetProfileForReviewQuery = ({ profileType, id }) =>
 		enabled: Boolean(profileType && id),
 	});
 
+// User management (frontend-plan §C.2) — super_admin only. Nobody can
+// change their own role / status, or the Super Admin's.
+const useUserWrite = (request) => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: request,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+			queryClient.invalidateQueries({ queryKey: ['admin-overview'] });
+		},
+	});
+};
+
+// POST /api/users/admin-create { fullName, email, password } — always
+// creates an `admin`; another role is a role change straight after.
+const useCreateStaffMutation = () =>
+	useUserWrite(async ({ role, ...data }) => {
+		const created = await axiosCall({
+			url: '/api/users/admin-create',
+			method: 'POST',
+			data,
+		});
+		if (role && role !== created.systemRole) {
+			await axiosCall({
+				url: `/api/users/${created.id}/role`,
+				method: 'PATCH',
+				data: { systemRole: role },
+			});
+		}
+		return created;
+	});
+
+// PATCH /api/users/:id/role { systemRole }
+const useChangeRoleMutation = () =>
+	useUserWrite(({ id, systemRole }) =>
+		axiosCall({
+			url: `/api/users/${id}/role`,
+			method: 'PATCH',
+			data: { systemRole },
+		})
+	);
+
+// PATCH /api/users/:id/account-status { accountStatus: 'active' | 'suspended' }
+const useSetAccountStatusMutation = () =>
+	useUserWrite(({ id, accountStatus }) =>
+		axiosCall({
+			url: `/api/users/${id}/account-status`,
+			method: 'PATCH',
+			data: { accountStatus },
+		})
+	);
+
 const AdminServices = {
+	createStaff: useCreateStaffMutation,
+	changeRole: useChangeRoleMutation,
+	setAccountStatus: useSetAccountStatusMutation,
 	getProfileForReview: useGetProfileForReviewQuery,
 	getOverview: useGetOverviewQuery,
 	getVerifications: useGetVerificationsQuery,

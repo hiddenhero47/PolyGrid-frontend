@@ -71,7 +71,14 @@ export const ADMIN_NAV = [
 	},
 	{
 		heading: 'People',
-		items: [{ label: 'Users', icon: LuUsers, roles: MANAGE_ROLES, soon: true }],
+		items: [
+			{
+				label: 'Users',
+				to: ROUTES.ADMIN_USERS,
+				icon: LuUsers,
+				roles: MANAGE_ROLES,
+			},
+		],
 	},
 ];
 

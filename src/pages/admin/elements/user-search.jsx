@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { LuSearch, LuX } from 'react-icons/lu';
-import { AppButton } from '../../../../components/button';
-import { CustomInput } from '../../../../components/form-components';
+import { AppButton } from '../../../components/button';
+import { CustomInput } from '../../../components/form-components';
 
 // Name / email search for GET /api/users?q=. Searches on submit (no
 // request per keystroke). The parent keys this by the URL's `q`, so the
