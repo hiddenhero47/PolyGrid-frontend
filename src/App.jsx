@@ -16,6 +16,13 @@ import Home from './pages/home';
 import BrowseConsultants from './pages/engineering';
 import ConsultantProfile from './pages/engineering/profile';
 import BoardTeaser from './pages/board-teaser';
+import BrowseStores from './pages/store';
+import StorePage from './pages/store/shop';
+import ProductPage from './pages/store/product';
+import DigitalFeed from './pages/store/digital';
+import CreatorPage from './pages/store/creator';
+import DigitalProductPage from './pages/store/digital-product';
+import ClientProfile from './pages/clients/profile';
 import BrowseDirectory from './pages/directory';
 import DirectoryProfile from './pages/directory/profile';
 import NotFound from './pages/not-found';
@@ -35,6 +42,7 @@ import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
 import AdminSubscriptions from './pages/admin/subscriptions';
 import AdminUsers from './pages/admin/users';
+import DigitalReview from './pages/admin/digital-review';
 
 // Development-only pages, loaded lazily so production builds don't
 // include them at all. /dev-console is TEMPORARY — delete before launch.
@@ -87,6 +95,19 @@ function App() {
 										<DirectoryProfile key="contractor" kind="contractor" />
 									}
 								/>
+								<Route path="/store" element={<BrowseStores />} />
+								<Route path="/store/shops/:idOrSlug" element={<StorePage />} />
+								<Route path="/store/products/:id" element={<ProductPage />} />
+								<Route path="/store/digital" element={<DigitalFeed />} />
+								<Route
+									path="/store/digital/:id"
+									element={<DigitalProductPage />}
+								/>
+								<Route
+									path="/store/creators/:idOrSlug"
+									element={<CreatorPage />}
+								/>
+								<Route path="/clients/:id" element={<ClientProfile />} />
 								<Route
 									path="/siteforce"
 									element={<BoardTeaser key="siteforce" board="siteforce" />}
@@ -148,6 +169,7 @@ function App() {
 								<Route path="plans" element={<AdminPlans />} />
 								<Route path="subscriptions" element={<AdminSubscriptions />} />
 								<Route path="users" element={<AdminUsers />} />
+								<Route path="digital-products" element={<DigitalReview />} />
 							</Route>
 
 							{/* User Dashboard — frontend-plan §B (any signed-in account) */}

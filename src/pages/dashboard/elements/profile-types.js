@@ -12,6 +12,9 @@ import {
 	consultantPath,
 	contractorPath,
 	workerPath,
+	storePath,
+	creatorPath,
+	clientPath,
 } from '../../../utilities/app-routes';
 
 // What each business profile is, for the Profiles hub (frontend-plan
@@ -58,6 +61,7 @@ export const PROFILE_TYPES = [
 		pitch:
 			'List building materials and take orders from contractors and clients.',
 		editor: ROUTES.DASHBOARD_STORE,
+		publicPath: storePath,
 		name: (p) => p.storeName,
 	},
 	{
@@ -67,6 +71,7 @@ export const PROFILE_TYPES = [
 		icon: LuFileCode2,
 		pitch: 'Sell drawings, templates and calculation sheets as downloads.',
 		editor: ROUTES.DASHBOARD_CREATOR,
+		publicPath: creatorPath,
 		name: (p) => p.displayName,
 	},
 	{
@@ -76,6 +81,7 @@ export const PROFILE_TYPES = [
 		icon: LuClipboardList,
 		pitch: 'Post tender projects and site jobs, and hire the people who bid.',
 		editor: ROUTES.DASHBOARD_CLIENT,
+		publicPath: clientPath,
 		name: (p) => p.displayName,
 	},
 ];

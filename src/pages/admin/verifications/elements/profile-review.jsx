@@ -32,6 +32,9 @@ import {
 	consultantPath,
 	contractorPath,
 	workerPath,
+	storePath,
+	creatorPath,
+	clientPath,
 } from '../../../../utilities/app-routes';
 
 // Pillars with a public page so far.
@@ -39,6 +42,9 @@ const PUBLIC_PATHS = {
 	[PROFILE_TYPE.CONSULTANCY]: consultantPath,
 	[PROFILE_TYPE.CONTRACTOR]: contractorPath,
 	[PROFILE_TYPE.LABOR]: workerPath,
+	[PROFILE_TYPE.STORE]: storePath,
+	[PROFILE_TYPE.DIGITAL_CREATOR]: creatorPath,
+	[PROFILE_TYPE.CLIENT]: clientPath,
 };
 
 // Every pillar names itself with one of these, never more than one.

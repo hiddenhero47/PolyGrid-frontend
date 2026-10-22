@@ -31,6 +31,11 @@ function AdminLayout() {
 		{ enabled: allowed }
 	);
 
+	const { data: pendingDigital } = AdminServices.getDigitalReview(
+		{ status: 'pending', page: 1, limit: 1 },
+		{ enabled: allowed }
+	);
+
 	if (!isAuthenticated) {
 		return (
 			<Navigate
@@ -58,7 +63,10 @@ function AdminLayout() {
 	return (
 		<DashboardShell
 			sections={navForRole(user.systemRole)}
-			counts={{ pendingVerifications: pending?.pagination?.total || 0 }}
+			counts={{
+				pendingVerifications: pending?.pagination?.total || 0,
+				pendingDigital: pendingDigital?.pagination?.total || 0,
+			}}
 			consoleLabel="Command console"
 			eyebrow="Admin console"
 			roleLabel={SYSTEM_ROLE_LABELS[user.systemRole] || user.systemRole}

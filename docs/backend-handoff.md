@@ -10,7 +10,16 @@ _Last updated: 2026-10-22._
 
 ## Open
 
-### 1. Deliverable files can share a name, but are removed by name
+### 1. Store list preview products have no `id`
+
+`GET /api/store-profiles` maps each store's `previewProducts` (from a
+`$lookup`) with `toPublicProduct`, so `id` is undefined — the same
+aggregate issue fixed for profile search in `be7859f`. Store cards link
+those previews to the store page until the id is there. Fix: add
+`id: p._id.toString()` after the mapper.
+
+
+### 2. Deliverable files can share a name, but are removed by name
 
 **Where:** the digital storage providers (`internalStorageProvider.ts`,
 `s3StorageProvider.ts`) save `fileName: file.originalname`, and

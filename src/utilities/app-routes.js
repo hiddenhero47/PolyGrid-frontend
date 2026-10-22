@@ -21,6 +21,11 @@ export const ROUTES = {
 	CONSULTANT: '/engineering/:idOrSlug',
 	CONTRACTOR: '/contractors/:idOrSlug',
 	WORKER: '/siteforce/workers/:idOrSlug',
+	SHOP: '/store/shops/:idOrSlug',
+	PRODUCT: '/store/products/:id',
+	CREATOR: '/store/creators/:idOrSlug',
+	DIGITAL_PRODUCT: '/store/digital/:id',
+	CLIENT: '/clients/:id',
 
 	// User Dashboard — frontend-plan §B
 	DASHBOARD: '/dashboard',
@@ -41,6 +46,7 @@ export const ROUTES = {
 	ADMIN_PLANS: '/admin/plans',
 	ADMIN_SUBSCRIPTIONS: '/admin/subscriptions',
 	ADMIN_USERS: '/admin/users',
+	ADMIN_DIGITAL_REVIEW: '/admin/digital-products',
 
 	ABOUT: '/about-us',
 	PRIVACY: '/privacy-policy',
@@ -61,3 +67,16 @@ export const contractorPath = (profile) =>
 
 export const workerPath = (profile) =>
 	`/siteforce/workers/${encodeURIComponent(profile?.slug || profile?.id || '')}`;
+
+export const storePath = (store) =>
+	`/store/shops/${encodeURIComponent(store?.slug || store?.id || '')}`;
+export const productPath = (product) =>
+	`/store/products/${encodeURIComponent(product?.id || '')}`;
+export const creatorPath = (creator) =>
+	`/store/creators/${encodeURIComponent(creator?.slug || creator?.id || '')}`;
+export const digitalProductPath = (product) =>
+	`/store/digital/${encodeURIComponent(product?.id || '')}`;
+// client (poster) pages are by id only — they're reached from a job /
+// project / opening, never browsed
+export const clientPath = (client) =>
+	`/clients/${encodeURIComponent(client?.id || '')}`;

@@ -183,7 +183,48 @@ const useSetAccountStatusMutation = () =>
 		})
 	);
 
+// Digital product review (frontend-plan §C.6) — REVIEW_ROLES, and the one
+// queue customer_care can act on.
+// GET /api/digital-products/review?status=pending|approved&page=&limit=
+// → { data: [product + files (names/sizes) + creator { id, displayName,
+//   slug, isVerified, status, country }], pagination }
+const useGetDigitalReviewQuery = (
+	{ status = 'pending', page = 1, limit = 10 },
+	options = {}
+) =>
+	useQuery({
+		queryKey: ['admin-digital-review', { status, page, limit }],
+		queryFn: () =>
+			axiosCall({
+				url: '/api/digital-products/review',
+				method: 'GET',
+				params: { status, page, limit },
+			}),
+		placeholderData: keepPreviousData,
+		...options,
+	});
+
+// PATCH /api/digital-products/:id/verify { isVerified } — approve, or
+// revoke an approval (takes it out of the feed).
+const useSetDigitalVerificationMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ id, isVerified }) =>
+			axiosCall({
+				url: `/api/digital-products/${id}/verify`,
+				method: 'PATCH',
+				data: { isVerified },
+			}),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['admin-digital-review'] });
+			queryClient.invalidateQueries({ queryKey: ['digital-feed'] });
+		},
+	});
+};
+
 const AdminServices = {
+	getDigitalReview: useGetDigitalReviewQuery,
+	setDigitalVerification: useSetDigitalVerificationMutation,
 	createStaff: useCreateStaffMutation,
 	changeRole: useChangeRoleMutation,
 	setAccountStatus: useSetAccountStatusMutation,

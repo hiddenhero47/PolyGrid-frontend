@@ -93,7 +93,19 @@ profile in `pages/directory/` driven by `config.js` (`DIRECTORIES`):
 contractors (`/contractors`, filter `specialty`) and SiteForce workers
 (`/siteforce/workers`, filter `skill`). Profile editors exist for all
 six pillars (consultant, contractor, SiteForce worker, store, digital
-creator, client), with a Products tab for stores and digital creators.
+creator, client), with a Products tab for stores and digital creators. PolyGrid
+Store, public side (`pages/store/`, hooks `custom-hooks/store.js`):
+`/store` browse stores (store-first, preview products; filters
+category + country), `/store/shops/:idOrSlug` store page + catalog
+(category tabs, sub-category pills), `/store/products/:id` product page
+(gallery, stock, delivery list, seller), `/store/digital` the flat
+digital feed (category tabs), `/store/creators/:idOrSlug` and
+`/store/digital/:id`; `elements/store-switch.jsx` flips Materials ↔
+Digital files. `/clients/:id` is the client (poster) page — never
+gated, reached from things they post. `store/elements/page-states.jsx`
+(`<PublicPage query noun browseTo>{(data) => …}</PublicPage>`) is the
+loader / 404 / error / unavailable wrapper for those single views.
+Ordering and buying wait for checkout (Phase 3).
 
 **Admin Dashboard started early (Phase 4, first slice)** — the
 consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
@@ -411,6 +423,12 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   reinstate, both behind ConfirmModal). Never offered for yourself or
   the Super Admin. `pages/admin/elements/user-search.jsx` is shared with
   Subscriptions.
+- Digital files (`/admin/digital-products`, frontend-plan §C.6): the
+  review queue (`GET /api/digital-products/review?status=pending|approved`)
+  with approve / revoke (`PATCH /api/digital-products/:id/verify`). The
+  one queue customer care can act on, so every reviewer sees the
+  buttons. "View creator" reuses the profile-review drawer. Menu badge
+  = pending count.
 - Money is **USD only** (`PLATFORM_CURRENCY` in `app-const.js`, mirrors
   the backend's `currencyReference.ts`) — forms send it, never ask.
 

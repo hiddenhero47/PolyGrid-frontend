@@ -4,6 +4,7 @@ import {
 	LuLayers,
 	LuCreditCard,
 	LuGavel,
+	LuFileCheck,
 	LuWallet,
 	LuShieldAlert,
 	LuUsers,
@@ -36,6 +37,13 @@ export const ADMIN_NAV = [
 				icon: LuBadgeCheck,
 				roles: REVIEW_ROLES,
 				countKey: 'pendingVerifications',
+			},
+			{
+				label: 'Digital files',
+				to: ROUTES.ADMIN_DIGITAL_REVIEW,
+				icon: LuFileCheck,
+				roles: REVIEW_ROLES,
+				countKey: 'pendingDigital',
 			},
 			{ label: 'Disputes', icon: LuGavel, roles: REVIEW_ROLES, soon: true },
 			{
