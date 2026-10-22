@@ -20,6 +20,7 @@ export const ROUTES = {
 	// detail pages — build with the helpers below
 	CONSULTANT: '/engineering/:idOrSlug',
 	CONTRACTOR: '/contractors/:idOrSlug',
+	WORKER: '/siteforce/workers/:idOrSlug',
 
 	// User Dashboard — frontend-plan §B
 	DASHBOARD: '/dashboard',
@@ -27,6 +28,7 @@ export const ROUTES = {
 	DASHBOARD_CONSULTANCY: '/dashboard/profiles/consultancy',
 	DASHBOARD_CONTRACTOR: '/dashboard/profiles/contractor',
 	DASHBOARD_CLIENT: '/dashboard/profiles/client',
+	DASHBOARD_LABOR: '/dashboard/profiles/siteforce',
 	DASHBOARD_SETTINGS: '/dashboard/settings',
 	DASHBOARD_VERIFICATION: '/dashboard/verification',
 	DASHBOARD_SUBSCRIPTION: '/dashboard/subscription',
@@ -53,3 +55,6 @@ export const consultantPath = (profile) =>
 
 export const contractorPath = (profile) =>
 	`/contractors/${encodeURIComponent(profile?.slug || profile?.id || '')}`;
+
+export const workerPath = (profile) =>
+	`/siteforce/workers/${encodeURIComponent(profile?.slug || profile?.id || '')}`;

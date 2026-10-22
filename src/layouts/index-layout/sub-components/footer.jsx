@@ -14,6 +14,7 @@ const COLUMNS = [
 			{ label: 'Materials store', to: ROUTES.STORE },
 			{ label: 'Digital files', to: ROUTES.DIGITAL_STORE },
 			{ label: 'SiteForce jobs', to: ROUTES.SITEFORCE },
+			{ label: 'Find tradespeople', to: ROUTES.WORKERS },
 		],
 	},
 	{

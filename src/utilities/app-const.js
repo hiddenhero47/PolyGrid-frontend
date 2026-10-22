@@ -139,3 +139,22 @@ export const CONTRACTOR_SPECIALTY_LABELS = {
 	hvac: 'HVAC',
 	painting_finishing: 'Painting & finishing',
 };
+
+// src/models/laborProfileModel.ts — also the SiteForce job-board categories
+export const LABOR_SKILL = {
+	FOREMAN: 'foreman',
+	CARPENTRY: 'carpentry',
+	PLUMBING: 'plumbing',
+	ELECTRICAL: 'electrical',
+	MASONRY: 'masonry',
+	PAINTING: 'painting',
+	WELDING: 'welding',
+	ROOFING: 'roofing',
+	GENERAL_LABOR: 'general_labor',
+	OTHER: 'other',
+};
+
+export const LABOR_SKILL_LABELS = {
+	foreman: 'Foreman / supervisor',
+	general_labor: 'General labour',
+};

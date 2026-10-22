@@ -9,43 +9,45 @@ import {
 	LuRotateCw,
 	LuArrowRight,
 } from 'react-icons/lu';
-import ContractorServices from '../../features/services/custom-hooks/contractors';
+import DirectoryServices from '../../features/services/custom-hooks/directory';
 import Modal from '../../components/modal/index_modal';
 import Pagination from '../../components/pagination';
 import EmptyState from '../../components/empty-state';
 import { AppButton } from '../../components/button';
 import { Eyebrow } from '../home/elements/index.style';
 import { countryName } from '../../utilities/basic-functions';
+import PropTypes from 'prop-types';
 import { ROUTES } from '../../utilities/app-routes';
-import ContractorCard from './elements/contractor-card';
-import { specialtyLabel } from '../../utilities/basic-functions';
-import ContractorFilters from './elements/contractor-filters';
+import ProfileCard from './elements/profile-card';
+import DirectoryFilters from './elements/directory-filters';
+import { DIRECTORIES } from './config';
 import { PageBand, FilterPill } from '../engineering/elements/index.style';
 import { SkeletonBar } from '../../components/table/index.style';
 
 const LIMIT = 12;
 
-// frontend-plan §A.7 — Browse Contractors (PolyGrid Tenders, direct
-// hire). Same pattern as Browse Consultants; the filter is `specialty`.
-// URL: ?specialty=&country=&page=
-function BrowseContractors() {
+// frontend-plan §A.7 / §A.15 — a public directory (contractors, SiteForce
+// workers), shaped by ./config.js. Same pattern as Browse Consultants.
+// URL: ?<dir.filter>=&country=&page=
+function BrowseDirectory({ kind }) {
+	const dir = DIRECTORIES[kind];
 	const [params, setParams] = useSearchParams();
 	const filterRef = useRef(null);
 
-	const specialty = params.get('specialty') || '';
+	const value = params.get(dir.filter) || '';
 	const country = params.get('country') || '';
 	const page = Math.max(Number(params.get('page')) || 1, 1);
 
 	const { data, isPending, isError, isFetching, refetch } =
-		ContractorServices.search({
-			specialty,
+		DirectoryServices.search(dir.api, {
+			[dir.filter]: value,
 			country,
 			page,
 			limit: LIMIT,
 		});
 	const profiles = data?.data ?? [];
 	const total = data?.pagination?.total ?? 0;
-	const hasFilters = Boolean(specialty || country);
+	const hasFilters = Boolean(value || country);
 
 	// any filter change goes back to page 1
 	const updateFilters = (changes) => {
@@ -69,9 +71,10 @@ function BrowseContractors() {
 	};
 
 	const filters = (prefix) => (
-		<ContractorFilters
+		<DirectoryFilters
+			dir={dir}
 			idPrefix={prefix}
-			specialty={specialty}
+			value={value}
 			country={country}
 			onChange={updateFilters}
 			onReset={resetFilters}
@@ -82,13 +85,9 @@ function BrowseContractors() {
 		<>
 			<PageBand>
 				<div className="relative mx-auto w-full max-w-[1440px] px-4 py-12 md:px-8 lg:py-16 xl:px-12">
-					<Eyebrow>PolyGrid Tenders</Eyebrow>
-					<h1 className="sc_title mt-3">Contractors</h1>
-					<p className="sc_subtitle">
-						Verified builders and trade firms — general contracting, structural,
-						electrical, plumbing, roofing and more. Hire one directly, or post a
-						project to the sealed tender board.
-					</p>
+					<Eyebrow>{dir.pillar}</Eyebrow>
+					<h1 className="sc_title mt-3">{dir.title}</h1>
+					<p className="sc_subtitle">{dir.subtitle}</p>
 				</div>
 			</PageBand>
 
@@ -109,15 +108,15 @@ function BrowseContractors() {
 						>
 							{isPending
 								? 'Loading…'
-								: `${total.toLocaleString()} contractor${total === 1 ? '' : 's'}`}
+								: `${total.toLocaleString()} ${total === 1 ? dir.singular : dir.plural}`}
 						</h2>
 
-						{specialty && (
+						{value && (
 							<FilterPill
 								type="button"
-								onClick={() => updateFilters({ specialty: '' })}
+								onClick={() => updateFilters({ [dir.filter]: '' })}
 							>
-								{specialtyLabel(specialty)}
+								{dir.valueLabel(value)}
 								<LuX className="sc_x" aria-label="Remove filter" />
 							</FilterPill>
 						)}
@@ -171,7 +170,7 @@ function BrowseContractors() {
 						<EmptyState
 							tone="error"
 							icon={<LuCloudOff />}
-							title="Couldn’t load contractors"
+							title={`Couldn’t load ${dir.plural}`}
 							text="Check your connection and try again."
 							actions={
 								<AppButton icon={<LuRotateCw />} onClick={() => refetch()}>
@@ -189,7 +188,7 @@ function BrowseContractors() {
 							<EmptyState
 								icon={<LuSearchX />}
 								title="No matches"
-								text="No verified contractors match these filters yet. Try another specialty or country."
+								text={`No verified ${dir.plural} match these filters yet. Try another ${dir.filterLabel.toLowerCase()} or country.`}
 								actions={
 									<AppButton variant="secondary" onClick={resetFilters}>
 										Clear filters
@@ -201,14 +200,11 @@ function BrowseContractors() {
 								tone="accent"
 								icon={<LuUsersRound />}
 								eyebrow="Be one of the first"
-								title="No contractors listed yet"
-								text="Verified contractors appear here once they set up a profile, get verified and subscribe. Are you one?"
+								title={`No ${dir.plural} listed yet`}
+								text={`Verified ${dir.plural} appear here once they set up a profile, get verified and subscribe. Are you one?`}
 								actions={
-									<AppButton
-										to={ROUTES.DASHBOARD_CONTRACTOR}
-										icon={<LuArrowRight />}
-									>
-										List your company
+									<AppButton to={dir.joinRoute} icon={<LuArrowRight />}>
+										{dir.joinLabel}
 									</AppButton>
 								}
 							/>
@@ -220,7 +216,7 @@ function BrowseContractors() {
 							style={{ opacity: isFetching ? 0.6 : 1 }}
 						>
 							{profiles.map((profile) => (
-								<ContractorCard key={profile.id} profile={profile} />
+								<ProfileCard key={profile.id} profile={profile} dir={dir} />
 							))}
 						</div>
 					)}
@@ -234,7 +230,7 @@ function BrowseContractors() {
 			{/* filters drawer — phones / tablets */}
 			<Modal.Right refName={filterRef} width="360px" queryWidth="100%">
 				<Modal.Card
-					eyebrow="Contractors"
+					eyebrow={dir.title}
 					title="Filters"
 					footer={
 						<AppButton onClick={() => filterRef.current.close()}>
@@ -249,4 +245,8 @@ function BrowseContractors() {
 	);
 }
 
-export default BrowseContractors;
+BrowseDirectory.propTypes = {
+	kind: PropTypes.oneOf(Object.keys(DIRECTORIES)).isRequired,
+};
+
+export default BrowseDirectory;

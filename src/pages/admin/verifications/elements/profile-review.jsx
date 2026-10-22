@@ -31,12 +31,14 @@ import {
 import {
 	consultantPath,
 	contractorPath,
+	workerPath,
 } from '../../../../utilities/app-routes';
 
 // Pillars with a public page so far.
 const PUBLIC_PATHS = {
 	[PROFILE_TYPE.CONSULTANCY]: consultantPath,
 	[PROFILE_TYPE.CONTRACTOR]: contractorPath,
+	[PROFILE_TYPE.LABOR]: workerPath,
 };
 
 // Every pillar names itself with one of these, never more than one.

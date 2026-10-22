@@ -6,20 +6,13 @@ import {
 } from '../../../components/form-components';
 import ReferenceServices from '../../../features/services/custom-hooks/reference';
 import { FilterPanel } from '../../engineering/elements/index.style';
-import {
-	CONTRACTOR_SPECIALTY,
-	CONTRACTOR_SPECIALTY_LABELS,
-} from '../../../utilities/app-const';
-import { enumToOptions } from '../../../utilities/basic-functions';
 
-// Only what GET /api/contractor-profiles supports: specialty + country.
-const SPECIALTY_OPTIONS = [
-	{ value: '', label: 'Any specialty' },
-	...enumToOptions(CONTRACTOR_SPECIALTY, CONTRACTOR_SPECIALTY_LABELS),
-];
-
-function ContractorFilters({
-	specialty,
+// Only what a directory's search route supports: its one "what they do"
+// filter (dir.filter) + country — nothing that looks like it filters but
+// doesn't.
+function DirectoryFilters({
+	dir,
+	value,
 	country,
 	onChange,
 	onReset,
@@ -39,7 +32,7 @@ function ContractorFilters({
 					type="button"
 					className="sc_reset"
 					onClick={onReset}
-					disabled={!specialty && !country}
+					disabled={!value && !country}
 				>
 					Reset all
 				</button>
@@ -52,28 +45,29 @@ function ContractorFilters({
 				clearable
 				options={countryOptions}
 				value={country || ''}
-				onChange={(value) => onChange({ country: value })}
+				onChange={(next) => onChange({ country: next })}
 				hint={countryOptions.length ? undefined : 'Loading countries…'}
 			/>
 
 			<CustomRadioGroup
-				label="Specialty"
-				name={`${idPrefix}-specialty`}
+				label={dir.filterLabel}
+				name={`${idPrefix}-${dir.filter}`}
 				variant="rows"
-				options={SPECIALTY_OPTIONS}
-				value={specialty || ''}
-				onChange={(value) => onChange({ specialty: value })}
+				options={[{ value: '', label: dir.filterAny }, ...dir.options]}
+				value={value || ''}
+				onChange={(next) => onChange({ [dir.filter]: next })}
 			/>
 		</FilterPanel>
 	);
 }
 
-ContractorFilters.propTypes = {
-	specialty: PropTypes.string,
+DirectoryFilters.propTypes = {
+	dir: PropTypes.object.isRequired,
+	value: PropTypes.string,
 	country: PropTypes.string,
 	onChange: PropTypes.func.isRequired,
 	onReset: PropTypes.func.isRequired,
 	idPrefix: PropTypes.string.isRequired,
 };
 
-export default ContractorFilters;
+export default DirectoryFilters;

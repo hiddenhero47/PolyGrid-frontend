@@ -15,9 +15,9 @@ import { PROFILE_TYPE } from './utilities/app-const';
 import Home from './pages/home';
 import BrowseConsultants from './pages/engineering';
 import ConsultantProfile from './pages/engineering/profile';
-import Tenders from './pages/tenders';
-import BrowseContractors from './pages/contractors';
-import ContractorProfile from './pages/contractors/profile';
+import BoardTeaser from './pages/board-teaser';
+import BrowseDirectory from './pages/directory';
+import DirectoryProfile from './pages/directory/profile';
 import NotFound from './pages/not-found';
 import Register from './pages/auth/register';
 import Login from './pages/auth/login';
@@ -70,11 +70,33 @@ function App() {
 									path="/engineering/:idOrSlug"
 									element={<ConsultantProfile />}
 								/>
-								<Route path="/tenders" element={<Tenders />} />
-								<Route path="/contractors" element={<BrowseContractors />} />
+								<Route
+									path="/tenders"
+									element={<BoardTeaser key="tenders" board="tenders" />}
+								/>
+								<Route
+									path="/contractors"
+									element={
+										<BrowseDirectory key="contractor" kind="contractor" />
+									}
+								/>
 								<Route
 									path="/contractors/:idOrSlug"
-									element={<ContractorProfile />}
+									element={
+										<DirectoryProfile key="contractor" kind="contractor" />
+									}
+								/>
+								<Route
+									path="/siteforce"
+									element={<BoardTeaser key="siteforce" board="siteforce" />}
+								/>
+								<Route
+									path="/siteforce/workers"
+									element={<BrowseDirectory key="worker" kind="worker" />}
+								/>
+								<Route
+									path="/siteforce/workers/:idOrSlug"
+									element={<DirectoryProfile key="worker" kind="worker" />}
 								/>
 								{import.meta.env.DEV && (
 									<>
@@ -145,6 +167,15 @@ function App() {
 										<ProfileEditor
 											key="contractor"
 											profileType={PROFILE_TYPE.CONTRACTOR}
+										/>
+									}
+								/>
+								<Route
+									path="profiles/siteforce"
+									element={
+										<ProfileEditor
+											key="labor"
+											profileType={PROFILE_TYPE.LABOR}
 										/>
 									}
 								/>

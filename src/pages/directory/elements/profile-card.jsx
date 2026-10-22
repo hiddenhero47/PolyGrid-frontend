@@ -12,19 +12,17 @@ import ProfileAvatar from '../../../components/profile-avatar';
 import RatingStars from '../../../components/rating-stars';
 import { Chip } from '../../home/elements/index.style';
 import { ConsultantCardShell as CardShell } from '../../engineering/elements/index.style';
-import {
-	countryName,
-	specialtyLabel,
-} from '../../../utilities/basic-functions';
-import { contractorPath } from '../../../utilities/app-routes';
+import { countryName } from '../../../utilities/basic-functions';
 
-// A contractor in the browse grid — same card as Engineering's, with
-// specialties and a portfolio count instead of services.
-function ContractorCard({ profile }) {
+// A profile in a directory's browse grid — the same card as
+// Engineering's, with the pillar's trades / specialties and a portfolio
+// count instead of services. `dir` is an entry of ../config.js.
+function ProfileCard({ profile, dir }) {
 	const place = [profile.city, countryName(profile.country)]
 		.filter(Boolean)
 		.join(', ');
 	const projects = profile.portfolio?.length || 0;
+	const values = profile[dir.field] || [];
 
 	return (
 		<CardShell>
@@ -36,7 +34,7 @@ function ContractorCard({ profile }) {
 				/>
 				<div className="min-w-0 flex-1">
 					<h3 className="sc_headline">
-						<Link to={contractorPath(profile)} className="sc_link">
+						<Link to={dir.path(profile)} className="sc_link">
 							{profile.headline}
 						</Link>
 						{profile.isVerified && (
@@ -67,12 +65,10 @@ function ContractorCard({ profile }) {
 			{profile.bio && <p className="sc_bio">{profile.bio}</p>}
 
 			<div className="flex flex-wrap gap-2">
-				{profile.specialties?.slice(0, 4).map((s) => (
-					<Chip key={s}>{specialtyLabel(s)}</Chip>
+				{values.slice(0, 4).map((value) => (
+					<Chip key={value}>{dir.valueLabel(value)}</Chip>
 				))}
-				{profile.specialties?.length > 4 && (
-					<Chip>+{profile.specialties.length - 4}</Chip>
-				)}
+				{values.length > 4 && <Chip>+{values.length - 4}</Chip>}
 			</div>
 
 			<div className="sc_footer">
@@ -93,8 +89,9 @@ function ContractorCard({ profile }) {
 	);
 }
 
-ContractorCard.propTypes = {
+ProfileCard.propTypes = {
 	profile: PropTypes.object.isRequired,
+	dir: PropTypes.object.isRequired,
 };
 
-export default ContractorCard;
+export default ProfileCard;

@@ -11,6 +11,7 @@ import {
 	ROUTES,
 	consultantPath,
 	contractorPath,
+	workerPath,
 } from '../../../utilities/app-routes';
 
 // What each business profile is, for the Profiles hub (frontend-plan
@@ -45,6 +46,8 @@ export const PROFILE_TYPES = [
 		pillar: 'PolyGrid SiteForce',
 		icon: LuWrench,
 		pitch: 'Find site work near you and get booked for your trade.',
+		editor: ROUTES.DASHBOARD_LABOR,
+		publicPath: workerPath,
 		name: (p) => p.headline || p.displayName,
 	},
 	{

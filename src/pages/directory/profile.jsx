@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
@@ -13,35 +14,33 @@ import {
 	LuCloudOff,
 	LuRotateCw,
 	LuLogIn,
-	LuHardHat,
 } from 'react-icons/lu';
-import ContractorServices from '../../../features/services/custom-hooks/contractors';
-import { selectIsAuthenticated } from '../../../store/slice/auth';
-import ProfileAvatar from '../../../components/profile-avatar';
-import RatingStars from '../../../components/rating-stars';
-import ReviewsBlock from '../../../components/reviews';
-import AppLoader from '../../../components/loader';
-import EmptyState from '../../../components/empty-state';
-import UnavailableState from '../../../components/empty-state/unavailable-state';
-import { AppButton } from '../../../components/button';
-import { Chip, Eyebrow } from '../../home/elements/index.style';
-import Portfolio from '../../engineering/profile/elements/portfolio';
+import DirectoryServices from '../../features/services/custom-hooks/directory';
+import { selectIsAuthenticated } from '../../store/slice/auth';
+import ProfileAvatar from '../../components/profile-avatar';
+import RatingStars from '../../components/rating-stars';
+import ReviewsBlock from '../../components/reviews';
+import AppLoader from '../../components/loader';
+import EmptyState from '../../components/empty-state';
+import UnavailableState from '../../components/empty-state/unavailable-state';
+import { AppButton } from '../../components/button';
+import { Chip, Eyebrow } from '../home/elements/index.style';
+import Portfolio from '../engineering/profile/elements/portfolio';
 import {
 	ProfileHeader,
 	ProfileSection,
-} from '../../engineering/profile/elements/index.style';
-import { PROFILE_TYPE } from '../../../utilities/app-const';
-import {
-	countryName,
-	specialtyLabel,
-} from '../../../utilities/basic-functions';
-import { ROUTES } from '../../../utilities/app-routes';
+} from '../engineering/profile/elements/index.style';
+import { countryName } from '../../utilities/basic-functions';
+import { DIRECTORIES } from './config';
+import { ROUTES } from '../../utilities/app-routes';
 
-// frontend-plan §A.8 — a contractor's public page: same shape as the
-// consultant's (§A.6) — portfolio and reviews — without services or
-// mentorship. GET /api/contractor-profiles/:idOrSlug answers the profile,
+// frontend-plan §A.8 / §A.16 — a directory profile's public page
+// (contractor, SiteForce worker), shaped by ./config.js: the same shape as
+// the consultant's (§A.6) — portfolio and reviews — without services or
+// mentorship. GET <dir.api>/:idOrSlug answers the profile,
 // { available: false } (UnavailableState), or 404.
-function ContractorProfile() {
+function DirectoryProfile({ kind }) {
+	const dir = DIRECTORIES[kind];
 	const { idOrSlug } = useParams();
 	const location = useLocation();
 	const isAuthenticated = useSelector(selectIsAuthenticated);
@@ -51,7 +50,7 @@ function ContractorProfile() {
 		isError,
 		error,
 		refetch,
-	} = ContractorServices.getProfile(idOrSlug);
+	} = DirectoryServices.getProfile(dir.api, idOrSlug);
 
 	const wrap = (content) => (
 		<div className="mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 xl:px-12">
@@ -69,10 +68,10 @@ function ContractorProfile() {
 				<EmptyState
 					icon={<LuSearchX />}
 					eyebrow="404"
-					title="Contractor not found"
-					text="This link doesn’t match any contractor on PolyGrid. It may have been mistyped."
+					title={`${dir.label} not found`}
+					text={`This link doesn’t match any ${dir.singular} on PolyGrid. It may have been mistyped.`}
 					actions={
-						<AppButton to={ROUTES.CONTRACTORS}>Browse contractors</AppButton>
+						<AppButton to={dir.route}>{`Browse ${dir.plural}`}</AppButton>
 					}
 				/>
 			) : (
@@ -96,8 +95,8 @@ function ContractorProfile() {
 		return wrap(
 			<UnavailableState
 				message={profile.message}
-				browseTo={ROUTES.CONTRACTORS}
-				browseLabel="Browse contractors"
+				browseTo={dir.route}
+				browseLabel={`Browse ${dir.plural}`}
 			/>
 		);
 	}
@@ -112,10 +111,10 @@ function ContractorProfile() {
 			<ProfileHeader>
 				<div className="relative mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 lg:py-14 xl:px-12">
 					<Link
-						to={ROUTES.CONTRACTORS}
+						to={dir.route}
 						className="font-label mb-8 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
 					>
-						<LuArrowLeft aria-hidden="true" /> All contractors
+						<LuArrowLeft aria-hidden="true" /> All {dir.plural}
 					</Link>
 
 					<div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
@@ -126,7 +125,7 @@ function ContractorProfile() {
 								size={104}
 							/>
 							<div className="min-w-0">
-								<Eyebrow>Contractor</Eyebrow>
+								<Eyebrow>{dir.label}</Eyebrow>
 								<h1 className="sc_headline mt-2">
 									{profile.headline}
 									{profile.isVerified && (
@@ -160,8 +159,8 @@ function ContractorProfile() {
 									)}
 								</div>
 								<div className="mt-5 flex flex-wrap gap-2">
-									{profile.specialties?.map((s) => (
-										<Chip key={s}>{specialtyLabel(s)}</Chip>
+									{profile[dir.field]?.map((value) => (
+										<Chip key={value}>{dir.valueLabel(value)}</Chip>
 									))}
 								</div>
 							</div>
@@ -210,7 +209,7 @@ function ContractorProfile() {
 					)}
 
 					<ProfileSection>
-						<h2 className="sc_sectionTitle">Past projects</h2>
+						<h2 className="sc_sectionTitle">{dir.portfolioTitle}</h2>
 						{profile.portfolio?.length > 0 ? (
 							<Portfolio items={profile.portfolio} />
 						) : (
@@ -221,7 +220,7 @@ function ContractorProfile() {
 					<ProfileSection>
 						<h2 className="sc_sectionTitle">Reviews</h2>
 						<ReviewsBlock
-							profileType={PROFILE_TYPE.CONTRACTOR}
+							profileType={dir.profileType}
 							profileId={profile.id}
 							ratingAverage={profile.ratingAverage}
 							ratingCount={profile.ratingCount}
@@ -232,15 +231,12 @@ function ContractorProfile() {
 				<aside className="flex flex-col gap-6">
 					<ProfileSection>
 						<h2 className="sc_sectionTitle inline-flex items-center gap-2">
-							<LuHardHat aria-hidden="true" /> Work with them
+							<dir.icon aria-hidden="true" /> Work with them
 						</h2>
-						<p className="sc_prose">
-							Hire this contractor directly for a job, or post your project to
-							the sealed tender board and let verified contractors bid.
-						</p>
+						<p className="sc_prose">{dir.workWith}</p>
 						<div className="mt-4 flex flex-wrap gap-3">
-							<AppButton size="sm" variant="secondary" to={ROUTES.TENDERS}>
-								About tenders
+							<AppButton size="sm" variant="secondary" to={dir.board.route}>
+								{dir.board.label}
 							</AppButton>
 						</div>
 					</ProfileSection>
@@ -270,4 +266,8 @@ function ContractorProfile() {
 	);
 }
 
-export default ContractorProfile;
+DirectoryProfile.propTypes = {
+	kind: PropTypes.oneOf(Object.keys(DIRECTORIES)).isRequired,
+};
+
+export default DirectoryProfile;

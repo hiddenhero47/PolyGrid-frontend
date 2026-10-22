@@ -4,6 +4,8 @@ import {
 	SPECIALIZATION_LABELS,
 	CONTRACTOR_SPECIALTY,
 	CONTRACTOR_SPECIALTY_LABELS,
+	LABOR_SKILL,
+	LABOR_SKILL_LABELS,
 } from '../../../../utilities/app-const';
 import { ROUTES } from '../../../../utilities/app-routes';
 import { enumToOptions } from '../../../../utilities/basic-functions';
@@ -68,6 +70,33 @@ export const PROFILE_EDITORS = {
 		live: {
 			on: 'This profile shows in search and can bid on tenders.',
 			off: 'All four are needed before you can bid on tenders and show in search.',
+		},
+	},
+	[PROFILE_TYPE.LABOR]: {
+		route: ROUTES.DASHBOARD_LABOR,
+		label: 'SiteForce worker',
+		pillar: 'PolyGrid SiteForce',
+		createTitle: 'Find site work',
+		createSubtitle:
+			'Set up your worker profile and show past work. Once verified and on a plan, you can apply to site jobs near you and be booked directly.',
+		nameField: 'headline',
+		nameLabel: 'Name or crew name',
+		namePlaceholder: 'e.g. Emeka Obi — tiler & mason',
+		nameHint: 'How clients see you on job applications and your public page.',
+		bioPlaceholder:
+			'Your trade, the tools you bring, crew size, where you’ll travel to and the kind of sites you work on.',
+		disciplines: {
+			field: 'skills',
+			label: 'Trades',
+			options: enumToOptions(LABOR_SKILL, LABOR_SKILL_LABELS),
+			columns: 2,
+		},
+		years: true,
+		tabs: ['portfolio', 'links'],
+		afterCreateTab: 'portfolio',
+		live: {
+			on: 'This profile shows in search and can apply to site jobs.',
+			off: 'All four are needed before you can apply to site jobs and show in search.',
 		},
 	},
 	[PROFILE_TYPE.CLIENT]: {

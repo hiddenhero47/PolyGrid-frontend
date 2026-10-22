@@ -85,12 +85,14 @@ profile avatar, reviews block — all on `/lab`, dev only), auth
 (`pages/auth`, incl. email verification: `/verify-email/:token` + the
 `components/verify-email-banner` strip under the navbar), and PolyGrid
 Engineering: Browse Consultants (`/engineering`) and the Consultant
-profile (`/engineering/:idOrSlug`). PolyGrid Tenders: the `/tenders`
-landing (public teaser — open-project counts only, plus find / post /
-bid entry points), Browse Contractors (`/contractors`) and the
-Contractor profile (`/contractors/:idOrSlug`), on the Engineering
-pattern (the filter is `specialty`; Tenders stays highlighted in the
-navbar on contractor pages).
+profile (`/engineering/:idOrSlug`). PolyGrid Tenders and SiteForce: the board
+landings `/tenders` and `/siteforce` (`pages/board-teaser`, one page
+for both — public counts only, plus find / post / join entry points) and
+two directories on the Engineering pattern, from one generic browse +
+profile in `pages/directory/` driven by `config.js` (`DIRECTORIES`):
+contractors (`/contractors`, filter `specialty`) and SiteForce workers
+(`/siteforce/workers`, filter `skill`). Profile editors exist for
+consultant, contractor, SiteForce worker and client.
 
 **Admin Dashboard started early (Phase 4, first slice)** — the
 consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
