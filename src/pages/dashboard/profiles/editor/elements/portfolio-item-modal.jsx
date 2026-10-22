@@ -10,37 +10,49 @@ import {
 	CustomDate,
 	CustomFile,
 } from '../../../../../components/form-components';
+import { toDateValue } from '../../../../../components/form-components/helpers';
 import { portfolioItemSchema } from '../../../../../features/validations/profile-validation';
 import {
 	PORTFOLIO_ACCEPT,
 	MAX_MEDIA_PER_ITEM,
 } from '../../../../../utilities/app-const';
 
-// A new portfolio project: details plus its first images, sent together
-// (POST /me/portfolio, multipart). The backend has no route to edit an
-// item's text afterwards — only to add/remove images or delete it.
-function PortfolioItemModal({ refName, onSubmit, isPending }) {
+// A portfolio project's details. New: details plus its first images in
+// one multipart POST /me/portfolio. Editing (`item`): the text and dates
+// only, PATCH /me/portfolio/:itemId — images are managed separately;
+// a cleared date is sent as null to remove it.
+function PortfolioItemModal({ refName, item, onSubmit, isPending }) {
+	const editing = Boolean(item);
 	const form = useFormik({
+		enableReinitialize: true,
 		initialValues: {
-			title: '',
-			description: '',
-			tags: [],
-			startedAt: '',
-			completedAt: '',
+			title: item?.title || '',
+			description: item?.description || '',
+			tags: item?.tags || [],
+			startedAt: toDateValue(item?.startedAt),
+			completedAt: toDateValue(item?.completedAt),
 			media: [],
 		},
 		validationSchema: portfolioItemSchema,
 		onSubmit: (values) =>
 			onSubmit({
-				fields: {
-					title: values.title.trim(),
-					...(values.description.trim() && {
-						description: values.description.trim(),
-					}),
-					tags: values.tags,
-					...(values.startedAt && { startedAt: values.startedAt }),
-					...(values.completedAt && { completedAt: values.completedAt }),
-				},
+				fields: editing
+					? {
+							title: values.title.trim(),
+							description: values.description.trim(),
+							tags: values.tags,
+							startedAt: values.startedAt || null,
+							completedAt: values.completedAt || null,
+						}
+					: {
+							title: values.title.trim(),
+							...(values.description.trim() && {
+								description: values.description.trim(),
+							}),
+							tags: values.tags,
+							...(values.startedAt && { startedAt: values.startedAt }),
+							...(values.completedAt && { completedAt: values.completedAt }),
+						},
 				files: values.media,
 			}),
 	});
@@ -55,7 +67,7 @@ function PortfolioItemModal({ refName, onSubmit, isPending }) {
 		>
 			<Modal.Card
 				eyebrow="Portfolio"
-				title="Add a project"
+				title={editing ? 'Edit project' : 'Add a project'}
 				subtitle="Show finished or ongoing work — photos, drawings, site progress."
 				footer={
 					<>
@@ -70,7 +82,7 @@ function PortfolioItemModal({ refName, onSubmit, isPending }) {
 							form="portfolio-item-form"
 							disabled={isPending}
 						>
-							{isPending ? 'Uploading…' : 'Add project'}
+							{isPending ? 'Saving…' : editing ? 'Save changes' : 'Add project'}
 						</AppButton>
 					</>
 				}
@@ -137,20 +149,22 @@ function PortfolioItemModal({ refName, onSubmit, isPending }) {
 							errormessage={form.errors.tags}
 						/>
 					</div>
-					<div className="sm:col-span-2">
-						<CustomFile
-							label="Images"
-							name="media"
-							multiple
-							maxFiles={MAX_MEDIA_PER_ITEM}
-							accept={PORTFOLIO_ACCEPT}
-							acceptLabel="JPG, PNG or AVIF"
-							value={form.values.media}
-							onChange={(files) => form.setFieldValue('media', files)}
-							isError={err('media')}
-							errormessage={form.errors.media}
-						/>
-					</div>
+					{!editing && (
+						<div className="sm:col-span-2">
+							<CustomFile
+								label="Images"
+								name="media"
+								multiple
+								maxFiles={MAX_MEDIA_PER_ITEM}
+								accept={PORTFOLIO_ACCEPT}
+								acceptLabel="JPG, PNG or AVIF"
+								value={form.values.media}
+								onChange={(files) => form.setFieldValue('media', files)}
+								isError={err('media')}
+								errormessage={form.errors.media}
+							/>
+						</div>
+					)}
 				</form>
 			</Modal.Card>
 		</Modal.Center>
@@ -158,6 +172,7 @@ function PortfolioItemModal({ refName, onSubmit, isPending }) {
 }
 
 PortfolioItemModal.propTypes = {
+	item: PropTypes.object,
 	refName: PropTypes.object.isRequired,
 	onSubmit: PropTypes.func.isRequired,
 	isPending: PropTypes.bool,

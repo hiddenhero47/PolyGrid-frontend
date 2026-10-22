@@ -132,7 +132,7 @@ export const PROFILE_EDITORS = {
 			}),
 		},
 		years: false,
-		tabs: ['links'],
+		tabs: ['products', 'links'],
 		live: {
 			on: 'Your store and products show in the materials marketplace.',
 			off: 'All four are needed before your store shows in the marketplace.',
@@ -153,7 +153,7 @@ export const PROFILE_EDITORS = {
 			'What you draw or build, the standards you work to, and who your files are for.',
 		disciplines: null,
 		years: false,
-		tabs: ['links'],
+		tabs: ['products', 'links'],
 		live: {
 			on: 'Your approved files show in the digital feed.',
 			off: 'All four are needed before your files show in the digital feed.',
@@ -187,5 +187,6 @@ export const TAB_LABELS = {
 	services: 'Services',
 	mentorship: 'Mentorship',
 	portfolio: 'Portfolio',
+	products: 'Products',
 	links: 'Links',
 };

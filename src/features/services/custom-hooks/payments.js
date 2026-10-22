@@ -54,7 +54,22 @@ const useGetMyPaymentsQuery = ({ page = 1, limit = 10 } = {}) =>
 		placeholderData: keepPreviousData,
 	});
 
+// POST /api/payments/:id/refresh — asks Stripe directly about a payment
+// that's still pending (e.g. its webhook never arrived) and, if it went
+// through, activates what it paid for. Idempotent. Answers
+// { status: 'success' | 'pending' | 'failed', payment, subscription? }.
+// (The backend also sweeps stuck payments every 15 minutes.)
+const useRefreshPaymentMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (paymentId) =>
+			axiosCall({ url: `/api/payments/${paymentId}/refresh`, method: 'POST' }),
+		onSuccess: () => refreshSubscription(queryClient),
+	});
+};
+
 const PaymentServices = {
+	refresh: useRefreshPaymentMutation,
 	subscribe: useSubscribeMutation,
 	getMyPayments: useGetMyPaymentsQuery,
 };

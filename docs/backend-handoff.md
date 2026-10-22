@@ -10,99 +10,38 @@ _Last updated: 2026-10-22._
 
 ## Open
 
-### 1. (Blocking) A store owner / digital creator can't list their own products
+### 1. Deliverable files can share a name, but are removed by name
 
-**Where:** `storeProfileRoutes.ts` and `digitalCreatorProfileRoutes.ts`.
+**Where:** the digital storage providers (`internalStorageProvider.ts`,
+`s3StorageProvider.ts`) save `fileName: file.originalname`, and
+`DELETE /api/digital-creator-profiles/me/products/:id/files/:fileName`
+finds the file by that name.
 
-**What happens:** there are routes to create, update and delete
-products (and their images / files) under `/me/products/:id`, but
-nothing that *lists* the owner's products:
-- `GET /api/store-profiles/me` and `GET /api/digital-creator-profiles/me`
-  return the profile only, with no products;
-- the public store page (`GET /api/store-profiles/:idOrSlug`) does list
-  products, but answers `{ available: false }` until the store is
-  verified and subscribed, which is exactly when an owner is setting up;
-- the digital feed only shows admin-verified products, so a creator
-  can't see their own pending or inactive ones.
+**What happens:** uploading two files called `plan.pdf` (in one go or
+later) gives the product two entries with `fileName: "plan.pdf"`. A
+delete by that name can't tell them apart, and anything keyed on the
+name (downloads, purchase manifests) is ambiguous. Reproduced on Ada's
+"4-bedroom duplex — architectural set": it now has two `plan.pdf`.
 
-So a new store owner can add products and then never see them again.
-The product managers in the dashboard are waiting on this.
+**Frontend workaround:** the dashboard refuses a deliverable whose name
+is already on the product (or duplicated in the same pick).
 
-**Request:** owner-only list routes, any state (pending verification,
-inactive, out of stock), newest first, paginated like everything else:
-- `GET /api/store-profiles/me/products?page=&limit=` →
-  `{ data: [toPublicProduct], pagination }`
-- `GET /api/digital-creator-profiles/me/products?page=&limit=` →
-  `{ data: [digital product incl. isVerified, isActive, previewImages,
-  files (names/sizes, no signed links)], pagination }`
+**Request:** reject a duplicate name on create / add-files with a clear
+400, or give each file a stable id (the storage `key`) and delete by
+that instead.
 
-
-### 2. (Important) No way to recover a paid subscription if the webhook never arrives
-
-**Where:** `paymentController.ts` — subscriptions (and digital purchases
-and job payments) only become `success` / `active` inside `stripeWebhook`.
-
-**What happened:** Ada (charlesdev.hero@gmail.com) paid $49 for a test
-Enterprise plan with Stripe's test card. Stripe accepted the charge, but
-the webhook URL in the Stripe dashboard had a typo, so the event never
-reached us. The Subscription and Payment both stay `pending` forever,
-and the user has paid but has nothing. A typo, an outage, a tunnel
-restart or a slow deploy would all cause the same thing in production.
-
-**What's already there to build on:** the intent handlers save
-`payment.providerPaymentId`, and the webhook never trusts its payload —
-it calls `provider.retrieveIntent(id)` and checks status, amount and
-currency before activating. That check-and-activate block can be pulled
-into one shared function and called from more than one place.
-
-**Request:**
-1. **A "check again" route the frontend can call:**
-   `POST /api/payments/:id/refresh` (owner of the payment, or admin):
-   re-fetch the intent from Stripe; if it has `succeeded`, run exactly
-   what the webhook would have (mark the payment `success`, activate
-   the subscription with the carry-over days, supersede the old one,
-   sync profiles; or credit the job / unlock the digital purchase). Make
-   it idempotent like the webhook (already `success` → no-op). Answer
-   `{ status: 'success' | 'pending' | 'failed', payment, subscription? }`.
-2. **A safety-net job** in `jobs/tasks`: every few minutes, refresh any
-   Stripe payment still `pending` after ~10 minutes (and mark
-   long-abandoned ones `failed` / the subscription `canceled`), so
-   recovery doesn't depend on the user coming back.
-3. **(Optional) an admin trigger:** the same refresh from the Admin
-   Dashboard's payments view, for support cases.
-
-**Frontend side, once (1) exists:** the Subscription page already stops
-polling after a minute and says the payment went through. It will add a
-"Check payment status" button there (calling the refresh), plus the same
-button on any `pending` row in the Payments history, so a user can fix
-this themselves later, from any device.
-
-**Clean-up note:** Ada's test Enterprise subscription and its $49
-payment are stuck `pending` from this case. They're a good test for (1);
-otherwise delete them, along with the "PolyGrid Enterprise (test)"
-plan, when the database is reset.
-
-### 3. A portfolio item can't be edited after it's created
-
-**Where:** the portfolio routes on consultancy, contractor and labor
-profiles (`/me/portfolio…`).
-
-**What happens:** there are routes to add an item, add or remove its
-images, and delete it, but none to change its `title`, `description`,
-`tags`, `startedAt` or `completedAt`. Fixing a typo means deleting the
-project and uploading all its images again.
-
-**Request:** `PATCH <base>/me/portfolio/:itemId` taking those fields (the
-same rules as `addPortfolioItemSchema`, all optional).
-
-### 4. (Nice to have) One route for "all my business profiles"
-
-The workspace hub calls six `GET <base>/me` routes in parallel and treats
-404 as "not created". It works fine. A single `GET /api/users/me/profiles`
-returning `{ [profileType]: summary | null }` would save five round
-trips on the dashboard's busiest pages.
 
 ## Resolved
+
+Commit `cd7e035` resolved the second list:
+- sellers list their own products: `GET /me/products` on store and
+  digital-creator profiles (the dashboard's product managers use them);
+- payments recover without a webhook: `POST /api/payments/:id/refresh`
+  plus a 15-minute sweep (the Subscription page's "Check payment
+  status" uses it; Ada's stuck $49 payment recovered this way);
+- portfolio items can be edited: `PATCH …/me/portfolio/:itemId`;
+- `GET /api/users/me/profiles` (the profile hub uses it).
+
 
 The backend fixed every item from the first list in commit `be7859f`:
 - search results now include `id`;

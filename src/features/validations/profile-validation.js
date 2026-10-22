@@ -99,3 +99,58 @@ export const portfolioItemSchema = yup.object({
 		),
 	media: yup.array().max(6, 'Up to 6 images per project'),
 });
+
+// ── Seller products (frontend-plan §B.3d / §B.3e) ──
+
+const priceField = () =>
+	yup
+		.number()
+		.typeError('Enter a price in USD')
+		.min(0, 'Can’t be negative')
+		.required('Enter a price in USD');
+
+export const shippingLocationSchema = yup.object({
+	country: yup.string().required('Pick a country'),
+	state: yup.string(),
+	price: priceField(),
+});
+
+export const storeProductSchema = (maxLocations) =>
+	yup.object({
+		title: yup.string().trim().max(120).required('Name the product'),
+		category: yup.string().required('Pick one of your categories'),
+		subCategory: yup.string().trim().max(60),
+		description: yup
+			.string()
+			.trim()
+			.max(1500, 'Keep it under 1,500 characters'),
+		price: priceField(),
+		unit: yup
+			.string()
+			.trim()
+			.max(30)
+			.required('Per what? e.g. bag, ton, piece'),
+		shippingLocations: yup
+			.array()
+			.of(shippingLocationSchema)
+			.min(1, 'Add at least one place you deliver to')
+			.max(maxLocations, `Up to ${maxLocations} locations`)
+			.test('unique', 'Each country / state appears once', (rows = []) => {
+				const keys = rows.map((r) => `${r.country}|${r.state || ''}`);
+				return new Set(keys).size === keys.length;
+			}),
+	});
+
+export const digitalProductSchema = (creating) =>
+	yup.object({
+		title: yup.string().trim().max(120).required('Name the file'),
+		category: yup.string().required('Pick a category'),
+		description: yup
+			.string()
+			.trim()
+			.max(1500, 'Keep it under 1,500 characters'),
+		price: priceField(),
+		...(creating && {
+			files: yup.array().min(1, 'Attach at least one deliverable file'),
+		}),
+	});

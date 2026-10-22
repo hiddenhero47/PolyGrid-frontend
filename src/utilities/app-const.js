@@ -189,3 +189,32 @@ export const MATERIAL_CATEGORY_LABELS = {
 	tools_equipment: 'Tools & equipment',
 	safety_gear: 'Safety gear',
 };
+
+// src/models/productModel.ts
+export const STOCK_STATUS = {
+	IN_STOCK: 'in_stock',
+	OUT_OF_STOCK: 'out_of_stock',
+	MADE_TO_ORDER: 'made_to_order',
+};
+export const MAX_PRODUCT_IMAGES = 6;
+export const MAX_SHIPPING_LOCATIONS = 20;
+// fileStorage DEFAULT_ALLOWED_MIME_TYPES minus PDF — product photos
+export const PRODUCT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
+
+// src/models/digitalProductModel.ts
+export const DIGITAL_PRODUCT_CATEGORY = {
+	FLOOR_PLAN: 'floor_plan',
+	STRUCTURAL_DRAFTING: 'structural_drafting',
+	SITE_LAYOUT_TEMPLATE: 'site_layout_template',
+	BOQ_SHEET: 'boq_sheet',
+	OTHER: 'other',
+};
+export const DIGITAL_PRODUCT_CATEGORY_LABELS = {
+	site_layout_template: 'Site layout template',
+	boq_sheet: 'BOQ sheet',
+};
+export const MAX_PREVIEW_IMAGES = 6;
+export const MAX_DELIVERABLE_FILES = 10;
+// what the backend's storage accepts for deliverables (DEFAULT_ALLOWED_MIME_TYPES)
+export const DELIVERABLE_ACCEPT =
+	'application/pdf,image/jpeg,image/png,image/webp';

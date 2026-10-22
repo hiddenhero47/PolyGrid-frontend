@@ -93,9 +93,7 @@ profile in `pages/directory/` driven by `config.js` (`DIRECTORIES`):
 contractors (`/contractors`, filter `specialty`) and SiteForce workers
 (`/siteforce/workers`, filter `skill`). Profile editors exist for all
 six pillars (consultant, contractor, SiteForce worker, store, digital
-creator, client). The store and digital-creator **product managers**
-are blocked on a backend route to list one's own products (see
-`docs/backend-handoff.md`).
+creator, client), with a Products tab for stores and digital creators.
 
 **Admin Dashboard started early (Phase 4, first slice)** — the
 consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
@@ -460,10 +458,29 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   is already active; otherwise the Stripe Payment Element opens in
   `elements/checkout-modal.jsx` (themed from `THEMES[name].tokens`, the
   only `<Elements>` in the app). Stripe's webhook activates the plan, so
-  `SubscriptionServices.awaitActivation` polls until the new
-  subscription is current, then refreshes plan / profile caches.
-  Unused days carry over (backend). Locally, paid plans need Stripe's
-  webhook forwarded to the backend (`stripe listen`) to ever activate.
+  `SubscriptionServices.awaitActivation` polls (about a minute) until
+  the new subscription is current, then refreshes plan / profile
+  caches; after that it offers "Check payment status". Unused days carry
+  over (backend).
+- Products (`profiles/editor/elements/products/`, hooks
+  `custom-hooks/products.js`): the store's and the digital creator's own
+  products from the owner-only `GET <base>/me/products` (any state).
+  Store: category limited to the store's own, unit (free text with
+  suggestions), delivery rows (country, optional state, price — at least
+  one, each country/state once), photos; edit adds stock status, photo
+  add/remove and delete. Digital: preview images (public) + deliverables
+  (private, 1–10, PDF/JPG/PNG/WebP — the backend's allow-list) on
+  create; edit has the on-sale switch, previews and deliverables; no
+  delete. Deliverables are stored and removed by original file name, so
+  the form refuses a name already on the product.
+- Pending Stripe payments: "Check payment status" (Subscription page
+  banner and pending rows in Payments) calls
+  `POST /api/payments/:id/refresh`; the backend also sweeps them every
+  15 minutes.
+- Portfolio items are editable (details only — images are managed in
+  the project's dialog): `PATCH …/me/portfolio/:itemId`.
+- The profile hub asks `GET /api/users/me/profiles` which profiles exist,
+  then loads only those.
 - Settings (`settings/`): profile (name, phone, account photo),
   account type, password (the backend ends EVERY session on a change,
   this one too — the app signs out and sends the user to /login), 2FA

@@ -4,6 +4,7 @@ import {
 	LuPlus,
 	LuImage,
 	LuTrash2,
+	LuPencil,
 	LuImagePlus,
 	LuX,
 	LuFolderOpen,
@@ -53,8 +54,10 @@ function PortfolioTab({ profileType, profile }) {
 	const confirmRef = useRef(null);
 	const [activeId, setActiveId] = useState(null);
 	const [newImages, setNewImages] = useState([]);
+	const [editing, setEditing] = useState(null); // item being edited in the details modal
 
 	const addItem = ProfileServices.addPortfolioItem(type);
+	const updateItem = ProfileServices.updatePortfolioItem(type);
 	const addMedia = ProfileServices.addPortfolioMedia(type);
 	const removeMedia = ProfileServices.removePortfolioMedia(type);
 	const removeItem = ProfileServices.removePortfolioItem(type);
@@ -70,7 +73,19 @@ function PortfolioTab({ profileType, profile }) {
 		manageRef.current.open();
 	};
 
-	const handleAdd = (payload) =>
+	const handleSave = (payload) => {
+		if (editing) {
+			updateItem.mutate(
+				{ itemId: editing._id, ...payload.fields },
+				{
+					onSuccess: () => {
+						addRef.current.close();
+						toast.success('Project updated');
+					},
+				}
+			);
+			return;
+		}
 		addItem.mutate(payload, {
 			onSuccess: (res) => {
 				addRef.current.close();
@@ -78,6 +93,18 @@ function PortfolioTab({ profileType, profile }) {
 				warnSkipped(res);
 			},
 		});
+	};
+
+	const openAdd = () => {
+		setEditing(null);
+		addRef.current.open();
+	};
+
+	const openEdit = () => {
+		setEditing(active);
+		manageRef.current.close();
+		addRef.current.open();
+	};
 
 	const uploadImages = () =>
 		addMedia.mutate(
@@ -126,7 +153,7 @@ function PortfolioTab({ profileType, profile }) {
 					size="sm"
 					icon={<LuPlus />}
 					disabled={items.length >= MAX_PORTFOLIO_ITEMS}
-					onClick={() => addRef.current.open()}
+					onClick={openAdd}
 				>
 					Add project
 				</AppButton>
@@ -174,8 +201,9 @@ function PortfolioTab({ profileType, profile }) {
 
 			<PortfolioItemModal
 				refName={addRef}
-				onSubmit={handleAdd}
-				isPending={addItem.isPending}
+				item={editing}
+				onSubmit={handleSave}
+				isPending={addItem.isPending || updateItem.isPending}
 			/>
 
 			<Modal.Center
@@ -189,14 +217,19 @@ function PortfolioTab({ profileType, profile }) {
 						eyebrow={dates(active) || 'Portfolio'}
 						title={active.title}
 						footer={
-							<AppButton
-								variant="secondary"
-								icon={<LuTrash2 />}
-								onClick={deleteItem}
-								disabled={removeItem.isPending}
-							>
-								Delete project
-							</AppButton>
+							<>
+								<AppButton
+									variant="secondary"
+									icon={<LuTrash2 />}
+									onClick={deleteItem}
+									disabled={removeItem.isPending}
+								>
+									Delete project
+								</AppButton>
+								<AppButton icon={<LuPencil />} onClick={openEdit}>
+									Edit details
+								</AppButton>
+							</>
 						}
 					>
 						<div className="flex flex-col gap-5">

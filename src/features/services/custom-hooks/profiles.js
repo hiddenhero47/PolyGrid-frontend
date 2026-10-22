@@ -48,22 +48,39 @@ const useGetMyProfileQuery = (profileType, options = {}) =>
 	});
 
 // All six at once, for the Business Profile hub and the dashboard home.
-// There's no single "my profiles" route, so it's six small GETs in
-// parallel, each cached under the same key the editors use.
-const useGetMyProfilesQueries = () =>
-	useQueries({
-		queries: Object.values(PROFILE_TYPE).map((profileType) => ({
+// GET /api/users/me/profiles says which exist ({ [profileType]:
+// { id, isVerified, status, slug } | null }); full profiles are then
+// fetched only for those, cached under the same keys the editors use.
+const SUMMARY_KEY = ['my-profiles-summary'];
+
+const useGetMyProfilesQueries = () => {
+	const summary = useQuery({
+		queryKey: SUMMARY_KEY,
+		queryFn: () => axiosCall({ url: '/api/users/me/profiles', method: 'GET' }),
+	});
+	const types = Object.values(PROFILE_TYPE);
+	const owned = types.filter((type) => summary.data?.[type]);
+
+	const full = useQueries({
+		queries: owned.map((profileType) => ({
 			queryKey: myProfileKey(profileType),
 			queryFn: () => fetchMyProfile(profileType),
 		})),
-		combine: (results) => ({
-			profiles: Object.fromEntries(
-				Object.values(PROFILE_TYPE).map((type, i) => [type, results[i].data])
-			),
-			isPending: results.some((r) => r.isPending),
-			isError: results.some((r) => r.isError),
-		}),
+		combine: (results) => results,
 	});
+
+	return {
+		profiles: Object.fromEntries(
+			types.map((type) => {
+				if (!summary.data) return [type, undefined];
+				const i = owned.indexOf(type);
+				return [type, i === -1 ? null : full[i]?.data];
+			})
+		),
+		isPending: summary.isPending || full.some((r) => r.isPending),
+		isError: summary.isError || full.some((r) => r.isError),
+	};
+};
 
 // Every write below answers with the whole updated profile, so the
 // cache is replaced rather than refetched.
@@ -73,6 +90,7 @@ const useProfileWrite = (profileType, request) => {
 		mutationFn: request,
 		onSuccess: (profile) => {
 			queryClient.setQueryData(myProfileKey(profileType), profile);
+			queryClient.invalidateQueries({ queryKey: SUMMARY_KEY });
 			// public pages and search may now show different data
 			queryClient.invalidateQueries({ queryKey: ['consultant'] });
 			queryClient.invalidateQueries({ queryKey: ['consultants'] });
@@ -134,6 +152,17 @@ const useAddPortfolioMediaMutation = (profileType) =>
 		});
 	});
 
+// PATCH <base>/me/portfolio/:itemId { title?, description?, tags?,
+// startedAt?, completedAt? } — null clears a date.
+const useUpdatePortfolioItemMutation = (profileType) =>
+	useProfileWrite(profileType, ({ itemId, ...data }) =>
+		axiosCall({
+			url: `${PROFILE_API[profileType]}/me/portfolio/${itemId}`,
+			method: 'PATCH',
+			data,
+		})
+	);
+
 // DELETE <base>/me/portfolio/:itemId/media/:fileName
 const useRemovePortfolioMediaMutation = (profileType) =>
 	useProfileWrite(profileType, ({ itemId, fileName }) =>
@@ -159,6 +188,7 @@ const ProfileServices = {
 	updateProfile: useUpdateProfileMutation,
 	uploadAvatar: useUploadAvatarMutation,
 	addPortfolioItem: useAddPortfolioItemMutation,
+	updatePortfolioItem: useUpdatePortfolioItemMutation,
 	addPortfolioMedia: useAddPortfolioMediaMutation,
 	removePortfolioMedia: useRemovePortfolioMediaMutation,
 	removePortfolioItem: useRemovePortfolioItemMutation,

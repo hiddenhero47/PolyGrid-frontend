@@ -110,7 +110,7 @@ function MySubscription() {
 	const queryClient = useQueryClient();
 	const checkoutRef = useRef(null);
 	const confirmRef = useRef(null);
-	const [checkout, setCheckout] = useState(null); // { plan, clientSecret, subscriptionId }
+	const [checkout, setCheckout] = useState(null); // { plan, clientSecret, subscriptionId, paymentId }
 	const [awaiting, setAwaiting] = useState(null); // subscriptionId waiting on the webhook
 
 	const current = SubscriptionServices.getCurrentSubscription();
@@ -126,6 +126,53 @@ function MySubscription() {
 	const history = SubscriptionServices.getMySubscriptions();
 	const payments = PaymentServices.getMyPayments();
 	const subscribe = PaymentServices.subscribe();
+	const refresh = PaymentServices.refresh();
+
+	// Ask Stripe directly about a pending payment (its webhook may never
+	// have arrived) — POST /api/payments/:id/refresh.
+	const checkStatus = (paymentId) =>
+		refresh.mutate(paymentId, {
+			onSuccess: (res) => {
+				if (res.status === 'success') {
+					setAwaiting(null);
+					toast.success(
+						res.subscription
+							? `${humanize(res.subscription.planTier)} plan is active`
+							: 'Payment confirmed'
+					);
+				} else if (res.status === 'failed') {
+					setAwaiting(null);
+					toast.error(
+						'This payment didn’t go through — you weren’t charged for a plan.'
+					);
+				} else {
+					toast.info(
+						'Stripe is still processing this payment. Try again in a few minutes.'
+					);
+				}
+			},
+		});
+
+	const paymentFields = [
+		...PAYMENT_FIELDS,
+		{
+			Header: '',
+			accessor: '_id',
+			align: 'right',
+			Cell: ({ row }) =>
+				row.original.status === 'pending' &&
+				row.original.provider === 'stripe' ? (
+					<AppButton
+						size="sm"
+						variant="secondary"
+						onClick={() => checkStatus(row.original._id)}
+						disabled={refresh.isPending}
+					>
+						Check status
+					</AppButton>
+				) : null,
+		},
+	];
 	const sub = current.data;
 	const confirming = Boolean(awaiting);
 
@@ -153,6 +200,7 @@ function MySubscription() {
 						plan,
 						clientSecret: res.clientSecret,
 						subscriptionId: res.subscriptionId,
+						paymentId: res.paymentId,
 					});
 					checkoutRef.current.open();
 				},
@@ -211,9 +259,18 @@ function MySubscription() {
 					>
 						<span className="min-w-0 flex-1">
 							Your payment went through, but Stripe hasn’t confirmed it to us
-							yet. Your new plan will show up here as soon as it does — you can
-							leave this page.
+							yet. Check now, or leave it — we re-check pending payments every
+							15 minutes and your plan will show up here.
 						</span>
+						{checkout?.paymentId && (
+							<AppButton
+								size="sm"
+								onClick={() => checkStatus(checkout.paymentId)}
+								disabled={refresh.isPending}
+							>
+								{refresh.isPending ? 'Checking…' : 'Check payment status'}
+							</AppButton>
+						)}
 						<AppButton
 							size="sm"
 							variant="secondary"
@@ -336,7 +393,7 @@ function MySubscription() {
 				</div>
 				<CustomTable
 					ariaLabel="Payments"
-					fields={PAYMENT_FIELDS}
+					fields={paymentFields}
 					dataSource={payments.data?.data || []}
 					isLoading={payments.isPending}
 					isError={payments.isError}

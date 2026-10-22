@@ -18,6 +18,9 @@ import ServicesTab from './elements/services-tab';
 import MentorshipTab from './elements/mentorship-tab';
 import PortfolioTab from './elements/portfolio-tab';
 import LinksTab from './elements/links-tab';
+import StoreProductsTab from './elements/products/store-products-tab';
+import DigitalProductsTab from './elements/products/digital-products-tab';
+import { PROFILE_TYPE } from '../../../../utilities/app-const';
 
 const BackLink = () => (
 	<Link
@@ -156,6 +159,12 @@ function ProfileEditor({ profileType }) {
 				{tab === 'links' && (
 					<LinksTab profileType={profileType} profile={profile} />
 				)}
+				{tab === 'products' &&
+					(profileType === PROFILE_TYPE.STORE ? (
+						<StoreProductsTab profile={profile} />
+					) : (
+						<DigitalProductsTab profile={profile} />
+					))}
 			</div>
 		</>
 	);
