@@ -67,12 +67,18 @@ const useGetMySubscriptionsQuery = ({ page = 1, limit = 10 } = {}) =>
 
 // After a card payment: poll GET /api/subscriptions/current until Stripe's
 // webhook has made `subscriptionId` the live subscription, then call
-// onActive once (from the fetch itself, not from render). Stops on its
-// own; idle when subscriptionId is null.
-const useAwaitActivationQuery = (subscriptionId, onActive) =>
-	useQuery({
-		queryKey: ['await-activation', subscriptionId],
+// onActive once (from the fetch itself, not from render). Gives up after
+// MAX_POLLS (~1 min) — the payment has gone through either way; the plan
+// appears whenever the webhook lands. `data` is 'waiting' | 'active' |
+// 'gave-up' (as `.gaveUp`). Idle when subscriptionId is null.
+const MAX_POLLS = 24;
+const useAwaitActivationQuery = (subscriptionId, onActive) => {
+	const queryClient = useQueryClient();
+	const queryKey = ['await-activation', subscriptionId];
+	const query = useQuery({
+		queryKey,
 		queryFn: async () => {
+			const polls = (queryClient.getQueryData(queryKey)?.polls ?? 0) + 1;
 			const res = await axiosCall({
 				url: '/api/subscriptions/current',
 				method: 'GET',
@@ -80,14 +86,17 @@ const useAwaitActivationQuery = (subscriptionId, onActive) =>
 			});
 			if (res?.currentPlan?._id === subscriptionId) {
 				onActive?.(res.currentPlan);
-				return 'active';
+				return { status: 'active', polls };
 			}
-			return 'waiting';
+			return { status: polls >= MAX_POLLS ? 'gave-up' : 'waiting', polls };
 		},
 		enabled: Boolean(subscriptionId),
-		refetchInterval: (query) => (query.state.data === 'active' ? false : 2500),
+		refetchInterval: (q) =>
+			q.state.data && q.state.data.status !== 'waiting' ? false : 2500,
 		gcTime: 0,
 	});
+	return { ...query, gaveUp: query.data?.status === 'gave-up' };
+};
 
 const SubscriptionServices = {
 	awaitActivation: useAwaitActivationQuery,

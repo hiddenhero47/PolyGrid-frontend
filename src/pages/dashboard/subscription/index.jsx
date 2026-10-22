@@ -114,11 +114,14 @@ function MySubscription() {
 	const [awaiting, setAwaiting] = useState(null); // subscriptionId waiting on the webhook
 
 	const current = SubscriptionServices.getCurrentSubscription();
-	SubscriptionServices.awaitActivation(awaiting, (subscription) => {
-		setAwaiting(null);
-		refreshSubscription(queryClient);
-		toast.success(`${humanize(subscription.planTier)} plan is active`);
-	});
+	const activation = SubscriptionServices.awaitActivation(
+		awaiting,
+		(subscription) => {
+			setAwaiting(null);
+			refreshSubscription(queryClient);
+			toast.success(`${humanize(subscription.planTier)} plan is active`);
+		}
+	);
 	const plans = PlanServices.getPlans();
 	const history = SubscriptionServices.getMySubscriptions();
 	const payments = PaymentServices.getMyPayments();
@@ -188,7 +191,7 @@ function MySubscription() {
 						Current plan
 					</h3>
 				</div>
-				{confirming && (
+				{confirming && !activation.gaveUp && (
 					<p
 						role="status"
 						className="mb-4 flex items-center gap-3 rounded-xl bg-(--pg-status-infoSoft) px-4 py-3 text-[15px] text-(--pg-text-primary)"
@@ -200,6 +203,28 @@ function MySubscription() {
 						Payment received — confirming with Stripe. This usually takes a few
 						seconds.
 					</p>
+				)}
+				{confirming && activation.gaveUp && (
+					<div
+						role="status"
+						className="mb-4 flex flex-wrap items-center gap-3 rounded-xl bg-(--pg-status-warningSoft) px-4 py-3 text-[15px] text-(--pg-text-primary)"
+					>
+						<span className="min-w-0 flex-1">
+							Your payment went through, but Stripe hasn’t confirmed it to us
+							yet. Your new plan will show up here as soon as it does — you can
+							leave this page.
+						</span>
+						<AppButton
+							size="sm"
+							variant="secondary"
+							onClick={() => {
+								setAwaiting(null);
+								refreshSubscription(queryClient);
+							}}
+						>
+							OK
+						</AppButton>
+					</div>
 				)}
 				{current.isPending ? (
 					<SkeletonBar $width="40%" style={{ height: 80 }} />
@@ -266,7 +291,9 @@ function MySubscription() {
 								</ul>
 								<AppButton
 									variant={isCurrent ? 'secondary' : 'primary'}
-									disabled={subscribe.isPending || confirming}
+									disabled={
+										subscribe.isPending || (confirming && !activation.gaveUp)
+									}
 									onClick={() => choose(plan)}
 								>
 									{buttonLabel(plan, isCurrent)}
