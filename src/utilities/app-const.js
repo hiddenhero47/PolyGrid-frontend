@@ -158,3 +158,34 @@ export const LABOR_SKILL_LABELS = {
 	foreman: 'Foreman / supervisor',
 	general_labor: 'General labour',
 };
+
+// src/models/storeProfileModel.ts — a store's categories decide what it
+// can sell; removing one deletes the store's products in it.
+export const MATERIAL_CATEGORY = {
+	CEMENT_CONCRETE: 'cement_concrete',
+	STEEL_REINFORCEMENT: 'steel_reinforcement',
+	AGGREGATES: 'aggregates',
+	BLOCKS_BRICKS: 'blocks_bricks',
+	ROOFING: 'roofing',
+	TIMBER_WOOD: 'timber_wood',
+	DOORS_WINDOWS: 'doors_windows',
+	ELECTRICAL: 'electrical',
+	PLUMBING: 'plumbing',
+	PAINT_FINISHES: 'paint_finishes',
+	TILES_FLOORING: 'tiles_flooring',
+	TOOLS_EQUIPMENT: 'tools_equipment',
+	SAFETY_GEAR: 'safety_gear',
+};
+
+export const MATERIAL_CATEGORY_LABELS = {
+	cement_concrete: 'Cement & concrete',
+	steel_reinforcement: 'Steel & reinforcement',
+	aggregates: 'Aggregates (sand, gravel, stone)',
+	blocks_bricks: 'Blocks & bricks',
+	timber_wood: 'Timber & wood',
+	doors_windows: 'Doors & windows',
+	paint_finishes: 'Paint & finishes',
+	tiles_flooring: 'Tiles & flooring',
+	tools_equipment: 'Tools & equipment',
+	safety_gear: 'Safety gear',
+};

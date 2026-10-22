@@ -36,7 +36,12 @@ function EditorHeader({ profileType, config, profile }) {
 			toast.error('That image is over 10 MB');
 			return;
 		}
-		upload.mutate(file, { onSuccess: () => toast.success('Photo updated') });
+		upload.mutate(file, {
+			onSuccess: () =>
+				toast.success(
+					config.imageField === 'logo' ? 'Logo updated' : 'Photo updated'
+				),
+		});
 	};
 
 	const setActive = (e) =>
@@ -55,10 +60,18 @@ function EditorHeader({ profileType, config, profile }) {
 	return (
 		<Header>
 			<div className="sc_avatarWrap">
-				<ProfileAvatar avatar={profile.avatar} name={name} size={84} />
+				<ProfileAvatar
+					avatar={profile[config.imageField || 'avatar']}
+					name={name}
+					size={84}
+				/>
 				<label className="sc_avatarBtn" title="Replace photo">
 					<LuCamera aria-hidden="true" />
-					<span className="sr-only">Replace profile photo</span>
+					<span className="sr-only">
+						{config.imageField === 'logo'
+							? 'Replace logo'
+							: 'Replace profile photo'}
+					</span>
 					<input
 						type="file"
 						accept={AVATAR_ACCEPT}

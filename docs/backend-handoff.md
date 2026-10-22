@@ -6,11 +6,38 @@ session. Each item gives where the problem is, what it does, and what
 the frontend needs. Add new items at the top and remove them once
 they're fixed.
 
-_Last updated: 2026-10-20._
+_Last updated: 2026-10-22._
 
 ## Open
 
-### 1. A portfolio item can't be edited after it's created
+### 1. (Blocking) A store owner / digital creator can't list their own products
+
+**Where:** `storeProfileRoutes.ts` and `digitalCreatorProfileRoutes.ts`.
+
+**What happens:** there are routes to create, update and delete
+products (and their images / files) under `/me/products/:id`, but
+nothing that *lists* the owner's products:
+- `GET /api/store-profiles/me` and `GET /api/digital-creator-profiles/me`
+  return the profile only, with no products;
+- the public store page (`GET /api/store-profiles/:idOrSlug`) does list
+  products, but answers `{ available: false }` until the store is
+  verified and subscribed, which is exactly when an owner is setting up;
+- the digital feed only shows admin-verified products, so a creator
+  can't see their own pending or inactive ones.
+
+So a new store owner can add products and then never see them again.
+The product managers in the dashboard are waiting on this.
+
+**Request:** owner-only list routes, any state (pending verification,
+inactive, out of stock), newest first, paginated like everything else:
+- `GET /api/store-profiles/me/products?page=&limit=` →
+  `{ data: [toPublicProduct], pagination }`
+- `GET /api/digital-creator-profiles/me/products?page=&limit=` →
+  `{ data: [digital product incl. isVerified, isActive, previewImages,
+  files (names/sizes, no signed links)], pagination }`
+
+
+### 2. A portfolio item can't be edited after it's created
 
 **Where:** the portfolio routes on consultancy, contractor and labor
 profiles (`/me/portfolio…`).
@@ -23,7 +50,7 @@ project and uploading all its images again.
 **Request:** `PATCH <base>/me/portfolio/:itemId` taking those fields (the
 same rules as `addPortfolioItemSchema`, all optional).
 
-### 2. (Nice to have) One route for "all my business profiles"
+### 3. (Nice to have) One route for "all my business profiles"
 
 The workspace hub calls six `GET <base>/me` routes in parallel and treats
 404 as "not created". It works fine. A single `GET /api/users/me/profiles`

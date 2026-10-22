@@ -29,6 +29,8 @@ export const ROUTES = {
 	DASHBOARD_CONTRACTOR: '/dashboard/profiles/contractor',
 	DASHBOARD_CLIENT: '/dashboard/profiles/client',
 	DASHBOARD_LABOR: '/dashboard/profiles/siteforce',
+	DASHBOARD_STORE: '/dashboard/profiles/store',
+	DASHBOARD_CREATOR: '/dashboard/profiles/digital-creator',
 	DASHBOARD_SETTINGS: '/dashboard/settings',
 	DASHBOARD_VERIFICATION: '/dashboard/verification',
 	DASHBOARD_SUBSCRIPTION: '/dashboard/subscription',

@@ -182,6 +182,24 @@ function App() {
 									}
 								/>
 								<Route
+									path="profiles/store"
+									element={
+										<ProfileEditor
+											key="store"
+											profileType={PROFILE_TYPE.STORE}
+										/>
+									}
+								/>
+								<Route
+									path="profiles/digital-creator"
+									element={
+										<ProfileEditor
+											key="creator"
+											profileType={PROFILE_TYPE.DIGITAL_CREATOR}
+										/>
+									}
+								/>
+								<Route
 									path="profiles/client"
 									element={
 										<ProfileEditor

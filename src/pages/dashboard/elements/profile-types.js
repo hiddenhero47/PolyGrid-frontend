@@ -57,6 +57,7 @@ export const PROFILE_TYPES = [
 		icon: LuStore,
 		pitch:
 			'List building materials and take orders from contractors and clients.',
+		editor: ROUTES.DASHBOARD_STORE,
 		name: (p) => p.storeName,
 	},
 	{
@@ -65,6 +66,7 @@ export const PROFILE_TYPES = [
 		pillar: 'PolyGrid Store',
 		icon: LuFileCode2,
 		pitch: 'Sell drawings, templates and calculation sheets as downloads.',
+		editor: ROUTES.DASHBOARD_CREATOR,
 		name: (p) => p.displayName,
 	},
 	{

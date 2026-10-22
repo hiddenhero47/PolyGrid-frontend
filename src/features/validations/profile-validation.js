@@ -43,7 +43,10 @@ export const profileDetailsSchema = (config) =>
 					`Pick at least one ${config.disciplines.label.toLowerCase().replace(/s$/, '')}`
 				),
 		}),
-		bio: yup.string().trim().max(2000, 'Keep it under 2,000 characters'),
+		[config.bioField || 'bio']: yup
+			.string()
+			.trim()
+			.max(2000, 'Keep it under 2,000 characters'),
 	});
 
 export const serviceSchema = yup.object({

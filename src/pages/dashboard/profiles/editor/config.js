@@ -6,13 +6,18 @@ import {
 	CONTRACTOR_SPECIALTY_LABELS,
 	LABOR_SKILL,
 	LABOR_SKILL_LABELS,
+	MATERIAL_CATEGORY,
+	MATERIAL_CATEGORY_LABELS,
 } from '../../../../utilities/app-const';
 import { ROUTES } from '../../../../utilities/app-routes';
 import { enumToOptions } from '../../../../utilities/basic-functions';
 
 // What each business profile's editor has (frontend-plan §B.3a/b/f). One
 // generic editor page reads this, so a pillar is mostly a config entry.
-//   nameField   — the "what do I call myself" field (headline / displayName)
+//   nameField   — the "what do I call myself" field (headline / displayName
+//                 / storeName)
+//   bioField    — the long text field (bio, or a store's description)
+//   imageField  — the picture: avatar, or a store's logo (own upload route)
 //   disciplines — the multi-choice "what I do" field, if the pillar has one
 //   years       — has yearsOfExperience
 //   tabs        — editor sections after Details
@@ -97,6 +102,61 @@ export const PROFILE_EDITORS = {
 		live: {
 			on: 'This profile shows in search and can apply to site jobs.',
 			off: 'All four are needed before you can apply to site jobs and show in search.',
+		},
+	},
+	[PROFILE_TYPE.STORE]: {
+		route: ROUTES.DASHBOARD_STORE,
+		label: 'Materials store',
+		pillar: 'PolyGrid Store',
+		createTitle: 'Open a materials store',
+		createSubtitle:
+			'Set up your store and pick the categories you sell. Once verified and on a plan, your products go live in the materials marketplace.',
+		nameField: 'storeName',
+		nameLabel: 'Store name',
+		namePlaceholder: 'e.g. Abuja Building Supplies',
+		nameHint: 'Shown on your store page and every product.',
+		bioField: 'description',
+		bioPlaceholder:
+			'What you stock, brands you carry, where you deliver and how fast.',
+		imageField: 'logo',
+		disciplines: {
+			field: 'categories',
+			label: 'Categories',
+			options: enumToOptions(MATERIAL_CATEGORY, MATERIAL_CATEGORY_LABELS),
+			columns: 2,
+			// backend: removing a category deletes the store's products in it
+			removalWarning: (labels) => ({
+				title: 'Remove categories and their products?',
+				text: `Removing ${labels.join(', ')} also deletes every product you list under ${labels.length === 1 ? 'it' : 'them'}, with their images. This can’t be undone.`,
+				confirmLabel: 'Remove and delete products',
+			}),
+		},
+		years: false,
+		tabs: ['links'],
+		live: {
+			on: 'Your store and products show in the materials marketplace.',
+			off: 'All four are needed before your store shows in the marketplace.',
+		},
+	},
+	[PROFILE_TYPE.DIGITAL_CREATOR]: {
+		route: ROUTES.DASHBOARD_CREATOR,
+		label: 'Digital creator',
+		pillar: 'PolyGrid Store',
+		createTitle: 'Sell digital files',
+		createSubtitle:
+			'Set up your creator profile — drawings, templates and calculation sheets come next. Once verified and on a plan, approved products go live in the digital feed.',
+		nameField: 'displayName',
+		nameLabel: 'Display name',
+		namePlaceholder: 'e.g. Okafor Drafting Studio',
+		nameHint: 'Shown on your creator page and every file you sell.',
+		bioPlaceholder:
+			'What you draw or build, the standards you work to, and who your files are for.',
+		disciplines: null,
+		years: false,
+		tabs: ['links'],
+		live: {
+			on: 'Your approved files show in the digital feed.',
+			off: 'All four are needed before your files show in the digital feed.',
 		},
 	},
 	[PROFILE_TYPE.CLIENT]: {

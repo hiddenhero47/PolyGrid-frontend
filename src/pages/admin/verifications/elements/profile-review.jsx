@@ -104,7 +104,11 @@ function ProfileReview({ profileType, profileId }) {
 	return (
 		<div className="flex flex-col gap-7">
 			<div className="flex items-start gap-4">
-				<ProfileAvatar avatar={p.avatar} name={profileName(p)} size={64} />
+				<ProfileAvatar
+					avatar={p.avatar || p.logo}
+					name={profileName(p)}
+					size={64}
+				/>
 				<div className="min-w-0">
 					<p className="font-label text-[11px] font-semibold tracking-[0.16em] text-(--pg-text-highlight) uppercase">
 						{PROFILE_TYPE_LABELS[profileType] || profileType}
@@ -160,11 +164,11 @@ function ProfileReview({ profileType, profileId }) {
 				</div>
 			)}
 
-			{p.bio && (
+			{(p.bio || p.description) && (
 				<section>
 					<Heading>About</Heading>
 					<p className="text-[15px] leading-relaxed whitespace-pre-line text-(--pg-text-primary)">
-						{p.bio}
+						{p.bio || p.description}
 					</p>
 				</section>
 			)}

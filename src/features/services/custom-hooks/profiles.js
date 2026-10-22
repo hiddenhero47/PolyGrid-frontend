@@ -18,6 +18,10 @@ export const PROFILE_API = {
 	[PROFILE_TYPE.CLIENT]: '/api/client-profiles',
 };
 
+// Where a pillar's picture uploads: a store has a logo, everyone else an
+// avatar — POST <base>/me/<route>, one image under that field name.
+const IMAGE_ROUTE = { [PROFILE_TYPE.STORE]: 'logo' };
+
 const myProfileKey = (profileType) => ['my-profile', profileType];
 
 // GET <base>/me — the full profile whatever its verified / subscribed
@@ -90,13 +94,14 @@ const useUpdateProfileMutation = (profileType) =>
 		axiosCall({ url: `${PROFILE_API[profileType]}/me`, method: 'PATCH', data })
 	);
 
-// POST <base>/me/avatar — multipart, exactly one image.
+// POST <base>/me/avatar (a store: /me/logo) — multipart, exactly one image.
 const useUploadAvatarMutation = (profileType) =>
 	useProfileWrite(profileType, (file) => {
+		const route = IMAGE_ROUTE[profileType] || 'avatar';
 		const body = new FormData();
-		body.append('avatar', file);
+		body.append(route, file);
 		return axiosCall({
-			url: `${PROFILE_API[profileType]}/me/avatar`,
+			url: `${PROFILE_API[profileType]}/me/${route}`,
 			method: 'POST',
 			data: body,
 		});

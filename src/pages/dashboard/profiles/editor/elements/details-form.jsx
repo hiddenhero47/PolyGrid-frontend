@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useFormik } from 'formik';
 import { LuSave } from 'react-icons/lu';
@@ -10,13 +10,17 @@ import {
 	CustomSelect,
 	CustomCheckboxGroup,
 } from '../../../../../components/form-components';
+import ConfirmModal from '../../../../../components/modal/confirm-modal';
 import { profileDetailsSchema } from '../../../../../features/validations/profile-validation';
+
+// the long text field — `bio`, or a store's `description`
+const bioKey = (config) => config.bioField || 'bio';
 
 const fromProfile = (config, profile = {}) => ({
 	[config.nameField]: profile[config.nameField] || '',
 	country: profile.country || '',
 	city: profile.city || '',
-	bio: profile.bio || '',
+	[bioKey(config)]: profile[bioKey(config)] || '',
 	...(config.years && { yearsOfExperience: profile.yearsOfExperience ?? '' }),
 	...(config.disciplines && {
 		[config.disciplines.field]: profile[config.disciplines.field] || [],
@@ -30,7 +34,7 @@ const toBody = (config, values, creating) => {
 		[config.nameField]: values[config.nameField].trim(),
 		country: values.country,
 		city: values.city.trim(),
-		bio: values.bio.trim(),
+		[bioKey(config)]: values[bioKey(config)].trim(),
 	};
 	if (config.disciplines)
 		body[config.disciplines.field] = values[config.disciplines.field];
@@ -43,7 +47,7 @@ const toBody = (config, values, creating) => {
 	}
 	if (creating) {
 		if (!body.city) delete body.city;
-		if (!body.bio) delete body.bio;
+		if (!body[bioKey(config)]) delete body[bioKey(config)];
 	}
 	return body;
 };
@@ -59,13 +63,33 @@ function DetailsForm({
 	submitLabel = 'Save changes',
 }) {
 	const creating = !profile;
+	const confirmRef = useRef(null);
 	const { data: countries = [] } = ReferenceServices.getCountries();
 
 	const form = useFormik({
 		initialValues: fromProfile(config, profile),
 		enableReinitialize: true,
 		validationSchema: profileDetailsSchema(config),
-		onSubmit: (values) => onSubmit(toBody(config, values, creating)),
+		onSubmit: async (values) => {
+			// some pillars (a store's categories) delete data when an option
+			// is removed — say so before saving
+			const warn = config.disciplines?.removalWarning;
+			if (warn && !creating) {
+				const field = config.disciplines.field;
+				const removed = (profile[field] || []).filter(
+					(value) => !values[field].includes(value)
+				);
+				if (removed.length) {
+					const labels = removed.map(
+						(value) =>
+							config.disciplines.options.find((o) => o.value === value)
+								?.label || value
+					);
+					if (!(await confirmRef.current.ask(warn(labels)))) return;
+				}
+			}
+			onSubmit(toBody(config, values, creating));
+		},
 	});
 	const { data: cities = [] } = ReferenceServices.getCities(
 		form.values.country
@@ -73,6 +97,7 @@ function DetailsForm({
 	const err = (name) => (form.touched[name] && form.errors[name]) || false;
 	const listId = `${config.nameField}-city-suggestions`;
 	const disciplines = config.disciplines;
+	const bio = bioKey(config);
 
 	return (
 		<form
@@ -176,15 +201,15 @@ function DetailsForm({
 			<div className="lg:col-span-2">
 				<CustomTextarea
 					label="About"
-					name="bio"
+					name={bio}
 					placeholder={config.bioPlaceholder}
 					minHeight="150px"
 					maxLength={2000}
-					value={form.values.bio}
+					value={form.values[bio]}
 					onChange={form.handleChange}
 					onBlur={form.handleBlur}
-					isError={err('bio')}
-					errormessage={form.errors.bio}
+					isError={err(bio)}
+					errormessage={form.errors[bio]}
 				/>
 			</div>
 
@@ -207,6 +232,7 @@ function DetailsForm({
 					</>
 				)}
 			</div>
+			<ConfirmModal refName={confirmRef} />
 		</form>
 	);
 }

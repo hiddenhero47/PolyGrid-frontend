@@ -91,8 +91,11 @@ for both — public counts only, plus find / post / join entry points) and
 two directories on the Engineering pattern, from one generic browse +
 profile in `pages/directory/` driven by `config.js` (`DIRECTORIES`):
 contractors (`/contractors`, filter `specialty`) and SiteForce workers
-(`/siteforce/workers`, filter `skill`). Profile editors exist for
-consultant, contractor, SiteForce worker and client.
+(`/siteforce/workers`, filter `skill`). Profile editors exist for all
+six pillars (consultant, contractor, SiteForce worker, store, digital
+creator, client). The store and digital-creator **product managers**
+are blocked on a backend route to list one's own products (see
+`docs/backend-handoff.md`).
 
 **Admin Dashboard started early (Phase 4, first slice)** — the
 consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
@@ -440,16 +443,18 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
 
 - `elements/profile-types.js` — one entry per business profile type
   (label, pillar, icon, pitch, `editor` route once built, `publicPath`,
-  `name(profile)`) for the hub. Labor, store and digital creator still
-  show "Coming soon".
+  `name(profile)`) for the hub.
 - `profiles/editor/` — ONE editor page for every pillar
   (`<ProfileEditor profileType=…>`), shaped by `config.js`
   (`PROFILE_EDITORS`): the name field (`headline` / `displayName`), an
   optional disciplines list (`specializations` / `specialties`),
   years of experience, which tabs exist (services and mentorship are
   consultancy-only; portfolio and links are shared) and the go-live
-  wording. A new pillar is mostly a config entry plus any tab of its
-  own. Store / digital creator need product managers on top.
+  wording, plus `bioField` (a store's is `description`), `imageField`
+  (a store has a `logo`, uploaded to `/me/logo`) and
+  `disciplines.removalWarning` (removing a store category deletes its
+  products — the form confirms first). A new pillar is mostly a config
+  entry plus any tab of its own.
 - Subscription (`subscription/`): `PaymentServices.subscribe`
   (`POST /api/payments/intent`). `requiresPayment: false` means the plan
   is already active; otherwise the Stripe Payment Element opens in
