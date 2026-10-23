@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -18,11 +18,13 @@ import {
 	LuUpload,
 	LuWallet,
 	LuX,
+	LuMessageSquare,
 } from 'react-icons/lu';
 import JobServices, {
 	jobKey,
 } from '../../../features/services/custom-hooks/jobs';
 import PaymentServices from '../../../features/services/custom-hooks/payments';
+import MessageServices from '../../../features/services/custom-hooks/messages';
 import PageHeader from '../../../layouts/dashboard-shell/sub-components/page-header';
 import { toast } from '../../../layouts/toast/toast-handler';
 import AppLoader from '../../../components/loader';
@@ -96,6 +98,8 @@ function JobDetail() {
 	const requestPayout = JobServices.requestPayout();
 	const fundJob = PaymentServices.fundJob();
 	const refreshPayment = PaymentServices.refresh();
+	const startChat = MessageServices.start();
+	const navigate = useNavigate();
 
 	const confirmRef = useRef(null);
 	const reasonRef = useRef(null);
@@ -368,6 +372,24 @@ function JobDetail() {
 						onClick={onDispute}
 					>
 						Raise a dispute
+					</AppButton>
+				)}
+				{job[them]?.userId && (
+					<AppButton
+						variant="secondary"
+						icon={<LuMessageSquare />}
+						onClick={() =>
+							startChat.mutate(
+								String(job[them].userId._id || job[them].userId),
+								{
+									onSuccess: (conversation) =>
+										navigate(`${ROUTES.DASHBOARD_MESSAGES}/${conversation.id}`),
+								}
+							)
+						}
+						disabled={startChat.isPending}
+					>
+						Message
 					</AppButton>
 				)}
 			</div>

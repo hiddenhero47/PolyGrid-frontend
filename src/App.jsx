@@ -51,6 +51,8 @@ import JobOpeningDetail from './pages/dashboard/siteforce/detail';
 import Orders from './pages/dashboard/orders';
 import Checkout from './pages/dashboard/orders/checkout';
 import Purchases from './pages/dashboard/purchases';
+import Messages from './pages/dashboard/messages';
+import Contacts from './pages/dashboard/contacts';
 import AdminHome from './pages/admin/home';
 import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
@@ -261,6 +263,9 @@ function App() {
 								<Route path="orders" element={<Orders />} />
 								<Route path="orders/checkout/:storeId" element={<Checkout />} />
 								<Route path="purchases" element={<Purchases />} />
+								<Route path="messages" element={<Messages />} />
+								<Route path="messages/:id" element={<Messages />} />
+								<Route path="contacts" element={<Contacts />} />
 							</Route>
 
 							<Route element={<WrapperLayout />}>

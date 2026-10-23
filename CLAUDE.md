@@ -76,7 +76,7 @@ drawn from.
 
 ## Current status
 
-**Phase 1 in progress.** Built: the React + Vite setup, store, API
+**Phase 1 (public pages) — built:** the React + Vite setup, store, API
 client, multi-theme color system, public layout (`layouts/index-layout`:
 navbar, footer, first-visit intro), Home (`pages/home`), the shared
 component kit (form controls, table, pagination, status badge, modals,
@@ -113,21 +113,25 @@ Verifications, Plans, Subscriptions) at `/admin`. See "Admin Dashboard"
 below.
 
 **User Dashboard (Phase 2)** — `/dashboard`: home, Business Profile
-hub, profile editors for consultant, contractor and client (one generic
-editor driven by `pages/dashboard/profiles/editor/config.js`),
-Verification Center (template-driven form + documents + history),
-Subscription (self-serve: free plans activate at once, paid ones go
-through Stripe), Account Settings, Notifications and Jobs (Phase 3's first
-slice). See "User Dashboard" below.
-Next: the other pillars' browse + profile pages on the same pattern
-(contractors, stores, digital creators, workers, client profiles) and
-the tender / SiteForce public teasers. Remaining form controls
-(search-select, chips, file upload) wait until a page needs them. The backend is fully built: all four pillars, account suspension, review
+hub, profile editors for every pillar (one generic editor driven by
+`pages/dashboard/profiles/editor/config.js`), Verification Center
+(template-driven form + documents + history), Subscription (self-serve:
+free plans activate at once, paid ones go through Stripe), Account
+Settings and Notifications. See "User Dashboard" below.
+
+**Phase 3 (transactional dashboard) — built:** Jobs with escrow funding,
+Tenders (board, bids, projects, award), SiteForce (board with distance
+search, applications, postings, two-tier openings), Store orders (cart →
+checkout → job) and digital purchases (Stripe + download center),
+Contacts and Messages (live over Socket.IO). Backend gaps found along the
+way are in `docs/backend-handoff.md`. Next: Phase 4 — the rest of the
+Admin Dashboard (disputes, refund / payout requests, message reports,
+review moderation, stats).
+
+The backend is fully built: all four pillars, account suspension, review
 moderation, message-report resolution, per-profile avatars, a real
 notification system, SiteForce geo search, public board teasers, and a
-stats route. `docs/frontend-plan.md`'s §1 used to track backend gaps
-against the frontend plan; all of those are now closed, with routes
-noted inline throughout.
+stats route.
 
 Per §4's roadmap, build order is: design tokens + form states (Phase
 0) → Public/Basic View (Phase 1) → Account & Business Profile core
@@ -562,6 +566,20 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   center mints short-lived links per purchase; 410 (copy expired after a
   lapsed plan) and 503 (still preparing) are shown as states, not
   errors. Pending purchases offer "Check payment status".
+- Messages (`messages/`, §B.16, hooks `custom-hooks/messages.js`) and
+  Contacts (`contacts/`, §B.15, `custom-hooks/contacts.js`): one
+  conversation per pair of contacts — only contacts can message, and
+  jobs / awards / accepted applications / orders connect people
+  automatically (or add by email on Contacts; removing is one-way).
+  `/dashboard/messages/:id` is list + thread (one or the other on small
+  screens); the thread is an infinite query of newest-first pages shown
+  oldest → newest, Enter sends / Shift+Enter new line, a flag on the
+  other person's messages reports it. `message:new` over the socket goes
+  through `layouts/realtime-bridge.jsx` (`addMessageToCache`) — a toast
+  unless that thread is open. Opening a thread marks it read (the
+  thread's one effect, keyed by its newest message). The menu badge is
+  the sum of unread counts. The job page has "Message" for the other
+  party.
 - Pending Stripe payments: "Check payment status" (Subscription page
   banner and pending rows in Payments) calls
   `POST /api/payments/:id/refresh`; the backend also sweeps them every

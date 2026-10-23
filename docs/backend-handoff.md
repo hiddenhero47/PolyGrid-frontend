@@ -10,6 +10,13 @@ _Last updated: 2026-10-23._
 
 ## Open
 
+### Contacts list: names and avatars
+
+(Sent 2026-10-23; a backend change adding `fullName` was in progress.)
+`GET /api/contacts` rows were `{ user, email, connectedAt }` only. The
+Contacts page and the "New message" picker show `fullName` / `avatar` when
+present, else the email.
+
 ### An abandoned digital checkout blocks buying that file again
 
 (Sent 2026-10-23.) `handleDigitalPurchasePaymentIntent` creates the pending

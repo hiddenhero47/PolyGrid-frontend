@@ -74,13 +74,12 @@ export const DASHBOARD_NAV = [
 				label: 'Messages',
 				to: ROUTES.DASHBOARD_MESSAGES,
 				icon: LuMessagesSquare,
-				soon: true,
+				countKey: 'unreadMessages',
 			},
 			{
 				label: 'Contacts',
 				to: ROUTES.DASHBOARD_CONTACTS,
 				icon: LuContact,
-				soon: true,
 			},
 			{
 				label: 'Notifications',
