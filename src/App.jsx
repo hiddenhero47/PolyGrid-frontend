@@ -48,6 +48,9 @@ import TenderProjectDetail from './pages/dashboard/tenders/detail';
 import SiteForce from './pages/dashboard/siteforce';
 import NewJobOpening from './pages/dashboard/siteforce/new';
 import JobOpeningDetail from './pages/dashboard/siteforce/detail';
+import Orders from './pages/dashboard/orders';
+import Checkout from './pages/dashboard/orders/checkout';
+import Purchases from './pages/dashboard/purchases';
 import AdminHome from './pages/admin/home';
 import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
@@ -255,6 +258,9 @@ function App() {
 								<Route path="siteforce" element={<SiteForce />} />
 								<Route path="siteforce/new" element={<NewJobOpening />} />
 								<Route path="siteforce/:id" element={<JobOpeningDetail />} />
+								<Route path="orders" element={<Orders />} />
+								<Route path="orders/checkout/:storeId" element={<Checkout />} />
+								<Route path="purchases" element={<Purchases />} />
 							</Route>
 
 							<Route element={<WrapperLayout />}>

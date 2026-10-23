@@ -105,7 +105,7 @@ Digital files. `/clients/:id` is the client (poster) page — never
 gated, reached from things they post. `store/elements/page-states.jsx`
 (`<PublicPage query noun browseTo>{(data) => …}</PublicPage>`) is the
 loader / 404 / error / unavailable wrapper for those single views.
-Ordering and buying wait for checkout (Phase 3).
+Ordering (cart → checkout) and buying digital files live in the dashboard (Phase 3).
 
 **Admin Dashboard started early (Phase 4, first slice)** — the
 consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
@@ -544,6 +544,24 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   pieces: `elements/panels.jsx` (`Panel`, `BackLink`, `ListingCard`,
   `FileList`, `Fact`) and `elements/listing-helpers.js` (`placeText`,
   `budgetText`, `payText`, `closesText`).
+- Store orders (`orders/`, frontend-plan §B.13, hooks
+  `custom-hooks/orders.js`): the cart is a persisted Redux slice
+  (`store/slice/cart.js`), kept per store because an order is one
+  store's products to one destination. Product pages add to it
+  (`store/elements/add-to-cart.jsx`; `cart-link.jsx` shows the count on
+  Store pages). Checkout (`/dashboard/orders/checkout/:storeId`) prices
+  delivery per line the way the backend does (`lineShipping`: state row,
+  else country row, else "doesn't deliver there") and blocks lines that
+  can't ship; placing the order creates a Job (store already confirmed)
+  and opens it so the buyer confirms and funds. `/dashboard/orders`:
+  my orders · cart · my store's orders, each row linking to its job.
+- Digital purchases (`purchases/`, §B.14, hooks `custom-hooks/
+  purchases.js`): "Buy" on a digital file (`store/elements/
+  buy-digital.jsx`) → `targetType: 'DigitalPurchase'` intent → the shared
+  checkout modal → `/payments/:id/refresh` → Purchases. The download
+  center mints short-lived links per purchase; 410 (copy expired after a
+  lapsed plan) and 503 (still preparing) are shown as states, not
+  errors. Pending purchases offer "Check payment status".
 - Pending Stripe payments: "Check payment status" (Subscription page
   banner and pending rows in Payments) calls
   `POST /api/payments/:id/refresh`; the backend also sweeps them every

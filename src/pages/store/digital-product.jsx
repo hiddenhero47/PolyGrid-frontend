@@ -12,10 +12,12 @@ import { formatMoney, humanize } from '../../utilities/basic-functions';
 import { ROUTES, creatorPath } from '../../utilities/app-routes';
 import PublicPage from './elements/page-states';
 import Gallery from './elements/gallery';
+import BuyDigital from './elements/buy-digital';
 
 // frontend-plan §A.14 — one digital file, for discovery only: previews,
 // description, price and the creator. The download is purchase-gated
-// (§B.14); buying arrives with checkout (Phase 3).
+// (§B.14): signed in, "Buy" pays through Stripe and the copy appears in
+// Purchases.
 function DigitalProductPage() {
 	const { id } = useParams();
 	const location = useLocation();
@@ -74,12 +76,7 @@ function DigitalProductPage() {
 
 							<div className="flex flex-col gap-2">
 								{isAuthenticated ? (
-									<>
-										<AppButton disabled>Buy</AppButton>
-										<span className="text-sm text-(--pg-text-secondary)">
-											Buying through PolyGrid opens soon.
-										</span>
-									</>
+									<BuyDigital product={product} />
 								) : (
 									<AppButton
 										to={ROUTES.LOGIN}

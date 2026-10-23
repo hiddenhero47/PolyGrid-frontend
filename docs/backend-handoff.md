@@ -10,6 +10,30 @@ _Last updated: 2026-10-23._
 
 ## Open
 
+### An abandoned digital checkout blocks buying that file again
+
+(Sent 2026-10-23.) `handleDigitalPurchasePaymentIntent` creates the pending
+purchase + payment before Stripe takes the card; if the buyer closes the
+form, every later intent for that product is a 400 ("You already have a
+pending purchase"). Needed: resume the pending one — return a usable
+`clientSecret` for it — so the frontend can reopen the card form. A
+`paymentId` per row on `GET /api/digital-purchases/mine` would also save the
+Purchases page searching `/payments/me` for "Check payment status".
+
+### Free digital files go through Stripe
+
+A digital product can be priced 0, but buying one still creates a Stripe
+PaymentIntent for 0, which Stripe refuses. The Buy button already treats an
+answer with no `clientSecret` as "it's yours", so a free purchase can just
+succeed straight away (like free plans' `requiresPayment: false`).
+
+### Store order lists: store name and job status
+
+(Sent 2026-10-23.) `/api/store-orders/mine` rows carry `store` as an id only,
+and neither list has the job's status — each row fetches the store and the
+job separately. Populating store `{ storeName, slug, logo }` and adding the
+job's `{ status, amountPaid }` would make that one request.
+
 ### Tender / SiteForce responses: own bid / application, list titles, job id
 
 (Sent to the backend session on 2026-10-23.) The frontend works around all

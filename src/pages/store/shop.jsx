@@ -26,6 +26,7 @@ import {
 } from '../../utilities/app-const';
 import { countryName, humanize } from '../../utilities/basic-functions';
 import { ROUTES } from '../../utilities/app-routes';
+import CartLink from './elements/cart-link';
 import PublicPage from './elements/page-states';
 import { ProductCard } from './elements/product-cards';
 
@@ -79,12 +80,15 @@ function StorePage() {
 					<>
 						<ProfileHeader>
 							<div className="relative mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 lg:py-14 xl:px-12">
-								<Link
-									to={ROUTES.STORE}
-									className="font-label mb-8 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
-								>
-									<LuArrowLeft aria-hidden="true" /> All stores
-								</Link>
+								<div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+									<Link
+										to={ROUTES.STORE}
+										className="font-label inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
+									>
+										<LuArrowLeft aria-hidden="true" /> All stores
+									</Link>
+									<CartLink />
+								</div>
 								<div className="flex flex-col gap-6 sm:flex-row sm:items-start">
 									<ProfileAvatar
 										avatar={store.logo}

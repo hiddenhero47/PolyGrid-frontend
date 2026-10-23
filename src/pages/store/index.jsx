@@ -37,6 +37,7 @@ import {
 } from '../../utilities/basic-functions';
 import { ROUTES, storePath } from '../../utilities/app-routes';
 import StoreSwitch from './elements/store-switch';
+import CartLink from './elements/cart-link';
 import { ProductCard } from './elements/product-cards';
 
 const LIMIT = 12;
@@ -108,8 +109,9 @@ function BrowseStores() {
 						Cement, steel, blocks, roofing, timber, tools and more from verified
 						suppliers — each sets its own delivery areas and prices.
 					</p>
-					<div className="mt-6">
+					<div className="mt-6 flex flex-wrap items-center gap-3">
 						<StoreSwitch />
+						<CartLink />
 					</div>
 				</div>
 			</PageBand>

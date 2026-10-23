@@ -59,13 +59,11 @@ export const DASHBOARD_NAV = [
 				label: 'Orders',
 				to: ROUTES.DASHBOARD_ORDERS,
 				icon: LuPackage,
-				soon: true,
 			},
 			{
 				label: 'Purchases',
 				to: ROUTES.DASHBOARD_PURCHASES,
 				icon: LuDownload,
-				soon: true,
 			},
 		],
 	},

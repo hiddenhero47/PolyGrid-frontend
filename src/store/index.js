@@ -14,12 +14,14 @@ import {
 import createWebStorage from 'redux-persist/es/storage/createWebStorage';
 import auth from './slice/auth';
 import themes from './slice/app-theme';
+import cart from './slice/cart';
 import { setupListeners } from '@reduxjs/toolkit/query/react';
 
 // Combine all reducers
 const appReducer = combineReducers({
 	auth,
 	themes,
+	cart,
 });
 
 // Create a no-op storage for environments without `window` (e.g., server-side rendering)

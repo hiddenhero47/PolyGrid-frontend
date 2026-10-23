@@ -20,6 +20,8 @@ import {
 import { ROUTES, storePath } from '../../utilities/app-routes';
 import PublicPage from './elements/page-states';
 import Gallery from './elements/gallery';
+import AddToCart from './elements/add-to-cart';
+import CartLink from './elements/cart-link';
 
 const STOCK = {
 	in_stock: { label: 'In stock', tone: 'success' },
@@ -36,8 +38,8 @@ function StateName({ country, code }) {
 StateName.propTypes = { country: PropTypes.string, code: PropTypes.string };
 
 // frontend-plan §A.11 — one physical product: photos, price, stock,
-// delivery areas and the store selling it. Ordering arrives with
-// checkout (Phase 3).
+// delivery areas and the store selling it; signed in, add it to the
+// cart for that store (frontend-plan §B.13).
 function ProductPage() {
 	const { id } = useParams();
 	const location = useLocation();
@@ -60,13 +62,16 @@ function ProductPage() {
 				const seller = store.data?.available === false ? null : store.data;
 				return (
 					<div className="mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 xl:px-12">
-						<Link
-							to={seller ? storePath(seller) : ROUTES.STORE}
-							className="font-label mb-8 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
-						>
-							<LuArrowLeft aria-hidden="true" />{' '}
-							{seller ? seller.storeName : 'All stores'}
-						</Link>
+						<div className="mb-8 flex flex-wrap items-center justify-between gap-3">
+							<Link
+								to={seller ? storePath(seller) : ROUTES.STORE}
+								className="font-label inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
+							>
+								<LuArrowLeft aria-hidden="true" />{' '}
+								{seller ? seller.storeName : 'All stores'}
+							</Link>
+							<CartLink />
+						</div>
 
 						<div className="grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
 							<Gallery images={product.images} alt={product.title} />
@@ -103,14 +108,7 @@ function ProductPage() {
 								)}
 
 								<div className="flex flex-col gap-2">
-									{isAuthenticated ? (
-										<>
-											<AppButton disabled>Order</AppButton>
-											<span className="text-sm text-(--pg-text-secondary)">
-												Ordering through PolyGrid opens soon.
-											</span>
-										</>
-									) : (
+									{!isAuthenticated ? (
 										<AppButton
 											to={ROUTES.LOGIN}
 											state={{ from: location.pathname }}
@@ -118,7 +116,9 @@ function ProductPage() {
 										>
 											Sign in to order
 										</AppButton>
-									)}
+									) : seller ? (
+										<AddToCart product={product} store={seller} />
+									) : null}
 								</div>
 
 								<ProfileSection>
