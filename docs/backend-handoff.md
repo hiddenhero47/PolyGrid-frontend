@@ -14,8 +14,7 @@ Nothing open right now.
 
 ## Resolved
 
-Backend changes of 2026-10-23 (in the backend's working tree, not yet
-committed there when the frontend switched to them):
+Commit `f1d6552` (2026-10-23), all used by the frontend:
 - verifying a stage needs escrow to cover it (400 otherwise) — the job page
   offers "Fund this stage to release it" instead of Verify;
 - jobs carry party names (`client.user` / `provider.user`), and summaries
