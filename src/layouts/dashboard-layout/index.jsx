@@ -7,6 +7,7 @@ import VerifyEmailBanner from '../../components/verify-email-banner';
 import { ACCOUNT_TYPE } from '../../utilities/app-const';
 import { ROUTES } from '../../utilities/app-routes';
 import { DASHBOARD_NAV } from './dashboard-nav';
+import NotificationServices from '../../features/services/custom-hooks/notifications';
 
 // User Dashboard (frontend-plan §B) — any signed-in account. Same shell
 // as the Admin Dashboard, with the workspace menu.
@@ -14,6 +15,9 @@ function DashboardLayout() {
 	const location = useLocation();
 	const isAuthenticated = useSelector(selectIsAuthenticated);
 	const { user } = useSelector((state) => state.auth);
+	const { data: unread = 0 } = NotificationServices.unreadCount({
+		enabled: isAuthenticated,
+	});
 
 	if (!isAuthenticated) {
 		return (
@@ -30,6 +34,7 @@ function DashboardLayout() {
 			<VerifyEmailBanner />
 			<DashboardShell
 				sections={DASHBOARD_NAV}
+				counts={{ unreadNotifications: unread }}
 				consoleLabel="My workspace"
 				eyebrow="Workspace"
 				roleLabel={

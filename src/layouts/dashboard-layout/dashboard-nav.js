@@ -49,7 +49,12 @@ export const DASHBOARD_NAV = [
 		items: [
 			{ label: 'Jobs', icon: LuHandshake, soon: true },
 			{ label: 'Messages', icon: LuMessagesSquare, soon: true },
-			{ label: 'Notifications', icon: LuBell, soon: true },
+			{
+				label: 'Notifications',
+				to: ROUTES.DASHBOARD_NOTIFICATIONS,
+				icon: LuBell,
+				countKey: 'unreadNotifications',
+			},
 		],
 	},
 	{

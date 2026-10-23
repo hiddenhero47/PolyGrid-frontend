@@ -10,6 +10,7 @@ import AuthLayout from './layouts/auth-layout';
 import AdminLayout from './layouts/admin-layout';
 import DashboardLayout from './layouts/dashboard-layout';
 import AppToast from './layouts/toast/index-toast';
+import RealtimeBridge from './layouts/realtime-bridge';
 import { PROFILE_TYPE } from './utilities/app-const';
 // pages
 import Home from './pages/home';
@@ -37,6 +38,7 @@ import ProfileEditor from './pages/dashboard/profiles/editor';
 import VerificationCenter from './pages/dashboard/verification';
 import MySubscription from './pages/dashboard/subscription';
 import AccountSettings from './pages/dashboard/settings';
+import Notifications from './pages/dashboard/notifications';
 import AdminHome from './pages/admin/home';
 import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
@@ -69,6 +71,7 @@ function App() {
 			<ThemeRoot>
 				<GlobalStyleInjector />
 				<Router>
+					<RealtimeBridge />
 					<div id="containerBody">
 						<Routes>
 							{/* Public / Basic View — frontend-plan §A */}
@@ -233,6 +236,7 @@ function App() {
 								<Route path="verification" element={<VerificationCenter />} />
 								<Route path="subscription" element={<MySubscription />} />
 								<Route path="settings" element={<AccountSettings />} />
+								<Route path="notifications" element={<Notifications />} />
 							</Route>
 
 							<Route element={<WrapperLayout />}>

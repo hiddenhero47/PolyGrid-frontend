@@ -21,6 +21,7 @@ import { toast } from '../../toast/toast-handler';
 import { THEMES } from '../../../theme';
 import { ROUTES, homeForUser } from '../../../utilities/app-routes';
 import AccountMenu from '../../../components/account-menu';
+import NotificationBell from '../../../components/notification-bell';
 import { NavWrapper, MobileMenu } from './navbar.style';
 
 const PILLAR_LINKS = [
@@ -97,6 +98,7 @@ function Navbar({ ready = true }) {
 									{isStaff ? 'Admin' : 'Dashboard'}
 								</AppButton>
 							</span>
+							<NotificationBell />
 							<AccountMenu showName={false} />
 						</>
 					) : (

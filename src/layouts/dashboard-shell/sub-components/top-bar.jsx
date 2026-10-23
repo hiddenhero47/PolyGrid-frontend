@@ -5,6 +5,7 @@ import { LuMenu, LuSun, LuMoon } from 'react-icons/lu';
 import { toggleTheme } from '../../../store/slice/app-theme';
 import { THEMES } from '../../../theme';
 import AccountMenu from '../../../components/account-menu';
+import NotificationBell from '../../../components/notification-bell';
 import { TopBar as Bar, IconButton } from '../index.style';
 
 // HM's dashboard nav bar: menu toggle (drawer, below desktop), where you
@@ -36,6 +37,8 @@ function TopBar({ eyebrow, title, roleLabel, onOpenMenu }) {
 			>
 				{isDark ? <LuSun /> : <LuMoon />}
 			</IconButton>
+
+			<NotificationBell />
 
 			<div className="border-l border-(--pg-border-default) pl-2">
 				<AccountMenu compactLabel={roleLabel} />

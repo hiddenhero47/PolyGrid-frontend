@@ -449,6 +449,22 @@ menu: `admin-layout` (staff roles, `admin-nav.js`) and
 `/admin` and everyone else to `/dashboard`; the navbar shows the same
 link.
 
+Notifications (frontend-plan §2, §B.17): `components/notification-bell`
+(badge + popover of the latest 8, "Mark all read", "See all") sits next
+to the account menu in the navbar and the dashboard top bar;
+`/dashboard/notifications` lists them all. Hooks
+`custom-hooks/notifications.js` (unread count also polls every 2 min as
+a fallback; mark-read updates the badge and lists instantly).
+`utilities/notifications.js` maps each backend type to an icon, tone and
+link (`notificationLink`) — job / tender / SiteForce types point at the
+dashboard until those pages exist. Live delivery: `layouts/
+realtime-bridge.jsx` (mounted once in `App.jsx`) keeps one Socket.IO
+connection (`features/services/socket.js`, JWT in the handshake) while
+signed in; `notification:new` refreshes the queries and shows a toast
+with "View". In dev the socket goes through Vite's `/socket.io` proxy
+(`ws: true`), like `/api`. The bridge is the one intentional
+`useEffect` — it syncs with an outside system (the socket).
+
 `components/account-menu` — the signed-in user's avatar button and
 popover menu (Admin console for staff, Dashboard, Business profiles,
 Settings, Log out), used in the public navbar and the dashboards' top
