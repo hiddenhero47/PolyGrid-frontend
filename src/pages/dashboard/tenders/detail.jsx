@@ -168,11 +168,8 @@ function TenderProjectDetail() {
 	} = TenderServices.get(id);
 	const isPoster =
 		Boolean(project?.postedBy) && idOf(project.postedBy) === String(user?.id);
-	const myBids = TenderServices.myBids(
-		{ page: 1, limit: 100 },
-		{ enabled: Boolean(project?.id) && !isPoster }
-	);
-	const myBid = (myBids.data?.data || []).find((b) => idOf(b.project) === id);
+	// the backend includes your own bid (any status) for a contractor
+	const myBid = project?.myBid || null;
 
 	const update = TenderServices.update();
 	const addFiles = TenderServices.addFiles();
@@ -446,9 +443,7 @@ function TenderProjectDetail() {
 
 					{!isPoster && (
 						<Panel title="Your bid" icon={<LuSend aria-hidden="true" />}>
-							{myBids.isPending ? (
-								<AppLoader />
-							) : myBid ? (
+							{myBid ? (
 								<div className="flex flex-col gap-3">
 									<div className="flex items-center justify-between gap-3">
 										<span className="font-display text-2xl font-semibold text-(--pg-text-primary)">

@@ -35,7 +35,8 @@ function Contacts() {
 	const navigate = useNavigate();
 	const [params, setParams] = useSearchParams();
 	const page = Math.max(Number(params.get('page')) || 1, 1);
-	const contacts = ContactServices.list({ page, limit: LIMIT });
+	const q = params.get('q') || '';
+	const contacts = ContactServices.list({ q, page, limit: LIMIT });
 	const add = ContactServices.add();
 	const remove = ContactServices.remove();
 	const start = MessageServices.start();
@@ -87,6 +88,20 @@ function Contacts() {
 
 			<div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
 				<div className="min-w-0">
+					<div className="mb-4 max-w-[420px]">
+						<CustomInput
+							label="Search"
+							name="q"
+							type="search"
+							placeholder="Name or email"
+							value={q}
+							onChange={(e) =>
+								setParams(e.target.value ? { q: e.target.value } : {}, {
+									replace: true,
+								})
+							}
+						/>
+					</div>
 					{contacts.isPending ? (
 						<div className="flex flex-col gap-3">
 							{Array.from({ length: 4 }, (_, i) => (
@@ -115,8 +130,12 @@ function Contacts() {
 						<EmptyState
 							tone="accent"
 							icon={<LuUsers />}
-							title="No contacts yet"
-							text="Start a job with someone and they’re added here — or add someone you know by email."
+							title={q ? 'No one matches' : 'No contacts yet'}
+							text={
+								q
+									? 'Try part of their name or email.'
+									: 'Start a job with someone and they’re added here — or add someone you know by email.'
+							}
 						/>
 					) : (
 						<ul className="flex flex-col gap-3">
@@ -173,7 +192,10 @@ function Contacts() {
 							<Pagination
 								pagination={contacts.data.pagination}
 								changePage={(next) =>
-									setParams(next > 1 ? { page: String(next) } : {})
+									setParams({
+										...(q && { q }),
+										...(next > 1 && { page: String(next) }),
+									})
 								}
 							/>
 						</div>

@@ -14,16 +14,17 @@ import { axiosCall } from '../index-client';
 
 export const CONTACTS_KEY = ['contacts'];
 
-// GET /api/contacts?page=&limit= → { data: [{ user, email, connectedAt,
-// fullName?, avatar? }], pagination }, newest first
-const useContactsQuery = ({ page = 1, limit = 20 } = {}) =>
+// GET /api/contacts?q=&page=&limit= → { data: [{ user, email, fullName,
+// avatar, connectedAt }], pagination }, newest first; q matches name or
+// email
+const useContactsQuery = ({ q = '', page = 1, limit = 20 } = {}) =>
 	useQuery({
-		queryKey: [...CONTACTS_KEY, { page, limit }],
+		queryKey: [...CONTACTS_KEY, { q, page, limit }],
 		queryFn: () =>
 			axiosCall({
 				url: '/api/contacts',
 				method: 'GET',
-				params: { page, limit },
+				params: { q: q || undefined, page, limit },
 			}),
 		placeholderData: keepPreviousData,
 	});

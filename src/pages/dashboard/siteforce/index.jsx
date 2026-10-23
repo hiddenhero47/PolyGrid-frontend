@@ -29,7 +29,7 @@ import {
 	OPENING_STATUS_BADGES,
 	PROFILE_TYPE,
 } from '../../../utilities/app-const';
-import { skillLabel } from '../../../utilities/basic-functions';
+import { formatDate, skillLabel } from '../../../utilities/basic-functions';
 import { ROUTES } from '../../../utilities/app-routes';
 import EligibilityGate from '../elements/eligibility-gate';
 import { ListingCard } from '../elements/panels';
@@ -323,20 +323,18 @@ function BoardView({ params, update }) {
 	);
 }
 
-// One of my applications, with its opening's details (the list only
-// carries the opening id).
+// One of my applications — the list carries a summary of its opening.
 function ApplicationRow({ application }) {
-	const openingId = idOf(application.posting);
-	const { data: opening } = SiteForceServices.get(openingId);
-	const known = opening && opening.available !== false;
+	const posting =
+		typeof application.posting === 'object' ? application.posting : null;
 	return (
 		<ListingCard
-			to={openingPath(openingId)}
-			title={known ? opening.title : 'Site job'}
-			chips={known && <Chip>{skillLabel(opening.category)}</Chip>}
+			to={openingPath(idOf(application.posting))}
+			title={posting?.title || 'Site job'}
 			facts={[
-				known && placeText(opening.generalArea),
-				known && payText(opening),
+				posting?.generalArea && placeText(posting.generalArea),
+				posting && payText(posting),
+				`Applied ${formatDate(application.createdAt)}`,
 			]}
 			aside={
 				<StatusBadge

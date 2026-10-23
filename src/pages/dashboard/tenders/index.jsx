@@ -196,21 +196,21 @@ function BoardView({ params, update }) {
 	);
 }
 
-// One of my bids, with its project's title (the bids list only carries
-// the project id).
+// One of my bids — the list carries a summary of its project.
 function BidRow({ bid }) {
+	const project = typeof bid.project === 'object' ? bid.project : null;
 	const projectId = idOf(bid.project);
-	const { data: project } = TenderServices.get(projectId);
-	const title = project?.title || 'Tender project';
 	return (
 		<ListingCard
 			to={projectPath(projectId)}
-			title={title}
+			title={project?.title || 'Tender project'}
 			chips={
-				project?.category && <Chip>{specialtyLabel(project.category)}</Chip>
+				project?.status &&
+				project.status !== 'open' && (
+					<StatusBadge status={project.status} map={TENDER_STATUS_BADGES} />
+				)
 			}
 			facts={[
-				project?.location && placeText(project.location),
 				project?.bidDeadline && closesText(project.bidDeadline),
 				bid.estimatedDurationDays && `${bid.estimatedDurationDays} days`,
 			]}

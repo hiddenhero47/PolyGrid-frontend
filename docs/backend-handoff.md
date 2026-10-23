@@ -10,70 +10,26 @@ _Last updated: 2026-10-23._
 
 ## Open
 
-### Contacts list: names and avatars
-
-(Sent 2026-10-23; a backend change adding `fullName` was in progress.)
-`GET /api/contacts` rows were `{ user, email, connectedAt }` only. The
-Contacts page and the "New message" picker show `fullName` / `avatar` when
-present, else the email.
-
-### An abandoned digital checkout blocks buying that file again
-
-(Sent 2026-10-23.) `handleDigitalPurchasePaymentIntent` creates the pending
-purchase + payment before Stripe takes the card; if the buyer closes the
-form, every later intent for that product is a 400 ("You already have a
-pending purchase"). Needed: resume the pending one — return a usable
-`clientSecret` for it — so the frontend can reopen the card form. A
-`paymentId` per row on `GET /api/digital-purchases/mine` would also save the
-Purchases page searching `/payments/me` for "Check payment status".
-
-### Free digital files go through Stripe
-
-A digital product can be priced 0, but buying one still creates a Stripe
-PaymentIntent for 0, which Stripe refuses. The Buy button already treats an
-answer with no `clientSecret` as "it's yours", so a free purchase can just
-succeed straight away (like free plans' `requiresPayment: false`).
-
-### Store order lists: store name and job status
-
-(Sent 2026-10-23.) `/api/store-orders/mine` rows carry `store` as an id only,
-and neither list has the job's status — each row fetches the store and the
-job separately. Populating store `{ storeName, slug, logo }` and adding the
-job's `{ status, amountPaid }` would make that one request.
-
-### Tender / SiteForce responses: own bid / application, list titles, job id
-
-(Sent to the backend session on 2026-10-23.) The frontend works around all
-four today, at the cost of extra requests:
-1. `GET /api/tender-projects/:id` for a contractor has no `myBid` — the page
-   loads `/bids/mine?limit=100` and finds it there.
-2. `GET /api/tender-projects/bids/mine` rows carry only the `project` id —
-   the "My bids" list fetches each project for its title.
-3. The same for SiteForce: no `myApplication` on `GET /api/job-openings/:id`,
-   and `/applications/mine` rows carry only the `posting` id.
-4. `toPublicApplication` drops `application.job`, so an accepted worker
-   can't link straight to the Job it created (the page links to Jobs).
-
-### Verifying a stage releases money that was never funded
-
-`verifyStage` (jobController.ts) adds the stage's share to
-`amountDisbursed` whether or not the client has paid anything in. Seen on
-the dev data: a $1,200 job with $0 funded, stage 1 (40%) verified →
-`amountDisbursed` $456, `amountPaid` $0. `payoutAvailableAmount` caps it at
-`amountPaid`, so no money leaves PolyGrid, but the job's own numbers say
-$456 was released when nothing was there. The job page shows "Released"
-straight from `amountDisbursed`.
-
-Needed: one of
-- refuse to verify a stage unless what's been funded covers it (a 400
-  saying "fund this stage first"; the page would then show the Fund
-  button next to it), or
-- release only what's actually in escrow and keep the rest owed until
-  funding arrives.
-
-The first is simpler and what the job page expects.
+Nothing open right now.
 
 ## Resolved
+
+Backend changes of 2026-10-23 (in the backend's working tree, not yet
+committed there when the frontend switched to them):
+- verifying a stage needs escrow to cover it (400 otherwise) — the job page
+  offers "Fund this stage to release it" instead of Verify;
+- jobs carry party names (`client.user` / `provider.user`), and summaries
+  carry `amountPaid` and a stages tally;
+- tender detail has `myBid`, `/bids/mine` rows carry a project summary;
+  opening detail has `myApplication`, `/applications/mine` rows carry a
+  posting summary, and applications carry `job`;
+- a pending digital purchase resumes (`resumed: true` + a client secret),
+  free files complete without Stripe (`requiresPayment: false`), and
+  `/digital-purchases/mine` rows carry `paymentId`;
+- store order rows carry the store `{ storeName, slug, logo }` and job
+  `{ id, status, amountPaid }`;
+- contacts carry `fullName` / `avatar`, and `GET /api/contacts?q=` searches.
+
 
 Commit `27d0358`: the digital-product review queue
 (`GET /api/digital-products/review`, used by `/admin/digital-products`),

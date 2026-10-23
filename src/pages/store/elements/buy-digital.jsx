@@ -12,8 +12,9 @@ import { ROUTES } from '../../../utilities/app-routes';
 import { idOf } from '../../dashboard/elements/listing-helpers';
 
 // "Buy" on a digital file (frontend-plan §B.14): Stripe straight away,
-// no job or escrow. If you already own it (or a purchase is pending),
-// it links to your purchases instead.
+// no job or escrow. A purchase left pending (card form closed) resumes —
+// the backend hands back a client secret for it. Free files need no
+// payment (no clientSecret in the answer). Owned → a link to Purchases.
 function BuyDigital({ product }) {
 	const navigate = useNavigate();
 	const checkoutRef = useRef(null);
@@ -27,12 +28,10 @@ function BuyDigital({ product }) {
 	);
 	const purchasesTo = `${ROUTES.DASHBOARD_PURCHASES}`;
 
-	if (owned)
+	if (owned?.status === 'success')
 		return (
 			<AppButton to={purchasesTo} icon={<LuDownload />}>
-				{owned.status === 'success'
-					? 'You own this — download'
-					: 'Purchase pending — view'}
+				You own this — download
 			</AppButton>
 		);
 
@@ -75,7 +74,9 @@ function BuyDigital({ product }) {
 			>
 				{buy.isPending
 					? 'Starting…'
-					: `Buy · ${product.price === 0 ? 'Free' : formatMoney(product.price, product.currency)}`}
+					: owned
+						? 'Finish paying'
+						: `Buy · ${product.price === 0 ? 'Free' : formatMoney(product.price, product.currency)}`}
 			</AppButton>
 			<CheckoutModal
 				refName={checkoutRef}

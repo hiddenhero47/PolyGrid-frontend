@@ -11,8 +11,6 @@ import {
 	LuTrash2,
 } from 'react-icons/lu';
 import OrderServices from '../../../features/services/custom-hooks/orders';
-import StoreServices from '../../../features/services/custom-hooks/store';
-import JobServices from '../../../features/services/custom-hooks/jobs';
 import PageHeader from '../../../layouts/dashboard-shell/sub-components/page-header';
 import EmptyState from '../../../components/empty-state';
 import Pagination from '../../../components/pagination';
@@ -69,25 +67,26 @@ function LoadError({ refetch }) {
 	);
 }
 
-// The order's job carries its live status (awaiting confirmation,
-// active = paid into escrow, completed…).
-function JobStatus({ jobId }) {
-	const { data: job } = JobServices.get(jobId);
-	return job?.status ? (
-		<StatusBadge status={job.status} map={JOB_STATUS_BADGES} />
-	) : null;
+// The list carries each order's job progress ({ id, status, amountPaid });
+// awaiting confirmation and nothing paid reads better as "to pay".
+function JobStatus({ job }) {
+	if (!job?.status) return null;
+	if (job.status === 'active' && !job.amountPaid)
+		return (
+			<StatusBadge
+				status="unpaid"
+				map={{ unpaid: { label: 'Not paid yet', tone: 'warning' } }}
+			/>
+		);
+	return <StatusBadge status={job.status} map={JOB_STATUS_BADGES} />;
 }
 
 function MyOrderRow({ order }) {
-	const { data: store } = StoreServices.getStore(idOf(order.store), {
-		limit: 1,
-	});
-	const name =
-		store && store.available !== false ? store.storeName : 'Store order';
+	const store = typeof order.store === 'object' ? order.store : null;
 	return (
 		<ListingCard
 			to={jobPath(idOf(order.job))}
-			title={name}
+			title={store?.storeName || 'Store order'}
 			facts={[
 				itemsText(order.items),
 				`to ${destinationText(order.shippingDestination)}`,
@@ -98,7 +97,7 @@ function MyOrderRow({ order }) {
 					<span className="font-display text-lg font-semibold text-(--pg-text-primary)">
 						{formatMoney(order.totalSnapshot, order.currency)}
 					</span>
-					<JobStatus jobId={idOf(order.job)} />
+					<JobStatus job={typeof order.job === 'object' ? order.job : null} />
 				</>
 			}
 		/>
@@ -128,7 +127,7 @@ function StoreOrderRow({ order }) {
 					<span className="font-display text-lg font-semibold text-(--pg-text-primary)">
 						{formatMoney(order.totalSnapshot, order.currency)}
 					</span>
-					<JobStatus jobId={idOf(order.job)} />
+					<JobStatus job={typeof order.job === 'object' ? order.job : null} />
 				</>
 			}
 		/>

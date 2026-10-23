@@ -485,14 +485,24 @@ function JobDetail() {
 											{active &&
 												me === 'client' &&
 												stage.isDone &&
-												!stage.isVerified && (
+												!stage.isVerified &&
+												// the backend only releases a stage escrow fully covers
+												(heldInEscrow + 0.005 >= stageAmount(job, stage) ? (
 													<AppButton
 														onClick={() => onVerify(stage, i)}
 														disabled={stageVerify.isPending}
 													>
 														Verify & release
 													</AppButton>
-												)}
+												) : (
+													<AppButton
+														icon={<LuWallet />}
+														onClick={() => fundRef.current.open()}
+														disabled={unfunded <= 0}
+													>
+														Fund this stage to release it
+													</AppButton>
+												))}
 										</div>
 									</li>
 								))}

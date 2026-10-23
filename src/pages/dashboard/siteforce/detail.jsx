@@ -270,11 +270,8 @@ function JobOpeningDetail() {
 	} = SiteForceServices.get(id);
 	const isPoster =
 		Boolean(opening?.postedBy) && idOf(opening.postedBy) === String(user?.id);
-	const myApps = SiteForceServices.myApplications(
-		{ page: 1, limit: 100 },
-		{ enabled: Boolean(opening?.id) && !isPoster }
-	);
-	const myApp = (myApps.data?.data || []).find((a) => idOf(a.posting) === id);
+	// the backend includes your own application (any status) for a worker
+	const myApp = opening?.myApplication || null;
 
 	const update = SiteForceServices.update();
 	const addFiles = SiteForceServices.addFiles();
@@ -476,8 +473,11 @@ function JobOpeningDetail() {
 			<div className="mb-6 flex flex-wrap items-center gap-3">
 				<StatusBadge status={opening.status} map={OPENING_STATUS_BADGES} />
 				{accepted && (
-					<AppButton to={ROUTES.DASHBOARD_JOBS} icon={<LuHandshake />}>
-						Go to your jobs
+					<AppButton
+						to={myApp.job ? jobPath(idOf(myApp.job)) : ROUTES.DASHBOARD_JOBS}
+						icon={<LuHandshake />}
+					>
+						{myApp.job ? 'Open the job' : 'Go to your jobs'}
 					</AppButton>
 				)}
 			</div>
@@ -589,9 +589,7 @@ function JobOpeningDetail() {
 							title="Your application"
 							icon={<LuSend aria-hidden="true" />}
 						>
-							{myApps.isPending ? (
-								<AppLoader />
-							) : myApp ? (
+							{myApp ? (
 								<div className="flex flex-col gap-3">
 									<div className="flex items-center justify-between gap-3">
 										<span className="text-sm text-(--pg-text-secondary)">

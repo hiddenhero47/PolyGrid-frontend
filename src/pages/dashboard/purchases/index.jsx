@@ -124,7 +124,6 @@ function Purchases() {
 	const query = PurchaseServices.mine({ page, limit: LIMIT });
 	const refreshPurchases = PurchaseServices.useRefresh();
 	const links = PurchaseServices.downloadLinks();
-	const payments = PaymentServices.getMyPayments({ page: 1, limit: 50 });
 	const refreshPayment = PaymentServices.refresh();
 	const modalRef = useRef(null);
 	const [current, setCurrent] = useState(null);
@@ -139,21 +138,19 @@ function Purchases() {
 
 	// a pending purchase: ask Stripe directly whether it went through
 	const checkPayment = (purchase) => {
-		const payment = (payments.data?.data || []).find(
-			(p) =>
-				p.targetType === 'DigitalPurchase' && String(p.targetId) === purchase.id
-		);
-		if (!payment)
+		if (!purchase.paymentId)
 			return toast.info(
 				'No payment found for this purchase yet — try again shortly.'
 			);
-		refreshPayment.mutate(payment._id || payment.id, {
+		refreshPayment.mutate(purchase.paymentId, {
 			onSuccess: (res) => {
 				refreshPurchases();
 				if (res?.status === 'success')
 					toast.success('Payment confirmed — your files are ready');
 				else if (res?.status === 'failed')
-					toast.error('That payment didn’t go through.');
+					toast.error(
+						'That payment didn’t go through — open the file and buy it again.'
+					);
 				else toast.info('Still waiting on the card payment.');
 			},
 		});
@@ -271,14 +268,24 @@ function Purchases() {
 										Download
 									</AppButton>
 								) : (
-									<AppButton
-										variant="secondary"
-										icon={<LuRefreshCw />}
-										onClick={() => checkPayment(purchase)}
-										disabled={refreshPayment.isPending || payments.isPending}
-									>
-										Check payment status
-									</AppButton>
+									<>
+										<AppButton
+											variant="secondary"
+											icon={<LuRefreshCw />}
+											onClick={() => checkPayment(purchase)}
+											disabled={refreshPayment.isPending}
+										>
+											Check payment status
+										</AppButton>
+										{product?.title && (
+											<AppButton
+												to={digitalProductPath({ id: idOf(product) })}
+												icon={<LuShoppingBag />}
+											>
+												Finish paying
+											</AppButton>
+										)}
+									</>
 								)}
 							</li>
 						);
