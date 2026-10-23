@@ -10,37 +10,17 @@ _Last updated: 2026-10-22._
 
 ## Open
 
-### 1. Store list preview products have no `id`
-
-`GET /api/store-profiles` maps each store's `previewProducts` (from a
-`$lookup`) with `toPublicProduct`, so `id` is undefined — the same
-aggregate issue fixed for profile search in `be7859f`. Store cards link
-those previews to the store page until the id is there. Fix: add
-`id: p._id.toString()` after the mapper.
-
-
-### 2. Deliverable files can share a name, but are removed by name
-
-**Where:** the digital storage providers (`internalStorageProvider.ts`,
-`s3StorageProvider.ts`) save `fileName: file.originalname`, and
-`DELETE /api/digital-creator-profiles/me/products/:id/files/:fileName`
-finds the file by that name.
-
-**What happens:** uploading two files called `plan.pdf` (in one go or
-later) gives the product two entries with `fileName: "plan.pdf"`. A
-delete by that name can't tell them apart, and anything keyed on the
-name (downloads, purchase manifests) is ambiguous. Reproduced on Ada's
-"4-bedroom duplex — architectural set": it now has two `plan.pdf`.
-
-**Frontend workaround:** the dashboard refuses a deliverable whose name
-is already on the product (or duplicated in the same pick).
-
-**Request:** reject a duplicate name on create / add-files with a clear
-400, or give each file a stable id (the storage `key`) and delete by
-that instead.
-
+Nothing open right now.
 
 ## Resolved
+
+Commit `27d0358`: the digital-product review queue
+(`GET /api/digital-products/review`, used by `/admin/digital-products`),
+reviewers can open deliverables (`GET /api/digital-products/:id/download`),
+duplicate deliverable names are refused (400), the creator page lists
+approved files only, store list preview products carry `id`, and
+deliverables also accept XLSX, CSV, DWG, DXF and ZIP.
+
 
 Commit `cd7e035` resolved the second list:
 - sellers list their own products: `GET /me/products` on store and

@@ -28,9 +28,7 @@ import { DigitalCard } from './elements/product-cards';
 const LIMIT = 12;
 
 // frontend-plan §A.13 — a creator's storefront: who they are and their
-// approved, on-sale files. (The backend's list includes files still
-// awaiting review; those are filtered out here until it stops sending
-// them.) URL: ?page=
+// approved, on-sale files. URL: ?page=
 function CreatorPage() {
 	const { idOrSlug } = useParams();
 	const [params, setParams] = useSearchParams();
@@ -48,9 +46,7 @@ function CreatorPage() {
 				const place = [creator.city, countryName(creator.country)]
 					.filter(Boolean)
 					.join(', ');
-				const products = (creator.products || []).filter(
-					(p) => p.isVerified !== false
-				);
+				const products = creator.products || [];
 				return (
 					<>
 						<ProfileHeader>

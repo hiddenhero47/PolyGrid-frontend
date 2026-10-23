@@ -278,13 +278,9 @@ function BrowseStores() {
 										</div>
 										{store.previewProducts?.length > 0 && (
 											<ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-												{store.previewProducts.slice(0, 4).map((product, i) => (
-													<li key={product.id || `${product.title}-${i}`}>
-														<ProductCard
-															product={product}
-															compact
-															fallbackTo={storePath(store)}
-														/>
+												{store.previewProducts.slice(0, 4).map((product) => (
+													<li key={product.id}>
+														<ProductCard product={product} compact />
 													</li>
 												))}
 											</ul>

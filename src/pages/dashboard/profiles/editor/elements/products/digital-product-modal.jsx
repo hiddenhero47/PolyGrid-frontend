@@ -29,6 +29,7 @@ import {
 	MAX_DELIVERABLE_FILES,
 	PRODUCT_IMAGE_ACCEPT,
 	DELIVERABLE_ACCEPT,
+	DELIVERABLE_ACCEPT_LABEL,
 } from '../../../../../../utilities/app-const';
 import { enumToOptions } from '../../../../../../utilities/basic-functions';
 import { MediaGrid } from '../portfolio.style';
@@ -38,9 +39,9 @@ const CATEGORY_OPTIONS = enumToOptions(
 	DIGITAL_PRODUCT_CATEGORY_LABELS
 );
 
-// Deliverables are stored under their original file name and removed by
-// it, so a product can't hold two files with the same name. Drops
-// duplicates (against `taken` and within the pick) and says so.
+// Deliverables are stored under their original file name, so the backend
+// refuses two with the same name (400). Dropping them here first saves a
+// failed upload and says why.
 const uniqueByName = (files, taken = []) => {
 	const seen = new Set(taken);
 	const kept = [];
@@ -276,7 +277,7 @@ function DigitalProductModal({ refName, product, onClose }) {
 										multiple
 										maxFiles={MAX_DELIVERABLE_FILES}
 										accept={DELIVERABLE_ACCEPT}
-										acceptLabel="PDF, JPG, PNG or WebP"
+										acceptLabel={DELIVERABLE_ACCEPT_LABEL}
 										value={form.values.files}
 										onChange={(files) => {
 											form.setFieldValue('files', uniqueByName(files));
@@ -410,7 +411,7 @@ function DigitalProductModal({ refName, product, onClose }) {
 											compact
 											maxFiles={fileRoom}
 											accept={DELIVERABLE_ACCEPT}
-											acceptLabel="PDF, JPG, PNG or WebP"
+											acceptLabel={DELIVERABLE_ACCEPT_LABEL}
 											value={newFiles}
 											onChange={(files) =>
 												setNewFiles(

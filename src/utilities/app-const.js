@@ -215,6 +215,9 @@ export const DIGITAL_PRODUCT_CATEGORY_LABELS = {
 };
 export const MAX_PREVIEW_IMAGES = 6;
 export const MAX_DELIVERABLE_FILES = 10;
-// what the backend's storage accepts for deliverables (DEFAULT_ALLOWED_MIME_TYPES)
+// what the backend accepts for deliverables (helpers/fileStorage.ts) — by
+// extension, since browsers often report no MIME type for DWG / DXF / CSV
 export const DELIVERABLE_ACCEPT =
-	'application/pdf,image/jpeg,image/png,image/webp';
+	'.pdf,.jpg,.jpeg,.png,.webp,.xlsx,.csv,.dwg,.dxf,.zip';
+export const DELIVERABLE_ACCEPT_LABEL =
+	'PDF, images, XLSX, CSV, DWG, DXF or ZIP';

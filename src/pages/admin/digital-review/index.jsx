@@ -10,6 +10,7 @@ import {
 	LuInbox,
 	LuCloudOff,
 	LuRotateCw,
+	LuExternalLink,
 } from 'react-icons/lu';
 import AdminServices from '../../../features/services/custom-hooks/admin';
 import PageHeader from '../../../layouts/dashboard-shell/sub-components/page-header';
@@ -48,7 +49,8 @@ const size = (bytes = 0) =>
 		: `${(bytes / 1048576).toFixed(1)} MB`;
 
 // frontend-plan §C.6 — Digital product review: a listing-authenticity
-// check before a creator's file can go on sale. Approve / revoke via
+// check before a creator's file can go on sale. Reviewers can open the
+// deliverables themselves (GET /api/digital-products/:id/download). Approve / revoke via
 // PATCH /api/digital-products/:id/verify — the one queue customer care
 // can act on, so every reviewer role sees the buttons.
 // URL: ?status=pending|approved&page=
@@ -67,6 +69,24 @@ function DigitalReview() {
 			limit: LIMIT,
 		});
 	const verify = AdminServices.setDigitalVerification();
+	const links = AdminServices.getDeliverableLinks();
+
+	// Signed links are short-lived, so they're fetched on click. The tab
+	// opens first (popup blockers allow it), then goes to the file.
+	const openFile = (product, index) => {
+		const tab = window.open('', '_blank');
+		links.mutate(product.id, {
+			onSuccess: ({ files = [] }) => {
+				const url = files[index]?.downloadUrl;
+				if (!url) return tab?.close();
+				if (tab) {
+					tab.opener = null;
+					tab.location.href = url;
+				} else window.open(url, '_blank', 'noopener');
+			},
+			onError: () => tab?.close(),
+		});
+	};
 	const items = data?.data || [];
 
 	const setStatus = async (product, isVerified) => {
@@ -244,18 +264,24 @@ function DigitalReview() {
 								</p>
 								<ul className="flex flex-wrap gap-2">
 									{(product.files || []).map((file, i) => (
-										<li
-											key={`${file.fileName}-${i}`}
-											className="inline-flex items-center gap-2 rounded-lg border border-(--pg-chip-border) bg-(--pg-chip-background) px-3 py-1.5 text-sm text-(--pg-chip-text)"
-										>
-											<LuFileText
-												className="text-(--pg-text-highlight)"
-												aria-hidden="true"
-											/>
-											{file.fileName}
-											<span className="text-xs text-(--pg-text-secondary)">
-												{size(file.size)}
-											</span>
+										<li key={`${file.fileName}-${i}`}>
+											<button
+												type="button"
+												onClick={() => openFile(product, i)}
+												disabled={links.isPending}
+												title="Open in a new tab"
+												className="inline-flex items-center gap-2 rounded-lg border border-(--pg-chip-border) bg-(--pg-chip-background) px-3 py-1.5 text-sm text-(--pg-chip-text) hover:border-(--pg-card-borderHover) disabled:cursor-progress disabled:opacity-60"
+											>
+												<LuFileText
+													className="text-(--pg-text-highlight)"
+													aria-hidden="true"
+												/>
+												{file.fileName}
+												<span className="text-xs text-(--pg-text-secondary)">
+													{size(file.size)}
+												</span>
+												<LuExternalLink aria-hidden="true" />
+											</button>
 										</li>
 									))}
 								</ul>

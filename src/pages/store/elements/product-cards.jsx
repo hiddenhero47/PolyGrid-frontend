@@ -16,13 +16,11 @@ const STOCK_NOTE = {
 };
 
 // A physical product in a store catalog / store card.
-// `fallbackTo` is where it links when the product has no id (the stores
-// list's preview products don't carry one yet — docs/backend-handoff.md).
-export function ProductCard({ product, compact = false, fallbackTo }) {
+export function ProductCard({ product, compact = false }) {
 	const image = product.images?.[0];
 	return (
 		<ProductTile
-			to={product.id ? productPath(product) : fallbackTo}
+			to={productPath(product)}
 			$ratio={compact ? '1 / 1' : undefined}
 		>
 			<span className="sc_media" aria-hidden="true">
@@ -51,7 +49,6 @@ export function ProductCard({ product, compact = false, fallbackTo }) {
 
 ProductCard.propTypes = {
 	product: PropTypes.object.isRequired,
-	fallbackTo: PropTypes.string,
 	compact: PropTypes.bool,
 };
 

@@ -222,7 +222,17 @@ const useSetDigitalVerificationMutation = () => {
 	});
 };
 
+// GET /api/digital-products/:id/download — reviewers (and the owner) get
+// short-lived signed links: { files: [{ fileName, mime, size,
+// downloadUrl }] }. Fetched on click, never cached.
+const useGetDeliverableLinksMutation = () =>
+	useMutation({
+		mutationFn: (id) =>
+			axiosCall({ url: `/api/digital-products/${id}/download`, method: 'GET' }),
+	});
+
 const AdminServices = {
+	getDeliverableLinks: useGetDeliverableLinksMutation,
 	getDigitalReview: useGetDigitalReviewQuery,
 	setDigitalVerification: useSetDigitalVerificationMutation,
 	createStaff: useCreateStaffMutation,
