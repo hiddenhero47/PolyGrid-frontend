@@ -50,7 +50,7 @@ function CreatorPage() {
 				return (
 					<>
 						<ProfileHeader>
-							<div className="relative mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 lg:py-14 xl:px-12">
+							<div className="relative mx-auto w-full max-w-360 px-4 py-10 md:px-8 lg:py-14 xl:px-12">
 								<Link
 									to={ROUTES.DIGITAL_STORE}
 									className="font-label mb-8 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
@@ -92,7 +92,7 @@ function CreatorPage() {
 											)}
 										</div>
 										{creator.bio && (
-											<p className="mt-5 max-w-[720px] text-[15.5px] leading-relaxed text-(--pg-text-secondary)">
+											<p className="mt-5 max-w-180 text-[15.5px] leading-relaxed text-(--pg-text-secondary)">
 												{creator.bio}
 											</p>
 										)}
@@ -101,7 +101,7 @@ function CreatorPage() {
 							</div>
 						</ProfileHeader>
 
-						<div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-10 md:px-8 xl:px-12">
+						<div className="mx-auto flex w-full max-w-360 flex-col gap-6 px-4 py-10 md:px-8 xl:px-12">
 							<section
 								aria-labelledby="files-heading"
 								className="flex flex-col gap-5"

@@ -175,7 +175,7 @@ function AdminUsers() {
 						q={q}
 						onSearch={(value) => update({ q: value, page: null })}
 					/>
-					<div className="sm:w-[200px]">
+					<div className="sm:w-50">
 						<CustomSelect
 							name="role"
 							label="Role"

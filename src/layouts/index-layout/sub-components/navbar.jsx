@@ -53,7 +53,7 @@ function Navbar({ ready = true }) {
 
 	return (
 		<NavWrapper $ready={ready}>
-			<nav className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-6 px-4 md:px-8 xl:px-12">
+			<nav className="mx-auto flex h-18 w-full max-w-360 items-center justify-between gap-6 px-4 md:px-8 xl:px-12">
 				<Link to={ROUTES.HOME} aria-label="PolyGrid home" onClick={closeMenu}>
 					<AppLogo size={34} textSize="text-[22px]" />
 				</Link>

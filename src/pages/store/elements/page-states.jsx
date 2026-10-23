@@ -7,7 +7,7 @@ import UnavailableState from '../../../components/empty-state/unavailable-state'
 import { AppButton } from '../../../components/button';
 
 const wrap = (content) => (
-	<div className="mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 xl:px-12">
+	<div className="mx-auto w-full max-w-360 px-4 py-10 md:px-8 xl:px-12">
 		{content}
 	</div>
 );

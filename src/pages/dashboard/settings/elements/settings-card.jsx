@@ -22,7 +22,7 @@ function SettingsCard({ id, title, description, children }) {
 					</p>
 				)}
 			</div>
-			<div className="min-w-0 max-w-[640px]">{children}</div>
+			<div className="min-w-0 max-w-160">{children}</div>
 		</section>
 	);
 }

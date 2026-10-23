@@ -52,7 +52,7 @@ function MentorshipTab({ profile }) {
 		<form
 			noValidate
 			onSubmit={form.handleSubmit}
-			className="flex max-w-[760px] flex-col gap-5"
+			className="flex max-w-190 flex-col gap-5"
 		>
 			<CustomToggle
 				name="isMentor"
@@ -86,7 +86,7 @@ function MentorshipTab({ profile }) {
 				isError={err('areas')}
 				errormessage={form.errors.areas}
 			/>
-			<div className="max-w-[320px]">
+			<div className="max-w-80">
 				<CustomInput
 					label="Rate per session (USD)"
 					name="ratePerSession"

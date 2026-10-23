@@ -45,7 +45,7 @@ function Messages() {
 				}
 			/>
 
-			<div className="grid h-[calc(100dvh-300px)] min-h-[480px] overflow-hidden rounded-2xl border border-(--pg-card-border) bg-(--pg-surface-background) lg:grid-cols-[320px_minmax(0,1fr)]">
+			<div className="grid h-[calc(100dvh-300px)] min-h-120 overflow-hidden rounded-2xl border border-(--pg-card-border) bg-(--pg-surface-background) lg:grid-cols-[320px_minmax(0,1fr)]">
 				<div
 					className={`min-h-0 flex-col border-(--pg-card-border) lg:flex lg:border-r ${id ? 'hidden' : 'flex'}`}
 				>

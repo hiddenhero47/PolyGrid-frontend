@@ -31,7 +31,7 @@ function Lab() {
 	const [variant, setVariant] = useState('filled');
 
 	return (
-		<div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-10 md:px-8 xl:px-12">
+		<div className="mx-auto flex w-full max-w-360 flex-col gap-6 px-4 py-10 md:px-8 xl:px-12">
 			<header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 				<div>
 					<p className="font-label text-xs font-semibold tracking-[0.16em] text-(--pg-accent-default) uppercase">

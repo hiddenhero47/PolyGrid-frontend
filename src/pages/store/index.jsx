@@ -102,7 +102,7 @@ function BrowseStores() {
 	return (
 		<>
 			<PageBand>
-				<div className="relative mx-auto w-full max-w-[1440px] px-4 py-12 md:px-8 lg:py-16 xl:px-12">
+				<div className="relative mx-auto w-full max-w-360 px-4 py-12 md:px-8 lg:py-16 xl:px-12">
 					<Eyebrow>PolyGrid Store</Eyebrow>
 					<h1 className="sc_title mt-3">Building materials</h1>
 					<p className="sc_subtitle">
@@ -116,7 +116,7 @@ function BrowseStores() {
 				</div>
 			</PageBand>
 
-			<div className="mx-auto grid w-full max-w-[1440px] gap-8 px-4 py-10 md:px-8 lg:grid-cols-[280px_minmax(0,1fr)] xl:px-12">
+			<div className="mx-auto grid w-full max-w-360 gap-8 px-4 py-10 md:px-8 lg:grid-cols-[280px_minmax(0,1fr)] xl:px-12">
 				<aside className="hidden lg:block">
 					<div className="sticky top-24">{filters('side')}</div>
 				</aside>

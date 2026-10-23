@@ -159,7 +159,7 @@ function AdminSubscriptions() {
 							q={q}
 							onSearch={(value) => update({ q: value || null, page: null })}
 						/>
-						<div className="sm:w-[200px]">
+						<div className="sm:w-50">
 							<CustomSelect
 								name="role"
 								label="Role"

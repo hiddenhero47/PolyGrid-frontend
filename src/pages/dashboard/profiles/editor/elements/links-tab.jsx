@@ -43,7 +43,7 @@ function LinksTab({ profileType, profile }) {
 			<form
 				noValidate
 				onSubmit={form.handleSubmit}
-				className="flex max-w-[860px] flex-col gap-4"
+				className="flex max-w-215 flex-col gap-4"
 			>
 				<p className="text-[15px] text-(--pg-text-secondary)">
 					Your website or professional pages, up to {MAX_LINKS}. Contact details

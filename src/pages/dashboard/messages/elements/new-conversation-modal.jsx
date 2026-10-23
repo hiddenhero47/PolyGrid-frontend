@@ -36,7 +36,7 @@ function NewConversationModal({ refName, onPick, busy }) {
 						}
 					/>
 				) : (
-					<ul className="flex max-h-[420px] flex-col gap-1 overflow-y-auto">
+					<ul className="flex max-h-105 flex-col gap-1 overflow-y-auto">
 						{rows.map((c) => {
 							const name = c.fullName || c.email;
 							return (

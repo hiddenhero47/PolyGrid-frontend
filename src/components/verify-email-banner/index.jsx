@@ -24,7 +24,7 @@ function VerifyEmailBanner() {
 
 	return (
 		<div className="border-b border-(--pg-card-border) bg-(--pg-status-warningSoft)">
-			<div className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 text-[15px] text-(--pg-text-primary) md:px-8 xl:px-12">
+			<div className="mx-auto flex w-full max-w-360 flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 text-[15px] text-(--pg-text-primary) md:px-8 xl:px-12">
 				<LuMailWarning
 					className="shrink-0 text-lg text-(--pg-status-warning)"
 					aria-hidden="true"

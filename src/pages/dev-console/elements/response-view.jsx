@@ -42,7 +42,7 @@ function ResponseView({ response }) {
 					<LuCopy aria-hidden="true" /> Copy
 				</button>
 			</div>
-			<CodeBlock className="max-h-[480px] overflow-y-auto">
+			<CodeBlock className="max-h-120 overflow-y-auto">
 				{pretty || '(empty body)'}
 			</CodeBlock>
 		</div>

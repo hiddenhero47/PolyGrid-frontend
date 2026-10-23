@@ -122,7 +122,7 @@ function BoardView({ params, update }) {
 	const projects = board.data?.data || [];
 	return (
 		<>
-			<div className="mb-5 grid gap-4 sm:grid-cols-2 lg:max-w-[720px]">
+			<div className="mb-5 grid gap-4 sm:grid-cols-2 lg:max-w-180">
 				<CustomSelect
 					id="tender-category"
 					label="Category"

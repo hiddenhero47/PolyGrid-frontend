@@ -139,7 +139,7 @@ const TENDER_STEPS = [
 
 function TendersVisual() {
 	return (
-		<ImagePanel className="min-h-[380px]">
+		<ImagePanel className="min-h-95">
 			<img
 				src={yardImage}
 				alt="Precast concrete bridge beams stacked in a logistics yard"
@@ -205,7 +205,7 @@ function StoreVisual() {
 
 function SiteForceVisual() {
 	return (
-		<ImagePanel className="min-h-[380px]">
+		<ImagePanel className="min-h-95">
 			<img
 				src={siteImage}
 				alt="A crew standing at the edge of a large excavation site"
@@ -282,7 +282,7 @@ function Pillars() {
 	return (
 		<section
 			id="pillars"
-			className="mx-auto w-full max-w-[1440px] scroll-mt-24 px-4 md:px-8 xl:px-12"
+			className="mx-auto w-full max-w-360 scroll-mt-24 px-4 md:px-8 xl:px-12"
 		>
 			<div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
 				<div>

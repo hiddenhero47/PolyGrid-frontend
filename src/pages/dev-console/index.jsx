@@ -9,7 +9,7 @@ import RequestBuilder from './elements/request-builder';
 // folder and its route before going live.
 function DevConsole() {
 	return (
-		<div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-10 md:px-8 xl:px-12">
+		<div className="mx-auto flex w-full max-w-360 flex-col gap-6 px-4 py-10 md:px-8 xl:px-12">
 			<header>
 				<p className="font-label text-xs font-semibold tracking-[0.16em] text-(--pg-accent-default) uppercase">
 					Dev only · /dev-console

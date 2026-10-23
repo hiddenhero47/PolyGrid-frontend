@@ -114,14 +114,14 @@ function BoardTeaser({ board }) {
 	return (
 		<>
 			<PageBand>
-				<div className="relative mx-auto w-full max-w-[1440px] px-4 py-12 md:px-8 lg:py-16 xl:px-12">
+				<div className="relative mx-auto w-full max-w-360 px-4 py-12 md:px-8 lg:py-16 xl:px-12">
 					<Eyebrow>{config.pillar}</Eyebrow>
 					<h1 className="sc_title mt-3">{config.title}</h1>
 					<p className="sc_subtitle">{config.subtitle}</p>
 				</div>
 			</PageBand>
 
-			<div className="mx-auto flex w-full max-w-[1440px] flex-col gap-12 px-4 py-10 md:px-8 xl:px-12">
+			<div className="mx-auto flex w-full max-w-360 flex-col gap-12 px-4 py-10 md:px-8 xl:px-12">
 				<section aria-label="Ways in" className="grid gap-5 md:grid-cols-3">
 					{config
 						.paths(into, isAuthenticated)

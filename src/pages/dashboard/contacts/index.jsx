@@ -88,7 +88,7 @@ function Contacts() {
 
 			<div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
 				<div className="min-w-0">
-					<div className="mb-4 max-w-[420px]">
+					<div className="mb-4 max-w-105">
 						<CustomInput
 							label="Search"
 							name="q"

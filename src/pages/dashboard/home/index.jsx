@@ -145,7 +145,7 @@ function DashboardHome() {
 								>
 									Offer your services on PolyGrid
 								</h3>
-								<p className="mt-2 max-w-[600px] text-[15px] leading-relaxed text-(--pg-text-secondary)">
+								<p className="mt-2 max-w-150 text-[15px] leading-relaxed text-(--pg-text-secondary)">
 									Set up a business profile for the work you do — consultant,
 									contractor, tradesperson, store or creator. Get verified, pick
 									a plan, and you’re listed.

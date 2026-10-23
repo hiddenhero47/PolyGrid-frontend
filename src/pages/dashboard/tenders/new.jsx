@@ -61,7 +61,7 @@ function NewTenderProject() {
 				<form
 					noValidate
 					onSubmit={form.handleSubmit}
-					className="flex max-w-[860px] flex-col gap-6"
+					className="flex max-w-215 flex-col gap-6"
 				>
 					<ProjectFields form={form} withFiles />
 					<div>

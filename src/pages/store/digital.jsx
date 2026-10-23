@@ -50,7 +50,7 @@ function DigitalFeed() {
 	return (
 		<>
 			<PageBand>
-				<div className="relative mx-auto w-full max-w-[1440px] px-4 py-12 md:px-8 lg:py-16 xl:px-12">
+				<div className="relative mx-auto w-full max-w-360 px-4 py-12 md:px-8 lg:py-16 xl:px-12">
 					<Eyebrow>PolyGrid Store</Eyebrow>
 					<h1 className="sc_title mt-3">Digital files</h1>
 					<p className="sc_subtitle">
@@ -64,7 +64,7 @@ function DigitalFeed() {
 				</div>
 			</PageBand>
 
-			<div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-4 py-10 md:px-8 xl:px-12">
+			<div className="mx-auto flex w-full max-w-360 flex-col gap-6 px-4 py-10 md:px-8 xl:px-12">
 				<div className="overflow-x-auto">
 					<SegmentedControl
 						label="Category"

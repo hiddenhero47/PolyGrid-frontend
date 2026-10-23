@@ -751,7 +751,7 @@ function JobDetail() {
 											)}
 										</div>
 										{file ? (
-											<div className="flex flex-wrap items-center gap-2 pl-[52px] text-sm">
+											<div className="flex flex-wrap items-center gap-2 pl-13 text-sm">
 												<span className="min-w-0 truncate text-(--pg-text-secondary)">
 													{file.fileName}
 												</span>
@@ -775,7 +775,7 @@ function JobDetail() {
 												)}
 											</div>
 										) : (
-											<p className="pl-[52px] text-xs text-(--pg-text-secondary)">
+											<p className="pl-13 text-xs text-(--pg-text-secondary)">
 												No contract uploaded
 											</p>
 										)}

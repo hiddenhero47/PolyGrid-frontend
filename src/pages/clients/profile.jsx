@@ -36,7 +36,7 @@ function ClientProfile() {
 				return (
 					<>
 						<ProfileHeader>
-							<div className="relative mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 lg:py-14 xl:px-12">
+							<div className="relative mx-auto w-full max-w-360 px-4 py-10 md:px-8 lg:py-14 xl:px-12">
 								<div className="flex flex-col gap-6 sm:flex-row sm:items-start">
 									<ProfileAvatar
 										avatar={client.avatar}
@@ -75,7 +75,7 @@ function ClientProfile() {
 								</div>
 							</div>
 						</ProfileHeader>
-						<div className="mx-auto grid w-full max-w-[1440px] gap-6 px-4 py-10 md:px-8 lg:grid-cols-[minmax(0,1fr)_380px] xl:px-12">
+						<div className="mx-auto grid w-full max-w-360 gap-6 px-4 py-10 md:px-8 lg:grid-cols-[minmax(0,1fr)_380px] xl:px-12">
 							<ProfileSection>
 								<h2 className="sc_sectionTitle">
 									Reviews from contractors & workers

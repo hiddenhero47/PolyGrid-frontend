@@ -40,7 +40,7 @@ function DigitalProductPage() {
 			browseLabel="Browse digital files"
 		>
 			{(product) => (
-				<div className="mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 xl:px-12">
+				<div className="mx-auto w-full max-w-360 px-4 py-10 md:px-8 xl:px-12">
 					<Link
 						to={creator ? creatorPath(creator) : ROUTES.DIGITAL_STORE}
 						className="font-label mb-8 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"

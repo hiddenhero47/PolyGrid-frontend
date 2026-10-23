@@ -58,7 +58,7 @@ function ConsultantProfile() {
 	} = ConsultancyServices.getProfile(idOrSlug);
 
 	const wrap = (content) => (
-		<div className="mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 xl:px-12">
+		<div className="mx-auto w-full max-w-360 px-4 py-10 md:px-8 xl:px-12">
 			{content}
 		</div>
 	);
@@ -115,7 +115,7 @@ function ConsultantProfile() {
 	return (
 		<>
 			<ProfileHeader>
-				<div className="relative mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 lg:py-14 xl:px-12">
+				<div className="relative mx-auto w-full max-w-360 px-4 py-10 md:px-8 lg:py-14 xl:px-12">
 					<Link
 						to={ROUTES.ENGINEERING}
 						className="font-label mb-8 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
@@ -203,7 +203,7 @@ function ConsultantProfile() {
 				</div>
 			</ProfileHeader>
 
-			<div className="mx-auto grid w-full max-w-[1440px] gap-6 px-4 py-10 md:px-8 lg:grid-cols-[minmax(0,1fr)_380px] xl:px-12">
+			<div className="mx-auto grid w-full max-w-360 gap-6 px-4 py-10 md:px-8 lg:grid-cols-[minmax(0,1fr)_380px] xl:px-12">
 				<div className="flex min-w-0 flex-col gap-6">
 					{onBreak && (
 						<div className="flex items-center gap-3 rounded-xl border border-(--pg-card-border) bg-(--pg-status-warningSoft) p-4 text-[15px] text-(--pg-text-primary)">

@@ -16,7 +16,7 @@ function AdminPageHeader({ eyebrow, title, subtitle, actions }) {
 					{title}
 				</h2>
 				{subtitle && (
-					<p className="mt-2 max-w-[640px] text-[15px] leading-relaxed text-(--pg-text-secondary)">
+					<p className="mt-2 max-w-160 text-[15px] leading-relaxed text-(--pg-text-secondary)">
 						{subtitle}
 					</p>
 				)}

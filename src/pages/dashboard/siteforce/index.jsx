@@ -179,7 +179,7 @@ function BoardView({ params, update }) {
 	return (
 		<>
 			<div className="mb-3 flex flex-wrap items-end gap-3">
-				<div className="w-full sm:w-[220px]">
+				<div className="w-full sm:w-55">
 					<CustomSelect
 						id="sf-category"
 						label="Trade"
@@ -190,7 +190,7 @@ function BoardView({ params, update }) {
 						onChange={(v) => update({ category: v, page: '' })}
 					/>
 				</div>
-				<div className="w-full sm:w-[220px]">
+				<div className="w-full sm:w-55">
 					<CustomSelect
 						id="sf-country"
 						label="Country"
@@ -206,7 +206,7 @@ function BoardView({ params, update }) {
 				</div>
 				{near ? (
 					<>
-						<div className="w-full sm:w-[180px]">
+						<div className="w-full sm:w-45">
 							<CustomSelect
 								id="sf-radius"
 								label="Distance"

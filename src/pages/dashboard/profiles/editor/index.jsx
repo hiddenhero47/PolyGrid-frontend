@@ -82,7 +82,7 @@ function ProfileEditor({ profileType }) {
 					title={config.createTitle}
 					subtitle={config.createSubtitle}
 				/>
-				<div className="max-w-[920px]">
+				<div className="max-w-230">
 					<DetailsForm
 						config={config}
 						onSubmit={(body) =>
@@ -138,7 +138,7 @@ function ProfileEditor({ profileType }) {
 
 			<div className={tabs.length > 1 ? '' : 'mt-8'}>
 				{tab === 'details' && (
-					<div className="max-w-[920px]">
+					<div className="max-w-230">
 						<DetailsForm
 							config={config}
 							profile={profile}

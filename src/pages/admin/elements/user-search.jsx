@@ -17,7 +17,7 @@ function UserSearch({ q = '', onSearch }) {
 				e.preventDefault();
 				onSearch(text.trim());
 			}}
-			className="flex items-end gap-2 sm:w-[360px]"
+			className="flex items-end gap-2 sm:w-90"
 		>
 			<div className="flex-1">
 				<CustomInput

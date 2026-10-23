@@ -95,7 +95,7 @@ function TopRated() {
 	const profiles = data?.data ?? [];
 
 	return (
-		<section className="mx-auto w-full max-w-[1440px] px-4 md:px-8 xl:px-12">
+		<section className="mx-auto w-full max-w-360 px-4 md:px-8 xl:px-12">
 			<div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
 				<div>
 					<Eyebrow>Top rated · verified</Eyebrow>

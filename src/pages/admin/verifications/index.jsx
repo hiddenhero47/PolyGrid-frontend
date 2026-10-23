@@ -128,7 +128,7 @@ function AdminVerifications() {
 						})
 					}
 				/>
-				<div className="w-full lg:w-[260px]">
+				<div className="w-full lg:w-65">
 					<CustomSelect
 						name="profileType"
 						label="Profile type"

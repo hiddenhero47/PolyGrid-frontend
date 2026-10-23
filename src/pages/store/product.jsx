@@ -61,7 +61,7 @@ function ProductPage() {
 			{(product) => {
 				const seller = store.data?.available === false ? null : store.data;
 				return (
-					<div className="mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 xl:px-12">
+					<div className="mx-auto w-full max-w-360 px-4 py-10 md:px-8 xl:px-12">
 						<div className="mb-8 flex flex-wrap items-center justify-between gap-3">
 							<Link
 								to={seller ? storePath(seller) : ROUTES.STORE}
