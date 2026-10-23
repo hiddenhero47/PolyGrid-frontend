@@ -16,10 +16,7 @@ import PageHeader from '../../layouts/dashboard-shell/sub-components/page-header
 import { toast } from '../../layouts/toast/toast-handler';
 import EmptyState from '../../components/empty-state';
 import { AppButton } from '../../components/button';
-import {
-	CustomSelect,
-	CustomTextarea,
-} from '../../components/form-components';
+import { CustomSelect, CustomTextarea } from '../../components/form-components';
 import {
 	clearCartStore,
 	lineShipping,

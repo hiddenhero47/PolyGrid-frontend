@@ -296,7 +296,7 @@ function JobOpeningDetail() {
 		<BackLink to={ROUTES.DASHBOARD_SITEFORCE}>Job board</BackLink>
 	);
 
-	if (isPending) return <AppLoader showLabel />;
+	if (isPending) return <AppLoader fullPage showLabel label="Loading job" />;
 	if (isError || !opening) {
 		const status = error?.response?.status;
 		return (

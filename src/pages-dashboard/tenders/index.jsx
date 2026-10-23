@@ -24,10 +24,7 @@ import {
 	PROFILE_TYPE,
 	TENDER_STATUS_BADGES,
 } from '../../utilities/app-const';
-import {
-	formatMoney,
-	specialtyLabel,
-} from '../../utilities/basic-functions';
+import { formatMoney, specialtyLabel } from '../../utilities/basic-functions';
 import { ROUTES } from '../../utilities/app-routes';
 import EligibilityGate from '../elements/eligibility-gate';
 import { ListingCard } from '../elements/panels';

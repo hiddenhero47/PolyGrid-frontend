@@ -2,10 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { LuPlus, LuTrash2 } from 'react-icons/lu';
 import { AppButton } from '../../../components/button';
-import {
-	CustomInput,
-	CustomTags,
-} from '../../../components/form-components';
+import { CustomInput, CustomTags } from '../../../components/form-components';
 import { formatMoney } from '../../../utilities/basic-functions';
 import { stagesTotal } from './job-helpers';
 

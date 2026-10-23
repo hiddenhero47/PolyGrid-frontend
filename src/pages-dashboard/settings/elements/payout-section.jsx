@@ -8,10 +8,7 @@ import ReferenceServices from '../../../features/services/custom-hooks/reference
 import { toast } from '../../../layouts/toast/toast-handler';
 import ConfirmIdentityModal from '../../../components/modal/confirm-identity-modal';
 import { AppButton } from '../../../components/button';
-import {
-	CustomInput,
-	CustomSelect,
-} from '../../../components/form-components';
+import { CustomInput, CustomSelect } from '../../../components/form-components';
 import { countryName } from '../../../utilities/basic-functions';
 import SettingsCard from './settings-card';
 

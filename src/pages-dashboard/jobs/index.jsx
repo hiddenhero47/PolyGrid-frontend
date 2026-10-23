@@ -17,10 +17,7 @@ import SegmentedControl from '../../components/segmented-control';
 import { AppButton } from '../../components/button';
 import { SkeletonBar } from '../../components/table/index.style';
 import { Chip } from '../../pages/home/elements/index.style';
-import {
-	JOB_STATUS_BADGES,
-	JOB_TYPE_LABELS,
-} from '../../utilities/app-const';
+import { JOB_STATUS_BADGES, JOB_TYPE_LABELS } from '../../utilities/app-const';
 import { formatDate, formatMoney } from '../../utilities/basic-functions';
 import { ROUTES } from '../../utilities/app-routes';
 import { myRoleIn, otherRole, partyName } from './elements/job-helpers';

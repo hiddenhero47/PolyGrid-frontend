@@ -7,10 +7,7 @@ import AccountServices from '../../../features/services/custom-hooks/account';
 import { toast } from '../../../layouts/toast/toast-handler';
 import ProfileAvatar from '../../../components/profile-avatar';
 import { AppButton } from '../../../components/button';
-import {
-	CustomInput,
-	CustomPhone,
-} from '../../../components/form-components';
+import { CustomInput, CustomPhone } from '../../../components/form-components';
 import { phoneField } from '../../../features/validations/common';
 import { AVATAR_ACCEPT } from '../../../utilities/app-const';
 import SettingsCard from './settings-card';

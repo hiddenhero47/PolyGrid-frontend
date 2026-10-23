@@ -193,7 +193,8 @@ function TenderProjectDetail() {
 		<BackLink to={ROUTES.DASHBOARD_TENDERS}>Tender board</BackLink>
 	);
 
-	if (isPending) return <AppLoader showLabel />;
+	if (isPending)
+		return <AppLoader fullPage showLabel label="Loading project" />;
 	if (isError || !project) {
 		const status = error?.response?.status;
 		return (

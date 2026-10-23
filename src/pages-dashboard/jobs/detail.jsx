@@ -20,9 +20,7 @@ import {
 	LuX,
 	LuMessageSquare,
 } from 'react-icons/lu';
-import JobServices, {
-	jobKey,
-} from '../../features/services/custom-hooks/jobs';
+import JobServices, { jobKey } from '../../features/services/custom-hooks/jobs';
 import PaymentServices from '../../features/services/custom-hooks/payments';
 import MessageServices from '../../features/services/custom-hooks/messages';
 import PageHeader from '../../layouts/dashboard-shell/sub-components/page-header';
@@ -35,10 +33,7 @@ import ConfirmModal from '../../components/modal/confirm-modal';
 import CheckoutModal from '../../components/checkout-modal';
 import { AppButton } from '../../components/button';
 import { Chip } from '../../pages/home/elements/index.style';
-import {
-	JOB_STATUS_BADGES,
-	JOB_TYPE_LABELS,
-} from '../../utilities/app-const';
+import { JOB_STATUS_BADGES, JOB_TYPE_LABELS } from '../../utilities/app-const';
 import { formatDate, formatMoney } from '../../utilities/basic-functions';
 import { ROUTES } from '../../utilities/app-routes';
 import {
@@ -112,7 +107,7 @@ function JobDetail() {
 
 	const back = <BackLink to={ROUTES.DASHBOARD_JOBS}>All jobs</BackLink>;
 
-	if (isPending) return <AppLoader showLabel />;
+	if (isPending) return <AppLoader fullPage showLabel label="Loading job" />;
 	if (isError || !job) {
 		const status = error?.response?.status;
 		return (

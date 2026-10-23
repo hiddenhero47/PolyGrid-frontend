@@ -26,7 +26,8 @@ function EligibilityGate({
 		ProfileServices.getMyProfile(profileType);
 	const state = useGoLiveState(profileType, profile);
 
-	if (isPending || (profile && state.isPending)) return <AppLoader showLabel />;
+	if (isPending || (profile && state.isPending))
+		return <AppLoader fullPage showLabel />;
 
 	if (!profile) {
 		return (
