@@ -23,7 +23,9 @@ function NewConversationModal({ refName, onPick, busy }) {
 				subtitle="Anyone you’ve worked with through PolyGrid is a contact — or add one by email on Contacts."
 			>
 				{contacts.isPending ? (
-					<AppLoader />
+					<div className="grid min-h-40 place-items-center">
+						<AppLoader showLabel label="Loading contacts" />
+					</div>
 				) : rows.length === 0 ? (
 					<EmptyState
 						icon={<LuUsers />}

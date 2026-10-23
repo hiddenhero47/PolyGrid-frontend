@@ -106,7 +106,9 @@ function Thread({ conversationId, other }) {
 				aria-live="polite"
 			>
 				{messages.isPending ? (
-					<AppLoader />
+					<div className="grid h-full place-items-center">
+						<AppLoader showLabel label="Loading messages" />
+					</div>
 				) : messages.isError ? (
 					<p className="text-sm text-(--pg-status-error)">
 						Couldn’t load this conversation.

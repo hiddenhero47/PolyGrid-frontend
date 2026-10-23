@@ -50,7 +50,9 @@ function Messages() {
 					className={`min-h-0 flex-col border-(--pg-card-border) lg:flex lg:border-r ${id ? 'hidden' : 'flex'}`}
 				>
 					{conversations.isPending ? (
-						<AppLoader />
+						<div className="grid flex-1 place-items-center p-6">
+							<AppLoader showLabel label="Loading conversations" />
+						</div>
 					) : conversations.isError ? (
 						<div className="p-5">
 							<AppButton
