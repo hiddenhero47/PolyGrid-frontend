@@ -10,18 +10,14 @@ _Last updated: 2026-10-23._
 
 ## Open
 
-### Each user can only be in one conversation
-
-(Sent 2026-10-23.) `POST /api/conversations` answers 500 — "E11000 duplicate
-key error … index: participants_1" — as soon as either person already has a
-conversation with someone else. `conversationModel.ts` puts a **unique**
-index on `participants`, an array, so MongoDB enforces it per element: every
-user can appear in only one conversation ever. Needed: uniqueness on the
-pair (a unique `{ "participants.0": 1, "participants.1": 1 }` — the pair is
-already sorted — or a stored `pairKey`), and dropping the old `participants_1`
-index on existing databases.
+Nothing open right now.
 
 ## Resolved
+
+Commit `aa4a617`: conversations are unique per pair (`pairKey`), not per
+person — the old `participants_1` index, which let each user into only one
+conversation ever, is dropped on the dev database by a setup task.
+
 
 Commit `f1d6552` (2026-10-23), all used by the frontend:
 - verifying a stage needs escrow to cover it (400 otherwise) — the job page
