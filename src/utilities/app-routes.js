@@ -38,6 +38,7 @@ export const ROUTES = {
 	DASHBOARD_CREATOR: '/dashboard/profiles/digital-creator',
 	DASHBOARD_SETTINGS: '/dashboard/settings',
 	DASHBOARD_NOTIFICATIONS: '/dashboard/notifications',
+	DASHBOARD_JOBS: '/dashboard/jobs',
 	DASHBOARD_VERIFICATION: '/dashboard/verification',
 	DASHBOARD_SUBSCRIPTION: '/dashboard/subscription',
 

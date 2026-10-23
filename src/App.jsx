@@ -39,6 +39,9 @@ import VerificationCenter from './pages/dashboard/verification';
 import MySubscription from './pages/dashboard/subscription';
 import AccountSettings from './pages/dashboard/settings';
 import Notifications from './pages/dashboard/notifications';
+import MyJobs from './pages/dashboard/jobs';
+import NewJob from './pages/dashboard/jobs/new';
+import JobDetail from './pages/dashboard/jobs/detail';
 import AdminHome from './pages/admin/home';
 import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
@@ -237,6 +240,9 @@ function App() {
 								<Route path="subscription" element={<MySubscription />} />
 								<Route path="settings" element={<AccountSettings />} />
 								<Route path="notifications" element={<Notifications />} />
+								<Route path="jobs" element={<MyJobs />} />
+								<Route path="jobs/new" element={<NewJob />} />
+								<Route path="jobs/:id" element={<JobDetail />} />
 							</Route>
 
 							<Route element={<WrapperLayout />}>

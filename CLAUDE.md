@@ -117,7 +117,8 @@ hub, profile editors for consultant, contractor and client (one generic
 editor driven by `pages/dashboard/profiles/editor/config.js`),
 Verification Center (template-driven form + documents + history),
 Subscription (self-serve: free plans activate at once, paid ones go
-through Stripe) and Account Settings. See "User Dashboard" below.
+through Stripe), Account Settings, Notifications and Jobs (Phase 3's first
+slice). See "User Dashboard" below.
 Next: the other pillars' browse + profile pages on the same pattern
 (contractors, stores, digital creators, workers, client profiles) and
 the tender / SiteForce public teasers. Remaining form controls
@@ -507,6 +508,21 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   create; edit has the on-sale switch, previews and deliverables; no
   delete. Deliverables are stored and removed by original file name, so
   the form refuses a name already on the product.
+- Jobs (`jobs/`, frontend-plan §B.6, hooks `custom-hooks/jobs.js`): My
+  Jobs (`/dashboard/jobs`, status tabs in `?status=`), new job
+  (`/dashboard/jobs/new?with=<userId>&name=&type=&role=` — "Request a job"
+  on the consultant / contractor / worker profiles opens it) and the job
+  page (`/dashboard/jobs/:id`). Stage `payment` is a percentage (all
+  stages ≤ 100%; `elements/stage-editor.jsx`). The page offers only what
+  the job's state and your role allow: confirm, edit / cancel (creator,
+  before confirmation), fund (client → `PaymentServices.fundJob` → the
+  shared `components/checkout-modal.jsx`, then `/payments/:id/refresh`),
+  mark done (provider) / verify & release (client), propose / accept /
+  reject stages, contract upload (PDF / DOCX), dispute, refund (client)
+  and payout (provider) requests — the backend works out those amounts.
+  Party names come from the backend's `client.user` / `provider.user`;
+  `elements/job-helpers.js` falls back to "The client" / "The provider".
+  Notifications with a `jobId` open the job.
 - Pending Stripe payments: "Check payment status" (Subscription page
   banner and pending rows in Payments) calls
   `POST /api/payments/:id/refresh`; the backend also sweeps them every

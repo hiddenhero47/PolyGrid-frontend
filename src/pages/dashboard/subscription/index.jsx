@@ -26,7 +26,7 @@ import {
 	formatMoney,
 	humanize,
 } from '../../../utilities/basic-functions';
-import CheckoutModal from './elements/checkout-modal';
+import CheckoutModal from '../../../components/checkout-modal';
 
 const SUBSCRIPTION_BADGES = {
 	pending: { label: 'Pending', tone: 'warning' },
@@ -406,7 +406,14 @@ function MySubscription() {
 
 			<CheckoutModal
 				refName={checkoutRef}
-				plan={checkout?.plan}
+				summary={
+					checkout && {
+						title: `${humanize(checkout.plan.planTier)} plan`,
+						subtitle: `${formatMoney(checkout.plan.price, checkout.plan.currency)} for ${checkout.plan.duration} days. Any unused days on your current plan carry over.`,
+						amount: checkout.plan.price,
+						currency: checkout.plan.currency,
+					}
+				}
 				clientSecret={checkout?.clientSecret}
 				onPaid={paid}
 			/>

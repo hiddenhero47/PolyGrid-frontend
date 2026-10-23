@@ -43,6 +43,7 @@ export const DIRECTORIES = {
 		joinRoute: ROUTES.DASHBOARD_CONTRACTOR,
 		joinLabel: 'List your company',
 		board: { route: ROUTES.TENDERS, label: 'About tenders' },
+		jobType: 'tenders',
 		workWith:
 			'Hire this contractor directly for a job, or post your project to the sealed tender board and let verified contractors bid.',
 	},
@@ -69,6 +70,7 @@ export const DIRECTORIES = {
 		joinRoute: ROUTES.DASHBOARD_LABOR,
 		joinLabel: 'Offer your trade',
 		board: { route: ROUTES.SITEFORCE, label: 'About SiteForce' },
+		jobType: 'siteforce',
 		workWith:
 			'Book this worker directly, or post a site job on SiteForce and let verified workers near the site apply.',
 	},

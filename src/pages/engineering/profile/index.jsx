@@ -14,6 +14,7 @@ import {
 	LuCloudOff,
 	LuRotateCw,
 	LuLogIn,
+	LuHandshake,
 } from 'react-icons/lu';
 import ConsultancyServices from '../../../features/services/custom-hooks/consultancy';
 import { selectIsAuthenticated } from '../../../store/slice/auth';
@@ -47,6 +48,7 @@ function ConsultantProfile() {
 	const { idOrSlug } = useParams();
 	const location = useLocation();
 	const isAuthenticated = useSelector(selectIsAuthenticated);
+	const { user } = useSelector((state) => state.auth);
 	const {
 		data: profile,
 		isPending,
@@ -171,15 +173,22 @@ function ConsultantProfile() {
 							</div>
 						</div>
 
-						{/* Hiring is a Job (Phase 3) — until then, sign-in is the step */}
+						{/* Hiring is a Job: the draft opens in the dashboard with them filled in */}
 						<div className="flex flex-col gap-3 lg:items-end">
 							{isAuthenticated ? (
-								<>
-									<AppButton disabled>Request a job</AppButton>
-									<span className="text-sm text-(--pg-text-secondary)">
-										Hiring through PolyGrid opens soon.
-									</span>
-								</>
+								profile.userId &&
+								String(profile.userId) !== String(user?.id) && (
+									<AppButton
+										to={`${ROUTES.DASHBOARD_JOBS}/new?${new URLSearchParams({
+											with: String(profile.userId),
+											name: profile.headline || '',
+											type: 'engineering',
+										})}`}
+										icon={<LuHandshake />}
+									>
+										Request a job
+									</AppButton>
+								)
 							) : (
 								<AppButton
 									to={ROUTES.LOGIN}

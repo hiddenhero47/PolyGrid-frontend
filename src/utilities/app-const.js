@@ -221,3 +221,27 @@ export const DELIVERABLE_ACCEPT =
 	'.pdf,.jpg,.jpeg,.png,.webp,.xlsx,.csv,.dwg,.dxf,.zip';
 export const DELIVERABLE_ACCEPT_LABEL =
 	'PDF, images, XLSX, CSV, DWG, DXF or ZIP';
+
+// src/models/jobModel.ts
+export const JOB_TYPE = {
+	ENGINEERING: 'engineering',
+	TENDERS: 'tenders',
+	STORE: 'store',
+	SITEFORCE: 'siteforce',
+	OTHER: 'other',
+};
+export const JOB_TYPE_LABELS = {
+	engineering: 'Engineering',
+	tenders: 'Tender',
+	store: 'Store order',
+	siteforce: 'SiteForce',
+	other: 'Other',
+};
+export const JOB_STATUS_BADGES = {
+	pending_confirmation: { label: 'Awaiting confirmation', tone: 'warning' },
+	active: { label: 'Active', tone: 'info' },
+	completed: { label: 'Completed', tone: 'success' },
+	disputed: { label: 'Disputed', tone: 'error' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
+	closed: { label: 'Closed (refunded)', tone: 'neutral' },
+};

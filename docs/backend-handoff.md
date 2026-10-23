@@ -6,11 +6,28 @@ session. Each item gives where the problem is, what it does, and what
 the frontend needs. Add new items at the top and remove them once
 they're fixed.
 
-_Last updated: 2026-10-22._
+_Last updated: 2026-10-23._
 
 ## Open
 
-Nothing open right now.
+### Verifying a stage releases money that was never funded
+
+`verifyStage` (jobController.ts) adds the stage's share to
+`amountDisbursed` whether or not the client has paid anything in. Seen on
+the dev data: a $1,200 job with $0 funded, stage 1 (40%) verified →
+`amountDisbursed` $456, `amountPaid` $0. `payoutAvailableAmount` caps it at
+`amountPaid`, so no money leaves PolyGrid, but the job's own numbers say
+$456 was released when nothing was there. The job page shows "Released"
+straight from `amountDisbursed`.
+
+Needed: one of
+- refuse to verify a stage unless what's been funded covers it (a 400
+  saying "fund this stage first"; the page would then show the Fund
+  button next to it), or
+- release only what's actually in escrow and keep the rest owed until
+  funding arrives.
+
+The first is simpler and what the job page expects.
 
 ## Resolved
 

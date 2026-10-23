@@ -8,11 +8,11 @@ import {
 	useStripe,
 } from '@stripe/react-stripe-js';
 import { LuLock } from 'react-icons/lu';
-import { getStripe } from '../../../../features/services/stripe';
-import Modal from '../../../../components/modal/index_modal';
-import { AppButton } from '../../../../components/button';
-import { THEMES } from '../../../../theme';
-import { formatMoney, humanize } from '../../../../utilities/basic-functions';
+import { getStripe } from '../features/services/stripe';
+import Modal from './modal/index_modal';
+import { AppButton } from './button';
+import { THEMES } from '../theme';
+import { formatMoney } from '../utilities/basic-functions';
 
 // Stripe's own form, colored from the active theme's raw hex tokens
 // (Stripe can't read CSS variables).
@@ -31,7 +31,7 @@ const appearanceFor = (themeName) => {
 	};
 };
 
-function PayForm({ plan, onPaid }) {
+function PayForm({ amount, currency, onPaid }) {
 	const stripe = useStripe();
 	const elements = useElements();
 	const [error, setError] = useState('');
@@ -61,7 +61,7 @@ function PayForm({ plan, onPaid }) {
 				</p>
 			)}
 			<AppButton type="submit" icon={<LuLock />} disabled={!stripe || paying}>
-				{paying ? 'Paying…' : `Pay ${formatMoney(plan.price, plan.currency)}`}
+				{paying ? 'Paying…' : `Pay ${formatMoney(amount, currency)}`}
 			</AppButton>
 			<p className="text-center text-xs text-(--pg-text-secondary)">
 				Card details go straight to Stripe — PolyGrid never sees them.
@@ -71,14 +71,17 @@ function PayForm({ plan, onPaid }) {
 }
 
 PayForm.propTypes = {
-	plan: PropTypes.object.isRequired,
+	amount: PropTypes.number.isRequired,
+	currency: PropTypes.string,
 	onPaid: PropTypes.func.isRequired,
 };
 
-// Paid-plan checkout: the PaymentIntent's clientSecret from
-// POST /api/payments/intent drives Stripe's Payment Element. Only this
-// modal is wrapped in <Elements> (CLAUDE.md: never the whole app).
-function CheckoutModal({ refName, plan, clientSecret, onPaid, onClose }) {
+// Stripe checkout for anything POST /api/payments/intent answers with a
+// clientSecret — a paid plan, funding a job, later a store order or a
+// digital purchase. `summary` = { eyebrow, title, subtitle, amount,
+// currency }. Only this modal is wrapped in <Elements> (CLAUDE.md: never
+// the whole app).
+function CheckoutModal({ refName, summary, clientSecret, onPaid, onClose }) {
 	const { theme } = useSelector((state) => state.themes);
 
 	return (
@@ -88,18 +91,22 @@ function CheckoutModal({ refName, plan, clientSecret, onPaid, onClose }) {
 			queryWidth="100%"
 			onClose={onClose}
 		>
-			{plan && clientSecret && (
+			{summary && clientSecret && (
 				<Modal.Card
-					eyebrow="Checkout"
-					title={`${humanize(plan.planTier)} plan`}
-					subtitle={`${formatMoney(plan.price, plan.currency)} for ${plan.duration} days. Any unused days on your current plan carry over.`}
+					eyebrow={summary.eyebrow || 'Checkout'}
+					title={summary.title}
+					subtitle={summary.subtitle}
 				>
 					<Elements
 						key={clientSecret}
 						stripe={getStripe()}
 						options={{ clientSecret, appearance: appearanceFor(theme) }}
 					>
-						<PayForm plan={plan} onPaid={onPaid} />
+						<PayForm
+							amount={summary.amount}
+							currency={summary.currency}
+							onPaid={onPaid}
+						/>
 					</Elements>
 				</Modal.Card>
 			)}
@@ -109,7 +116,13 @@ function CheckoutModal({ refName, plan, clientSecret, onPaid, onClose }) {
 
 CheckoutModal.propTypes = {
 	refName: PropTypes.object.isRequired,
-	plan: PropTypes.object,
+	summary: PropTypes.shape({
+		eyebrow: PropTypes.string,
+		title: PropTypes.string,
+		subtitle: PropTypes.string,
+		amount: PropTypes.number,
+		currency: PropTypes.string,
+	}),
 	clientSecret: PropTypes.string,
 	onPaid: PropTypes.func.isRequired,
 	onClose: PropTypes.func,

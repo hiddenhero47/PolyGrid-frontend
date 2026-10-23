@@ -47,7 +47,7 @@ export const DASHBOARD_NAV = [
 	{
 		heading: 'Activity',
 		items: [
-			{ label: 'Jobs', icon: LuHandshake, soon: true },
+			{ label: 'Jobs', to: ROUTES.DASHBOARD_JOBS, icon: LuHandshake },
 			{ label: 'Messages', icon: LuMessagesSquare, soon: true },
 			{
 				label: 'Notifications',

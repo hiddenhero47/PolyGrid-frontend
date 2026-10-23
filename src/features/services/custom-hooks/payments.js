@@ -68,7 +68,21 @@ const useRefreshPaymentMutation = () => {
 	});
 };
 
+// POST /api/payments/intent { targetType: 'Job', targetId, amount } — the
+// job's client puts money into escrow (any part of what's left) →
+// { clientSecret, paymentId } for Stripe's card form.
+const useFundJobMutation = () =>
+	useMutation({
+		mutationFn: ({ jobId, amount }) =>
+			axiosCall({
+				url: '/api/payments/intent',
+				method: 'POST',
+				data: { targetType: 'Job', targetId: jobId, amount },
+			}),
+	});
+
 const PaymentServices = {
+	fundJob: useFundJobMutation,
 	refresh: useRefreshPaymentMutation,
 	subscribe: useSubscribeMutation,
 	getMyPayments: useGetMyPaymentsQuery,

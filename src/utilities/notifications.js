@@ -12,8 +12,13 @@ import {
 import { ROUTES } from './app-routes';
 
 // What each notification type (polygrid-backend models/notificationModel.ts)
-// looks like and where it leads. Job / tender / SiteForce pages arrive
-// with Phase 3 — until then those point at the dashboard.
+// looks like and where it leads. Anything carrying a jobId opens that job;
+// tender / SiteForce pages arrive later in Phase 3.
+const jobLink = (data) =>
+	data?.jobId
+		? `${ROUTES.DASHBOARD_JOBS}/${data.jobId}`
+		: ROUTES.DASHBOARD_JOBS;
+
 const NOTIFICATION_META = {
 	verification_approved: {
 		icon: LuBadgeCheck,
@@ -43,17 +48,17 @@ const NOTIFICATION_META = {
 	job_stage_done: {
 		icon: LuListChecks,
 		tone: 'info',
-		to: () => ROUTES.DASHBOARD,
+		to: jobLink,
 	},
 	job_dispute_resolved: {
 		icon: LuScale,
 		tone: 'info',
-		to: () => ROUTES.DASHBOARD,
+		to: jobLink,
 	},
 	payment_request_decided: {
 		icon: LuWallet,
 		tone: 'info',
-		to: () => ROUTES.DASHBOARD,
+		to: jobLink,
 	},
 };
 
