@@ -9,7 +9,7 @@ import CheckoutModal from '../../../components/checkout-modal';
 import { AppButton } from '../../../components/button';
 import { formatMoney } from '../../../utilities/basic-functions';
 import { ROUTES } from '../../../utilities/app-routes';
-import { idOf } from '../../dashboard/elements/listing-helpers';
+import { idOf } from '../../../pages-dashboard/elements/listing-helpers';
 
 // "Buy" on a digital file (frontend-plan §B.14): Stripe straight away,
 // no job or escrow. A purchase left pending (card form closed) resumes —

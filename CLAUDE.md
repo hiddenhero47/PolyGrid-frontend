@@ -108,13 +108,13 @@ loader / 404 / error / unavailable wrapper for those single views.
 Ordering (cart → checkout) and buying digital files live in the dashboard (Phase 3).
 
 **Admin Dashboard started early (Phase 4, first slice)** — the
-consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
+consultant pipeline: `layouts/admin-layout` + `pages-admin/` (Overview,
 Verifications, Plans, Subscriptions) at `/admin`. See "Admin Dashboard"
 below.
 
 **User Dashboard (Phase 2)** — `/dashboard`: home, Business Profile
 hub, profile editors for every pillar (one generic editor driven by
-`pages/dashboard/profiles/editor/config.js`), Verification Center
+`pages-dashboard/profiles/editor/config.js`), Verification Center
 (template-driven form + documents + history), Subscription (self-serve:
 free plans activate at once, paid ones go through Stripe), Account
 Settings and Notifications. See "User Dashboard" below.
@@ -154,7 +154,12 @@ with an HTML warning page (curl works, the browser doesn't). Production
 builds call `VITE_API_URL` directly. Copy
 `.env.example` to `.env`; `VITE_API_URL` points at the backend (:4000).
 
-- `src/pages/<page>/index.jsx` + `elements/index.style.js`,
+- Pages live in three folders: `src/pages/` (the public site — home,
+  auth, browse and profile pages, the Store), `src/pages-dashboard/` (the
+  signed-in user's workspace at `/dashboard`) and `src/pages-admin/` (the
+  staff console at `/admin`). Never put a dashboard or admin page under
+  `src/pages/`; shared dashboard pieces sit in `pages-dashboard/elements/`.
+- `<folder>/<page>/index.jsx` + `elements/index.style.js`,
   `src/layouts/`, `src/components/`, `src/features/services/`
   (`index-client.js` = axios; per-resource TanStack Query hooks go in
   `custom-hooks/`, HM-style), `src/features/validations/` (yup),
@@ -394,7 +399,7 @@ backend's `{ total, page, limit, totalPages }`) with `changePage`.
 badge: `<StatusBadge status={x} map={{ value: { label, tone } }} />`,
 tones from the `status` tokens. Colors: `table` token group.
 
-### Admin Dashboard — `layouts/admin-layout`, `pages/admin/`
+### Admin Dashboard — `layouts/admin-layout`, `pages-admin/`
 
 HM's dashboard shape (floating panels on the page background: side menu
 card, top bar card, page card) in PolyGrid colors, after the Stitch
@@ -409,7 +414,7 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   1024px. Colors: the `sidebar` token group (active item coral in dark,
   slate in light — coral stays for actions).
 - Every page starts with `sub-components/page-header.jsx`; shared tiles,
-  sections and status tabs are in `pages/admin/elements/index.style.js`.
+  sections and status tabs are in `pages-admin/elements/index.style.js`.
 - Queue filters live in the URL (`?status=&profileType=&page=`,
   `/admin/subscriptions?userId=`), like the public browse pages.
 - Hooks: `custom-hooks/admin.js` (overview, verifications, signed
@@ -426,7 +431,7 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   (`admin-create` always makes an admin — customer care is a role change
   straight after) and per-row "Manage" (role select, suspend /
   reinstate, both behind ConfirmModal). Never offered for yourself or
-  the Super Admin. `pages/admin/elements/user-search.jsx` is shared with
+  the Super Admin. `pages-admin/elements/user-search.jsx` is shared with
   Subscriptions.
 - Digital files (`/admin/digital-products`, frontend-plan §C.6): the
   review queue (`GET /api/digital-products/review?status=pending|approved`)
@@ -475,7 +480,7 @@ Settings, Log out), used in the public navbar and the dashboards' top
 bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
 (fallback placement in `beforetoggle`), like CustomSelect's menu.
 
-### User Dashboard — `pages/dashboard/`
+### User Dashboard — `pages-dashboard/`
 
 - `elements/profile-types.js` — one entry per business profile type
   (label, pillar, icon, pitch, `editor` route once built, `publicPath`,

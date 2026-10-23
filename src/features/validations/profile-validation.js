@@ -17,7 +17,7 @@ const optionalNumber = (label) =>
 		.nullable();
 
 // The Details form of any business profile, shaped by its editor config
-// (pages/dashboard/profiles/editor/config.js): the name field, an
+// (pages-dashboard/profiles/editor/config.js): the name field, an
 // optional disciplines list, optional years of experience.
 export const profileDetailsSchema = (config) =>
 	yup.object({
