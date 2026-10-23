@@ -42,6 +42,12 @@ import Notifications from './pages/dashboard/notifications';
 import MyJobs from './pages/dashboard/jobs';
 import NewJob from './pages/dashboard/jobs/new';
 import JobDetail from './pages/dashboard/jobs/detail';
+import Tenders from './pages/dashboard/tenders';
+import NewTenderProject from './pages/dashboard/tenders/new';
+import TenderProjectDetail from './pages/dashboard/tenders/detail';
+import SiteForce from './pages/dashboard/siteforce';
+import NewJobOpening from './pages/dashboard/siteforce/new';
+import JobOpeningDetail from './pages/dashboard/siteforce/detail';
 import AdminHome from './pages/admin/home';
 import AdminVerifications from './pages/admin/verifications';
 import AdminPlans from './pages/admin/plans';
@@ -243,6 +249,12 @@ function App() {
 								<Route path="jobs" element={<MyJobs />} />
 								<Route path="jobs/new" element={<NewJob />} />
 								<Route path="jobs/:id" element={<JobDetail />} />
+								<Route path="tenders" element={<Tenders />} />
+								<Route path="tenders/new" element={<NewTenderProject />} />
+								<Route path="tenders/:id" element={<TenderProjectDetail />} />
+								<Route path="siteforce" element={<SiteForce />} />
+								<Route path="siteforce/new" element={<NewJobOpening />} />
+								<Route path="siteforce/:id" element={<JobOpeningDetail />} />
 							</Route>
 
 							<Route element={<WrapperLayout />}>

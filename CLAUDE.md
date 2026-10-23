@@ -457,8 +457,7 @@ to the account menu in the navbar and the dashboard top bar;
 `custom-hooks/notifications.js` (unread count also polls every 2 min as
 a fallback; mark-read updates the badge and lists instantly).
 `utilities/notifications.js` maps each backend type to an icon, tone and
-link (`notificationLink`) — job / tender / SiteForce types point at the
-dashboard until those pages exist. Live delivery: `layouts/
+link (`notificationLink`) — anything with a `jobId` opens that job. Live delivery: `layouts/
 realtime-bridge.jsx` (mounted once in `App.jsx`) keeps one Socket.IO
 connection (`features/services/socket.js`, JWT in the handshake) while
 signed in; `notification:new` refreshes the queries and shows a toast
@@ -523,6 +522,28 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   Party names come from the backend's `client.user` / `provider.user`;
   `elements/job-helpers.js` falls back to "The client" / "The provider".
   Notifications with a `jobId` open the job.
+- Tenders (`tenders/`, frontend-plan §B.7–B.9, hooks
+  `custom-hooks/tenders.js`) and SiteForce (`siteforce/`, §B.10–B.12,
+  `custom-hooks/siteforce.js`) share one shape: a hub page with
+  `?view=` tabs (board · my bids / applications · my projects /
+  postings), `new.jsx` (posting needs a live client profile) and a
+  detail page that branches on poster vs. contractor / worker. Boards
+  answer 403 to anyone without a live contractor / worker profile —
+  that 403 shows `elements/eligibility-gate.jsx` (the go-live checklist
+  for the profile needed), never an empty list. Bids and applications
+  are sealed; the poster's detail lists them all with award / accept.
+  SiteForce detail is two-tier: the exact site (map, address, contact,
+  photos) comes back only for the poster or an accepted worker — the
+  page shows it unlocked when `files` is present, else a locked panel.
+  The board can search near a point (`?near=lat,lng&radius=`, browser
+  geolocation or "Near a place" on the map). `components/
+  location-picker` is the Leaflet + OpenStreetMap pin picker (click,
+  "Use my location", or paste "lat, lng"; dark themes invert the tiles)
+  and `location-map.jsx` a read-only pin. Opening photos are JPG / PNG
+  / AVIF only; tender files also take PDF / DOCX. Shared dashboard
+  pieces: `elements/panels.jsx` (`Panel`, `BackLink`, `ListingCard`,
+  `FileList`, `Fact`) and `elements/listing-helpers.js` (`placeText`,
+  `budgetText`, `payText`, `closesText`).
 - Pending Stripe payments: "Check payment status" (Subscription page
   banner and pending rows in Payments) calls
   `POST /api/payments/:id/refresh`; the backend also sweeps them every

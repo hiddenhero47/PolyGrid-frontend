@@ -39,6 +39,12 @@ export const ROUTES = {
 	DASHBOARD_SETTINGS: '/dashboard/settings',
 	DASHBOARD_NOTIFICATIONS: '/dashboard/notifications',
 	DASHBOARD_JOBS: '/dashboard/jobs',
+	DASHBOARD_TENDERS: '/dashboard/tenders',
+	DASHBOARD_SITEFORCE: '/dashboard/siteforce',
+	DASHBOARD_ORDERS: '/dashboard/orders',
+	DASHBOARD_PURCHASES: '/dashboard/purchases',
+	DASHBOARD_CONTACTS: '/dashboard/contacts',
+	DASHBOARD_MESSAGES: '/dashboard/messages',
 	DASHBOARD_VERIFICATION: '/dashboard/verification',
 	DASHBOARD_SUBSCRIPTION: '/dashboard/subscription',
 

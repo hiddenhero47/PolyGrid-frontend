@@ -3,7 +3,6 @@ import { Link, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-	LuArrowLeft,
 	LuCheck,
 	LuCircleAlert,
 	LuCircleCheck,
@@ -51,6 +50,7 @@ import ReasonModal from './elements/reason-modal';
 import StagesModal from './elements/stages-modal';
 import FundModal from './elements/fund-modal';
 import EditJobModal from './elements/edit-modal';
+import { BackLink, Panel, eyebrowClass } from '../elements/panels';
 
 const REQUEST_BADGES = {
 	pending: { label: 'Pending', tone: 'warning' },
@@ -58,25 +58,6 @@ const REQUEST_BADGES = {
 	declined: { label: 'Declined', tone: 'error' },
 };
 const CONTRACT_ACCEPT = '.pdf,.docx';
-
-const card =
-	'rounded-2xl border border-(--pg-card-border) bg-(--pg-surface-background) p-5';
-const eyebrow =
-	'font-label text-xs font-semibold tracking-[0.16em] text-(--pg-text-secondary) uppercase';
-
-function Section({ title, icon, action, children }) {
-	return (
-		<section className={card}>
-			<div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-				<h2 className={`${eyebrow} inline-flex items-center gap-2`}>
-					{icon} {title}
-				</h2>
-				{action}
-			</div>
-			{children}
-		</section>
-	);
-}
 
 function Money({ label, value, currency, strong }) {
 	return (
@@ -125,14 +106,7 @@ function JobDetail() {
 	const fileRef = useRef(null);
 	const [checkout, setCheckout] = useState(null); // { amount, clientSecret, paymentId }
 
-	const back = (
-		<Link
-			to={ROUTES.DASHBOARD_JOBS}
-			className="font-label mb-5 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
-		>
-			<LuArrowLeft aria-hidden="true" /> All jobs
-		</Link>
-	);
+	const back = <BackLink to={ROUTES.DASHBOARD_JOBS}>All jobs</BackLink>;
 
 	if (isPending) return <AppLoader showLabel />;
 	if (isError || !job) {
@@ -410,13 +384,13 @@ function JobDetail() {
 
 			<div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
 				<div className="flex min-w-0 flex-col gap-5">
-					<Section title="The work" icon={<LuFileText aria-hidden="true" />}>
+					<Panel title="The work" icon={<LuFileText aria-hidden="true" />}>
 						<p className="text-[15px] leading-relaxed whitespace-pre-line text-(--pg-text-primary)">
 							{job.jobDescription}
 						</p>
-					</Section>
+					</Panel>
 
-					<Section
+					<Panel
 						title="Stages"
 						icon={<LuListChecks aria-hidden="true" />}
 						action={
@@ -510,7 +484,7 @@ function JobDetail() {
 
 						{proposal && (
 							<div className="mt-5 rounded-xl border border-dashed border-(--pg-card-borderHover) p-4">
-								<p className={eyebrow}>
+								<p className={eyebrowClass}>
 									{proposedByMe
 										? 'Your proposal — waiting for them'
 										: `Proposed by ${themName}`}
@@ -551,10 +525,10 @@ function JobDetail() {
 								)}
 							</div>
 						)}
-					</Section>
+					</Panel>
 
 					{(job.disputeReason || job.disputeHistory?.length > 0) && (
-						<Section
+						<Panel
 							title="Disputes"
 							icon={<LuTriangleAlert aria-hidden="true" />}
 						>
@@ -578,11 +552,11 @@ function JobDetail() {
 									))}
 								</ul>
 							)}
-						</Section>
+						</Panel>
 					)}
 
 					{(job.refunds?.length > 0 || job.payouts?.length > 0) && (
-						<Section
+						<Panel
 							title="Refund & payout requests"
 							icon={<LuWallet aria-hidden="true" />}
 						>
@@ -623,12 +597,12 @@ function JobDetail() {
 										</li>
 									))}
 							</ul>
-						</Section>
+						</Panel>
 					)}
 				</div>
 
 				<aside className="flex flex-col gap-5">
-					<Section title="Money" icon={<LuWallet aria-hidden="true" />}>
+					<Panel title="Money" icon={<LuWallet aria-hidden="true" />}>
 						<dl className="grid grid-cols-2 gap-4">
 							<div className="col-span-2">
 								<Money
@@ -704,9 +678,9 @@ function JobDetail() {
 								</p>
 							)}
 						</div>
-					</Section>
+					</Panel>
 
-					<Section
+					<Panel
 						title="People & contracts"
 						icon={<LuHandshake aria-hidden="true" />}
 					>
@@ -804,7 +778,7 @@ function JobDetail() {
 								</p>
 							</div>
 						)}
-					</Section>
+					</Panel>
 				</aside>
 			</div>
 

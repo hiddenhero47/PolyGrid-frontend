@@ -10,6 +10,19 @@ _Last updated: 2026-10-23._
 
 ## Open
 
+### Tender / SiteForce responses: own bid / application, list titles, job id
+
+(Sent to the backend session on 2026-10-23.) The frontend works around all
+four today, at the cost of extra requests:
+1. `GET /api/tender-projects/:id` for a contractor has no `myBid` — the page
+   loads `/bids/mine?limit=100` and finds it there.
+2. `GET /api/tender-projects/bids/mine` rows carry only the `project` id —
+   the "My bids" list fetches each project for its title.
+3. The same for SiteForce: no `myApplication` on `GET /api/job-openings/:id`,
+   and `/applications/mine` rows carry only the `posting` id.
+4. `toPublicApplication` drops `application.job`, so an accepted worker
+   can't link straight to the Job it created (the page links to Jobs).
+
 ### Verifying a stage releases money that was never funded
 
 `verifyStage` (jobController.ts) adds the stage's share to

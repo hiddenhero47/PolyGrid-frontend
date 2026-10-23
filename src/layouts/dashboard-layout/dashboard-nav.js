@@ -7,6 +7,11 @@ import {
 	LuMessagesSquare,
 	LuBell,
 	LuSettings,
+	LuGavel,
+	LuHardHat,
+	LuPackage,
+	LuDownload,
+	LuContact,
 } from 'react-icons/lu';
 import { ROUTES } from '../../utilities/app-routes';
 
@@ -45,10 +50,40 @@ export const DASHBOARD_NAV = [
 		],
 	},
 	{
-		heading: 'Activity',
+		heading: 'Work',
 		items: [
 			{ label: 'Jobs', to: ROUTES.DASHBOARD_JOBS, icon: LuHandshake },
-			{ label: 'Messages', icon: LuMessagesSquare, soon: true },
+			{ label: 'Tenders', to: ROUTES.DASHBOARD_TENDERS, icon: LuGavel },
+			{ label: 'SiteForce', to: ROUTES.DASHBOARD_SITEFORCE, icon: LuHardHat },
+			{
+				label: 'Orders',
+				to: ROUTES.DASHBOARD_ORDERS,
+				icon: LuPackage,
+				soon: true,
+			},
+			{
+				label: 'Purchases',
+				to: ROUTES.DASHBOARD_PURCHASES,
+				icon: LuDownload,
+				soon: true,
+			},
+		],
+	},
+	{
+		heading: 'Activity',
+		items: [
+			{
+				label: 'Messages',
+				to: ROUTES.DASHBOARD_MESSAGES,
+				icon: LuMessagesSquare,
+				soon: true,
+			},
+			{
+				label: 'Contacts',
+				to: ROUTES.DASHBOARD_CONTACTS,
+				icon: LuContact,
+				soon: true,
+			},
 			{
 				label: 'Notifications',
 				to: ROUTES.DASHBOARD_NOTIFICATIONS,

@@ -12,8 +12,8 @@ import {
 import { ROUTES } from './app-routes';
 
 // What each notification type (polygrid-backend models/notificationModel.ts)
-// looks like and where it leads. Anything carrying a jobId opens that job;
-// tender / SiteForce pages arrive later in Phase 3.
+// looks like and where it leads. Anything carrying a jobId opens that job
+// (a tender award and an accepted application both create one).
 const jobLink = (data) =>
 	data?.jobId
 		? `${ROUTES.DASHBOARD_JOBS}/${data.jobId}`
@@ -33,17 +33,20 @@ const NOTIFICATION_META = {
 	tender_bid_awarded: {
 		icon: LuGavel,
 		tone: 'success',
-		to: () => ROUTES.DASHBOARD,
+		to: jobLink,
 	},
 	job_application_accepted: {
 		icon: LuHardHat,
 		tone: 'success',
-		to: () => ROUTES.DASHBOARD,
+		to: jobLink,
 	},
 	job_application_rejected: {
 		icon: LuCircleX,
 		tone: 'neutral',
-		to: () => ROUTES.DASHBOARD,
+		to: (data) =>
+			data?.jobOpeningId
+				? `${ROUTES.DASHBOARD_SITEFORCE}/${data.jobOpeningId}`
+				: `${ROUTES.DASHBOARD_SITEFORCE}?view=applications`,
 	},
 	job_stage_done: {
 		icon: LuListChecks,

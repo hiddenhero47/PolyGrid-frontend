@@ -245,3 +245,57 @@ export const JOB_STATUS_BADGES = {
 	cancelled: { label: 'Cancelled', tone: 'neutral' },
 	closed: { label: 'Closed (refunded)', tone: 'neutral' },
 };
+
+// src/models/tenderProjectModel.ts — same values as CONTRACTOR_SPECIALTY
+export const TENDER_CATEGORY = CONTRACTOR_SPECIALTY;
+export const TENDER_STATUS_BADGES = {
+	open: { label: 'Open for bids', tone: 'info' },
+	awarded: { label: 'Awarded', tone: 'success' },
+	closed: { label: 'Closed', tone: 'neutral' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
+};
+export const MAX_PROJECT_FILES = 10;
+// helpers/fileStorage.ts DEFAULT_ALLOWED_MIME_TYPES + DOCX (project specs,
+// drawings, site photos; 10 MB each)
+export const PROJECT_FILE_ACCEPT =
+	'image/jpeg,image/png,image/webp,application/pdf,.docx';
+export const PROJECT_FILE_ACCEPT_LABEL = 'JPG, PNG, WebP, PDF or Word (.docx)';
+
+// src/models/bidModel.ts
+export const BID_STATUS_BADGES = {
+	pending: { label: 'Pending', tone: 'warning' },
+	accepted: { label: 'Awarded', tone: 'success' },
+	rejected: { label: 'Not chosen', tone: 'neutral' },
+	withdrawn: { label: 'Withdrawn', tone: 'neutral' },
+};
+
+// src/models/jobOpeningModel.ts
+export const PAY_TYPE = { HOURLY: 'hourly', DAILY: 'daily', FIXED: 'fixed' };
+export const PAY_TYPE_LABELS = {
+	hourly: 'per hour',
+	daily: 'per day',
+	fixed: 'fixed',
+};
+export const EMPLOYMENT_TYPE = {
+	SHORT_TERM: 'short_term',
+	LONG_TERM: 'long_term',
+};
+export const EMPLOYMENT_TYPE_LABELS = {
+	short_term: 'Short-term',
+	long_term: 'Long-term',
+};
+export const OPENING_STATUS_BADGES = {
+	open: { label: 'Open', tone: 'info' },
+	filled: { label: 'Filled', tone: 'success' },
+	closed: { label: 'Closed', tone: 'neutral' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
+};
+export const MAX_OPENING_FILES = 5;
+
+// src/models/jobApplicationModel.ts
+export const APPLICATION_STATUS_BADGES = {
+	pending: { label: 'Pending', tone: 'warning' },
+	accepted: { label: 'Accepted', tone: 'success' },
+	rejected: { label: 'Not chosen', tone: 'neutral' },
+	withdrawn: { label: 'Withdrawn', tone: 'neutral' },
+};
