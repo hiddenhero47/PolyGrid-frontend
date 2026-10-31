@@ -1,7 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import GlobalStyleInjector from './global.style';
 import ThemeRoot from './layouts/theme-root';
 import IndexLayout from './layouts/index-layout/index';
@@ -282,7 +281,6 @@ function App() {
 				</Router>
 				<AppToast />
 			</ThemeRoot>
-			<ReactQueryDevtools initialIsOpen={false} />
 		</QueryClientProvider>
 	);
 }
