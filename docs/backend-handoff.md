@@ -14,8 +14,7 @@ Nothing open right now.
 
 ## Resolved
 
-Backend changes of 2026-10-31 (in its working tree when the frontend switched
-to them): `/api/system-payouts` (list, mark paid with a reference, mark
+Commit `8216d90` (2026-10-31): `/api/system-payouts` (list, mark paid with a reference, mark
 failed with a reason — the "To pay" tab), `GET /api/jobs?q=&status=&userId=`
 (the admin Jobs page), read-only `GET /api/jobs/:id` for every review role,
 and contract files keep their name.
