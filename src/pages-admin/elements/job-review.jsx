@@ -297,8 +297,8 @@ function JobReview({ jobId, fallback }) {
 											<span className="text-(--pg-text-secondary) capitalize">
 												{role}:
 											</span>
-											<span className="min-w-0 truncate text-(--pg-text-primary)">
-												{file.fileName}
+											<span className="break-all text-(--pg-text-primary)">
+												{file.fileName || 'Contract'}
 											</span>
 											{file.requestUrl && (
 												<a

@@ -67,9 +67,16 @@ function ModalBase({
 		}
 	};
 
-	// Escape: allowed only when dismissible
+	// Escape: allowed only when dismissible. React passes a nested dialog's
+	// `cancel` / `close` up through the component tree, so both handlers
+	// only act on this dialog's own events — closing a confirm modal opened
+	// inside a drawer mustn't close (or reset) the drawer too.
 	const handleCancel = (e) => {
-		if (!dismissible) e.preventDefault();
+		if (e.target === e.currentTarget && !dismissible) e.preventDefault();
+	};
+
+	const handleClose = (e) => {
+		if (e.target === e.currentTarget) onClose?.();
 	};
 
 	const context = useMemo(
@@ -84,7 +91,7 @@ function ModalBase({
 			onPointerDown={handlePointerDown}
 			onClick={handleClick}
 			onCancel={handleCancel}
-			onClose={() => onClose?.()}
+			onClose={handleClose}
 			aria-labelledby={ariaLabel ? undefined : titleId}
 			aria-label={ariaLabel}
 			$position={position}

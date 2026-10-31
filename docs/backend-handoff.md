@@ -10,6 +10,15 @@ _Last updated: 2026-10-23._
 
 ## Open
 
+### Contract files come back without their name
+
+`withContractLinks` (jobController.ts) builds the contract with
+`...party.contractFile` — spreading a Mongoose sub-document doesn't copy its
+fields, so `GET /api/jobs/:id` returns `contractFile` with only `requestUrl` /
+`downloadUrl`, no `fileName` / `mime` / `size` / `uploadedAt`. The job page and
+the admin drawer show "Contract" until then. Fix: spread
+`party.contractFile.toObject()` (or pick the fields).
+
 ### Approved refunds / payouts: no way to see or settle what's owed
 
 Approving a refund or payout creates a `SystemPayout` (pending → paid /

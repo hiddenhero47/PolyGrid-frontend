@@ -71,12 +71,12 @@ function PaymentsLedger() {
 		{
 			Header: 'Date',
 			accessor: 'createdAt',
-			Cell: ({ row }) => formatDate(row.createdAt, true),
+			Cell: ({ row: { original: row } }) => formatDate(row.createdAt, true),
 		},
 		{
 			Header: 'Paid by',
 			accessor: 'userEmail',
-			Cell: ({ row }) => (
+			Cell: ({ row: { original: row } }) => (
 				<button
 					type="button"
 					onClick={(e) => {
@@ -93,26 +93,27 @@ function PaymentsLedger() {
 		{
 			Header: 'For',
 			accessor: 'targetType',
-			Cell: ({ row }) =>
+			Cell: ({ row: { original: row } }) =>
 				PAYMENT_TARGET_LABELS[row.targetType] || row.targetType,
 		},
 		{
 			Header: 'How',
 			accessor: 'provider',
-			Cell: ({ row }) => PAYMENT_PROVIDER_LABELS[row.provider] || row.provider,
+			Cell: ({ row: { original: row } }) =>
+				PAYMENT_PROVIDER_LABELS[row.provider] || row.provider,
 		},
 		{
 			Header: 'Amount',
 			accessor: 'amount',
 			align: 'right',
-			Cell: ({ row }) => (
+			Cell: ({ row: { original: row } }) => (
 				<strong>{formatMoney(row.amount, row.currency)}</strong>
 			),
 		},
 		{
 			Header: 'Status',
 			accessor: 'status',
-			Cell: ({ row }) => (
+			Cell: ({ row: { original: row } }) => (
 				<StatusBadge status={row.status} map={PAYMENT_STATUS_BADGES} />
 			),
 		},

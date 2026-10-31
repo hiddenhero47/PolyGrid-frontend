@@ -748,7 +748,7 @@ function JobDetail() {
 										{file ? (
 											<div className="flex flex-wrap items-center gap-2 pl-13 text-sm">
 												<span className="min-w-0 truncate text-(--pg-text-secondary)">
-													{file.fileName}
+													{file.fileName || 'Contract'}
 												</span>
 												{file.requestUrl && (
 													<a
