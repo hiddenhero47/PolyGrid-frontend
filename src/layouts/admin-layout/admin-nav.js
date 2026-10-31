@@ -10,6 +10,8 @@ import {
 	LuUsers,
 	LuReceipt,
 	LuHandshake,
+	LuClipboardList,
+	LuMessageSquareWarning,
 } from 'react-icons/lu';
 import { ROUTES } from '../../utilities/app-routes';
 import { REVIEW_ROLES, MANAGE_ROLES } from '../../utilities/app-const';
@@ -41,6 +43,12 @@ export const ADMIN_NAV = [
 				countKey: 'pendingVerifications',
 			},
 			{
+				label: 'Templates',
+				to: ROUTES.ADMIN_TEMPLATES,
+				icon: LuClipboardList,
+				roles: MANAGE_ROLES,
+			},
+			{
 				label: 'Digital files',
 				to: ROUTES.ADMIN_DIGITAL_REVIEW,
 				icon: LuFileCheck,
@@ -56,9 +64,16 @@ export const ADMIN_NAV = [
 			},
 			{
 				label: 'Moderation',
+				to: ROUTES.ADMIN_MODERATION,
 				icon: LuShieldAlert,
 				roles: REVIEW_ROLES,
-				soon: true,
+			},
+			{
+				label: 'Message reports',
+				to: ROUTES.ADMIN_MESSAGE_REPORTS,
+				icon: LuMessageSquareWarning,
+				roles: REVIEW_ROLES,
+				countKey: 'openReports',
 			},
 		],
 	},

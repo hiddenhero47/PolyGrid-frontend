@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import styled from 'styled-components';
-import { LuMessageSquareQuote } from 'react-icons/lu';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { LuMessageSquareQuote, LuShieldAlert } from 'react-icons/lu';
 import ReviewServices from '../../features/services/custom-hooks/reviews';
 import RatingStars from '../rating-stars';
 import ProfileAvatar from '../profile-avatar';
 import Pagination from '../pagination';
 import EmptyState from '../empty-state';
 import AppLoader from '../loader';
+import { REVIEW_ROLES } from '../../utilities/app-const';
+import { ROUTES } from '../../utilities/app-routes';
 
 // The one reviews block every profile page embeds (frontend-plan §2):
 // summary (denormalized ratingAverage / ratingCount) + paginated list from
 // GET /api/reviews. Reviews can only be written after a completed job,
-// so there's no form here.
+// so there's no form here. Staff also get a "Moderate" link to this
+// profile's reviews (and ban controls) in the admin console.
 
 const List = styled.ul`
 	display: flex;
@@ -61,6 +66,8 @@ function ReviewsBlock({
 		page,
 	});
 	const reviews = data?.data ?? [];
+	const { user } = useSelector((state) => state.auth);
+	const isStaff = REVIEW_ROLES.includes(user?.systemRole);
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -76,6 +83,14 @@ function ReviewsBlock({
 							: 'No reviews yet'}
 					</span>
 				</div>
+				{isStaff && profileId && (
+					<Link
+						to={`${ROUTES.ADMIN_MODERATION}?tab=reviews&profileType=${profileType}&profileId=${profileId}`}
+						className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-(--pg-card-border) px-3 py-1.5 text-xs font-semibold text-(--pg-text-secondary) hover:text-(--pg-text-primary)"
+					>
+						<LuShieldAlert aria-hidden="true" /> Moderate
+					</Link>
+				)}
 			</div>
 
 			{isPending && <AppLoader size={24} />}

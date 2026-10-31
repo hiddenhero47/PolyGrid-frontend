@@ -63,6 +63,9 @@ import AdminDisputes from './pages-admin/disputes';
 import RefundsPayouts from './pages-admin/refunds-payouts';
 import PaymentsLedger from './pages-admin/payments';
 import AdminJobs from './pages-admin/jobs';
+import VerificationTemplates from './pages-admin/verification-templates';
+import MessageReports from './pages-admin/message-reports';
+import Moderation from './pages-admin/moderation';
 
 // Development-only pages, loaded lazily so production builds don't
 // include them at all. /dev-console is TEMPORARY — delete before launch.
@@ -194,6 +197,10 @@ function App() {
 								<Route path="refunds-payouts" element={<RefundsPayouts />} />
 								<Route path="payments" element={<PaymentsLedger />} />
 								<Route path="jobs" element={<AdminJobs />} />
+								<Route
+									path="verification-templates"
+									element={<VerificationTemplates />}
+								/>
 								<Route path="digital-products" element={<DigitalReview />} />
 							</Route>
 
