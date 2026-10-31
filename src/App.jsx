@@ -68,14 +68,11 @@ import MessageReports from './pages-admin/message-reports';
 import Moderation from './pages-admin/moderation';
 
 // Development-only pages, loaded lazily so production builds don't
-// include them at all. /dev-console is TEMPORARY — delete before launch.
+// include them at all.
 const ThemePreview = import.meta.env.DEV
 	? lazy(() => import('./pages/theme-preview'))
 	: null;
 const Lab = import.meta.env.DEV ? lazy(() => import('./pages/lab')) : null;
-const DevConsole = import.meta.env.DEV
-	? lazy(() => import('./pages/dev-console'))
-	: null;
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -159,14 +156,6 @@ function App() {
 											element={
 												<Suspense fallback={null}>
 													<Lab />
-												</Suspense>
-											}
-										/>
-										<Route
-											path="/dev-console"
-											element={
-												<Suspense fallback={null}>
-													<DevConsole />
 												</Suspense>
 											}
 										/>

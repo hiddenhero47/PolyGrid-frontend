@@ -18,6 +18,7 @@ import { ROUTES } from '../../utilities/app-routes';
 import { formatDate, humanize } from '../../utilities/basic-functions';
 import { PROFILE_TYPES } from '../elements/profile-types';
 import GoLive from '../elements/go-live';
+import Activity from './elements/activity';
 
 const greeting = () => {
 	const hour = new Date().getHours();
@@ -26,9 +27,9 @@ const greeting = () => {
 	return 'Good evening';
 };
 
-// frontend-plan §B.1 — Dashboard home. What's waiting on you (go-live
-// steps per profile), then quick links. The notification feed and job
-// queues join this page with Phase 3.
+// frontend-plan §B.1 — Dashboard home: profiles and plan at a glance,
+// your activity (jobs waiting on you, messages, bids, orders…), then each
+// profile's go-live steps.
 function DashboardHome() {
 	const { user } = useSelector((state) => state.auth);
 	const { profiles, isPending } = ProfileServices.getMyProfiles();
@@ -40,7 +41,7 @@ function DashboardHome() {
 			<PageHeader
 				eyebrow="Dashboard"
 				title={`${greeting()}, ${user?.fullName?.split(' ')[0] || 'there'}`}
-				subtitle="Your profiles, what they still need, and your plan — at a glance."
+				subtitle="What’s waiting on you, your profiles and your plan — at a glance."
 			/>
 
 			<Section aria-labelledby="glance-heading">
@@ -107,6 +108,8 @@ function DashboardHome() {
 					</StatTileLink>
 				</div>
 			</Section>
+
+			<Activity />
 
 			{owned.length > 0
 				? owned.map((meta) => (

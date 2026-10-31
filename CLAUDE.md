@@ -284,22 +284,17 @@ hint — or the error in its place — wired with `aria-invalid` /
 - Build select/radio options from backend enums with
   `enumToOptions(ENUM, labelOverrides)` (`utilities/basic-functions`).
 
-**`/dev-console` (dev only, TEMPORARY — delete `pages/dev-console` and
-its route in `App.jsx` before launch):** runs the backend's
-`POST /api/deployment/setup` and shows each task's result, plus a tiny
-request builder (method, path, JSON body, optional Bearer token,
-history) using plain `fetch` through the dev proxy. The setup route is
-gated by `timeWindowGuard(start, hours)` in
-`polygrid-backend/src/routes/deploymentRoutes.ts`; outside that window
-it answers 403. All dev pages (`/lab`, `/theme-preview`,
-`/dev-console`) are lazy-loaded under `import.meta.env.DEV`, so they're
+The temporary `/dev-console` page (a deployment-setup runner and request
+builder) was deleted before launch; run `POST /api/deployment/setup` with
+any HTTP client inside its time window instead. Dev pages (`/lab`,
+`/theme-preview`) are lazy-loaded under `import.meta.env.DEV`, so they're
 not in production builds.
 
 `/lab` (dev only, `pages/lab`) shows every control in every state plus a
 live Formik + yup form, the table and the modals — build and test
-shared components there first. Still to come: search-select /
-combobox. (`CustomFile` and `CustomTags` exist but aren't on `/lab`
-yet.)
+shared components there first, including `CustomFile` and `CustomTags`
+("File & tags"). A search-select / combobox isn't built — nothing needs
+one yet.
 
 - `CustomPhone` — value is the backend's `{ number, country }`
   (`number` normalized to E.164 once valid). Countries from
