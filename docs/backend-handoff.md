@@ -14,6 +14,15 @@ Nothing open right now.
 
 ## Resolved
 
+Backend changes of 2026-10-31 for the moderation pages (in its working tree
+when the frontend switched to them): `GET /api/admin/profiles?profileType=&q=&status=`,
+a platform-wide `GET /api/reviews/moderation` (`isHidden`, `minRating` /
+`maxRating`, `profileName`), message reports with `?status=`, the sender,
+`resolvedBy` and `context { before, after }` (+ `note` on resolve), and
+bans with a reason, `bannedBy` / `bannedAt` and the owner notified
+(`profile_status_changed`).
+
+
 Commit `8216d90` (2026-10-31): `/api/system-payouts` (list, mark paid with a reference, mark
 failed with a reason — the "To pay" tab), `GET /api/jobs?q=&status=&userId=`
 (the admin Jobs page), read-only `GET /api/jobs/:id` for every review role,

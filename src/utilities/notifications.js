@@ -8,6 +8,7 @@ import {
 	LuScale,
 	LuWallet,
 	LuBell,
+	LuShieldAlert,
 } from 'react-icons/lu';
 import { ROUTES } from './app-routes';
 
@@ -63,6 +64,12 @@ const NOTIFICATION_META = {
 		icon: LuWallet,
 		tone: 'info',
 		to: () => ROUTES.DASHBOARD_JOBS,
+	},
+	// an admin banned (suspended) or reinstated one of your profiles
+	profile_status_changed: {
+		icon: LuShieldAlert,
+		tone: 'warning',
+		to: () => ROUTES.DASHBOARD_PROFILES,
 	},
 	payment_request_decided: {
 		icon: LuWallet,

@@ -74,7 +74,12 @@ function Skeletons() {
 
 // ── Profiles ──
 function ProfilesTab({ params, update, canManage, onView, onReviews }) {
-	const profileType = params.get('profileType') || '';
+	// the search is per profile type
+	const profileType = PROFILE_OPTIONS.some(
+		(o) => o.value === params.get('profileType')
+	)
+		? params.get('profileType')
+		: PROFILE_TYPE.CONSULTANCY;
 	const q = params.get('q') || '';
 	const status = params.get('status') || '';
 	const page = Math.max(Number(params.get('page')) || 1, 1);
@@ -88,9 +93,6 @@ function ProfilesTab({ params, update, canManage, onView, onReviews }) {
 	const setStatus = AdminModerationServices.setProfileStatus();
 	const reasonRef = useRef(null);
 	const confirmRef = useRef(null);
-	const [openType, setOpenType] = useState(PROFILE_TYPE.CONSULTANCY);
-	const [openId, setOpenId] = useState('');
-	const notAvailable = [404, 400].includes(query.error?.response?.status);
 	const rows = query.data?.data || [];
 
 	const ban = async (p) => {
@@ -134,9 +136,7 @@ function ProfilesTab({ params, update, canManage, onView, onReviews }) {
 					<CustomSelect
 						id="mod-type"
 						label="Profile type"
-						placeholder="Any"
 						variant="outline"
-						clearable
 						options={PROFILE_OPTIONS}
 						value={profileType}
 						onChange={(v) => update({ profileType: v })}
@@ -158,40 +158,6 @@ function ProfilesTab({ params, update, canManage, onView, onReviews }) {
 
 			{query.isPending ? (
 				<Skeletons />
-			) : notAvailable ? (
-				<div className="flex flex-col gap-4 rounded-2xl border border-dashed border-(--pg-card-border) p-5">
-					<p className="text-sm text-(--pg-text-secondary)">
-						Profile search isn’t available yet. Open a profile by its ID — the
-						long code in a verification or a job — or use “Moderate” on its
-						public page.
-					</p>
-					<form
-						className="grid gap-3 sm:grid-cols-[220px_minmax(0,1fr)_auto] sm:items-end"
-						onSubmit={(e) => {
-							e.preventDefault();
-							if (!OBJECT_ID.test(openId.trim()))
-								return toast.error('That isn’t a profile ID');
-							onView({ profileType: openType, id: openId.trim() });
-						}}
-					>
-						<CustomSelect
-							id="open-type"
-							label="Type"
-							options={PROFILE_OPTIONS}
-							value={openType}
-							onChange={setOpenType}
-						/>
-						<CustomInput
-							label="Profile ID"
-							name="openId"
-							value={openId}
-							onChange={(e) => setOpenId(e.target.value)}
-						/>
-						<AppButton type="submit" icon={<LuSearch />}>
-							Open
-						</AppButton>
-					</form>
-				</div>
 			) : query.isError ? (
 				<EmptyState
 					tone="error"
@@ -304,11 +270,14 @@ function ReviewsTab({ params, update, canManage, onView }) {
 	const profileType = params.get('profileType') || '';
 	const profileId = params.get('profileId') || '';
 	const isHidden = params.get('hidden') || '';
+	// "1–2 ★" — low ratings are what usually need a look
+	const low = params.get('low') === '1';
 	const page = Math.max(Number(params.get('page')) || 1, 1);
 	const query = AdminModerationServices.reviews({
 		profileType,
 		profileId,
 		isHidden,
+		...(low && { maxRating: 2 }),
 		page,
 		limit: LIMIT,
 	});
@@ -317,12 +286,7 @@ function ReviewsTab({ params, update, canManage, onView }) {
 	const remove = AdminModerationServices.deleteReview();
 	const reasonRef = useRef(null);
 	const confirmRef = useRef(null);
-	// before the backend's platform-wide feed, it needs a profile
-	const needsProfile = query.error?.response?.status === 400 && !profileId;
-	// the backend filters by isHidden; until then, filter the page here
-	const rows = (query.data?.data || []).filter(
-		(r) => isHidden === '' || String(Boolean(r.isHidden)) === isHidden
-	);
+	const rows = query.data?.data || [];
 
 	const onHide = async (r) => {
 		const reason = await reasonRef.current.ask({
@@ -358,6 +322,15 @@ function ReviewsTab({ params, update, canManage, onView }) {
 					value={isHidden}
 					onChange={(v) => update({ hidden: v })}
 				/>
+				<SegmentedControl
+					label="Rating"
+					options={[
+						{ value: '', label: 'Any rating' },
+						{ value: '1', label: '1–2 ★' },
+					]}
+					value={low ? '1' : ''}
+					onChange={(v) => update({ low: v })}
+				/>
 				{profileId && (
 					<button
 						type="button"
@@ -372,17 +345,6 @@ function ReviewsTab({ params, update, canManage, onView }) {
 
 			{query.isPending ? (
 				<Skeletons />
-			) : needsProfile ? (
-				<EmptyState
-					icon={<LuMessageSquareText />}
-					title="Pick a profile first"
-					text="Find it on the Profiles tab and choose “Reviews” — a platform-wide review feed is on its way."
-					actions={
-						<AppButton onClick={() => update({ tab: '' })}>
-							Go to Profiles
-						</AppButton>
-					}
-				/>
 			) : query.isError ? (
 				<EmptyState
 					tone="error"

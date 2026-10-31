@@ -149,16 +149,35 @@ const useProfilesQuery = (filters = {}, options = {}) =>
 
 // PATCH /api/admin/profiles/:profileType/:id/status { status: active |
 // banned, reason? } — banned hides the public page outright
-const useSetProfileStatusMutation = () =>
-	useModerationWrite(
-		({ profileType, id, status, reason }) =>
+const useSetProfileStatusMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: ({ profileType, id, status, reason }) =>
 			axiosCall({
 				url: `/api/admin/profiles/${profileType}/${id}/status`,
 				method: 'PATCH',
 				data: { status, ...(reason && { reason }) },
 			}),
-		[['admin-profile'], ['admin-verifications']]
-	);
+		// show the new status in the search list at once; any failure (or
+		// the refetch after success) brings back the server's truth
+		onMutate: ({ id, status }) =>
+			queryClient.setQueriesData(
+				{ queryKey: [...MODERATION_KEY, 'profiles'] },
+				(old) =>
+					old?.data
+						? {
+								...old,
+								data: old.data.map((p) => (p.id === id ? { ...p, status } : p)),
+							}
+						: old
+			),
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: MODERATION_KEY });
+			queryClient.invalidateQueries({ queryKey: ['admin-profile'] });
+			queryClient.invalidateQueries({ queryKey: ['admin-verifications'] });
+		},
+	});
+};
 
 const AdminModerationServices = {
 	templates: useTemplatesQuery,

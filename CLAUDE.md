@@ -124,10 +124,10 @@ Tenders (board, bids, projects, award), SiteForce (board with distance
 search, applications, postings, two-tier openings), Store orders (cart →
 checkout → job) and digital purchases (Stripe + download center),
 Contacts and Messages (live over Socket.IO). Backend gaps found along the
-way are in `docs/backend-handoff.md`. Phase 4 stage A (money: disputes, refunds & payouts, To pay, jobs,
-payments) is built; next is stage B — message reports, profile and
-review moderation, verification templates — then stage C (stats,
-dashboard home, `/lab`, launch cleanup).
+way are in `docs/backend-handoff.md`. Phase 4 stages A (money: disputes, refunds & payouts, To pay, jobs,
+payments) and B (templates, message reports, profile and review
+moderation) are built; next is stage C (stats, dashboard home, `/lab`,
+launch cleanup).
 
 The backend is fully built: all four pillars, account suspension, review
 moderation, message-report resolution, per-profile avatars, a real
@@ -453,6 +453,21 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   Customer care sees the queues and job details, never acts; Jobs, To pay
   and the ledger are admin / super_admin only. Menu badges: open disputes,
   pending refund + payout requests.
+- Trust & safety (frontend-plan §C.3, §C.3b, §C.5, §C.12, hooks
+  `custom-hooks/admin-moderation.js`): **Templates**
+  (`/admin/verification-templates`, admin / super_admin) — every version
+  per profile type + country; the form only ever publishes the next
+  version (it says which live one it replaces), starting blank or from an
+  existing version; keys come from labels. **Message reports**
+  (`/admin/message-reports`) — open / resolved, the flagged message shown
+  between the messages around it; resolve keeping it or replacing its
+  text. **Moderation** (`/admin/moderation`) — Profiles: search by type
+  (+ name / owner / email, status), ban with a reason (the owner is told)
+  / unban, applied to the row at once; Reviews: the platform-wide feed
+  (or one profile's), visible / hidden and 1–2★ filters, hide (reason) /
+  unhide / delete (permanent, its own warning). Staff see a "Moderate"
+  link on every public `ReviewsBlock`. Customer care sees all of it, acts
+  on none.
 - `components/modal/reason-modal.jsx` — `await ref.current.ask({ eyebrow,
   title, text, label, required, confirmLabel })` → the text, or null if
   cancelled. Used for dispute / refund / payout notes, message reports and

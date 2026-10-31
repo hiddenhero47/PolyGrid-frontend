@@ -201,6 +201,8 @@ function App() {
 									path="verification-templates"
 									element={<VerificationTemplates />}
 								/>
+								<Route path="message-reports" element={<MessageReports />} />
+								<Route path="moderation" element={<Moderation />} />
 								<Route path="digital-products" element={<DigitalReview />} />
 							</Route>
 

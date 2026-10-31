@@ -49,8 +49,7 @@ function MessageReports() {
 	});
 	const resolve = AdminModerationServices.resolveReport();
 	const confirmRef = useRef(null);
-	// the backend filters by status; until it does, don't show the other tab's reports here
-	const reports = (query.data?.data || []).filter((r) => r.status === status);
+	const reports = query.data?.data || [];
 
 	const onResolve = async (report, redactMessage) => {
 		const ok = await confirmRef.current.ask(
@@ -68,7 +67,7 @@ function MessageReports() {
 		);
 		if (ok)
 			resolve.mutate(
-				{ id: report._id, redactMessage },
+				{ id: report.id, redactMessage },
 				{
 					onSuccess: () =>
 						toast.success(
@@ -141,17 +140,14 @@ function MessageReports() {
 					{reports.map((report) => {
 						const message = obj(report.messageId);
 						const reporter = obj(report.reportedBy);
-						const sender = obj(report.messageSender) || obj(message?.sender);
+						const sender = obj(message?.sender);
 						const resolver = obj(report.resolvedBy);
 						const removed = message?.body === REDACTED;
 						return (
-							<ReviewCard
-								key={report._id}
-								aria-labelledby={`rep-${report._id}`}
-							>
+							<ReviewCard key={report.id} aria-labelledby={`rep-${report.id}`}>
 								<div className="sc_who">
 									<div className="min-w-0 flex-1">
-										<h3 id={`rep-${report._id}`} className="sc_name">
+										<h3 id={`rep-${report.id}`} className="sc_name">
 											Reported by {reporter?.fullName || 'a user'}
 										</h3>
 										<div className="sc_meta">
@@ -177,23 +173,36 @@ function MessageReports() {
 									{report.reason}
 								</p>
 
-								{Array.isArray(report.context) && report.context.length > 0 ? (
+								{(report.context?.before?.length > 0 ||
+									report.context?.after?.length > 0) &&
+								message ? (
 									<ol className="flex flex-col gap-1.5 rounded-xl bg-(--pg-surface-card) p-4 text-sm">
-										{report.context.map((m) => (
-											<li
-												key={m._id}
-												className={
-													String(m._id) === String(message?._id)
-														? 'rounded-lg bg-(--pg-status-warningSoft) px-2 py-1 font-semibold text-(--pg-text-primary)'
-														: 'px-2 text-(--pg-text-secondary)'
-												}
-											>
-												<span className="text-xs">
-													{formatDate(m.createdAt, true)} ·{' '}
-												</span>
-												{m.body}
-											</li>
-										))}
+										{[
+											...report.context.before,
+											message,
+											...report.context.after,
+										].map((m) => {
+											const reported = String(m._id) === String(message._id);
+											return (
+												<li
+													key={m._id}
+													className={
+														reported
+															? `rounded-lg bg-(--pg-status-warningSoft) px-2 py-1.5 font-semibold ${removed ? 'text-(--pg-text-secondary) italic' : 'text-(--pg-text-primary)'}`
+															: 'px-2 text-(--pg-text-secondary)'
+													}
+												>
+													<span className="text-xs font-normal">
+														{formatDate(m.createdAt, true)}
+														{reported && sender?.fullName
+															? ` · ${sender.fullName}${sender.email ? ` (${sender.email})` : ''}`
+															: ''}{' '}
+														·{' '}
+													</span>
+													{m.body}
+												</li>
+											);
+										})}
 									</ol>
 								) : (
 									<blockquote className="rounded-xl border-l-4 border-(--pg-status-warning) bg-(--pg-surface-card) p-4">

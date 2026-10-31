@@ -42,7 +42,7 @@ function AdminLayout() {
 		{ enabled: allowed }
 	);
 	const { data: reports } = AdminModerationServices.messageReports(
-		{ status: 'pending', page: 1, limit: 50 },
+		{ status: 'pending', page: 1, limit: 1 },
 		{ enabled: allowed }
 	);
 	const { data: refunds } = AdminMoneyServices.refundRequests(
@@ -85,9 +85,7 @@ function AdminLayout() {
 				pendingVerifications: pending?.pagination?.total || 0,
 				pendingDigital: pendingDigital?.pagination?.total || 0,
 				openDisputes: disputes?.pagination?.total || 0,
-				// counted from the rows: the list may not filter by status yet
-				openReports: (reports?.data || []).filter((r) => r.status === 'pending')
-					.length,
+				openReports: reports?.pagination?.total || 0,
 				pendingMoneyRequests:
 					(refunds?.pagination?.total || 0) + (payouts?.pagination?.total || 0),
 			}}
