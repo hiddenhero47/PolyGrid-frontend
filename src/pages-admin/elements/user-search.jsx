@@ -7,7 +7,7 @@ import { CustomInput } from '../../components/form-components';
 // Name / email search for GET /api/users?q=. Searches on submit (no
 // request per keystroke). The parent keys this by the URL's `q`, so the
 // box re-mounts with the right text on Back/Forward or Clear — no effect.
-function UserSearch({ q = '', onSearch }) {
+function UserSearch({ q = '', onSearch, placeholder = 'Name or email' }) {
 	const [text, setText] = useState(q);
 
 	return (
@@ -25,7 +25,7 @@ function UserSearch({ q = '', onSearch }) {
 					name="q"
 					type="search"
 					variant="outline"
-					placeholder="Name or email"
+					placeholder={placeholder}
 					value={text}
 					onChange={(e) => setText(e.target.value)}
 				/>
@@ -48,6 +48,7 @@ function UserSearch({ q = '', onSearch }) {
 
 UserSearch.propTypes = {
 	q: PropTypes.string,
+	placeholder: PropTypes.string,
 	onSearch: PropTypes.func.isRequired,
 };
 

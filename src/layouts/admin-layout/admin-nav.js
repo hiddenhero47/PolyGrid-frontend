@@ -9,6 +9,7 @@ import {
 	LuShieldAlert,
 	LuUsers,
 	LuReceipt,
+	LuHandshake,
 } from 'react-icons/lu';
 import { ROUTES } from '../../utilities/app-routes';
 import { REVIEW_ROLES, MANAGE_ROLES } from '../../utilities/app-const';
@@ -82,6 +83,12 @@ export const ADMIN_NAV = [
 				icon: LuWallet,
 				roles: REVIEW_ROLES,
 				countKey: 'pendingMoneyRequests',
+			},
+			{
+				label: 'Jobs',
+				to: ROUTES.ADMIN_JOBS,
+				icon: LuHandshake,
+				roles: MANAGE_ROLES,
 			},
 			{
 				label: 'Payments',

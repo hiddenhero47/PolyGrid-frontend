@@ -124,9 +124,10 @@ Tenders (board, bids, projects, award), SiteForce (board with distance
 search, applications, postings, two-tier openings), Store orders (cart →
 checkout → job) and digital purchases (Stripe + download center),
 Contacts and Messages (live over Socket.IO). Backend gaps found along the
-way are in `docs/backend-handoff.md`. Next: Phase 4 — the rest of the
-Admin Dashboard (disputes, refund / payout requests, message reports,
-review moderation, stats).
+way are in `docs/backend-handoff.md`. Phase 4 stage A (money: disputes, refunds & payouts, To pay, jobs,
+payments) is built; next is stage B — message reports, profile and
+review moderation, verification templates — then stage C (stats,
+dashboard home, `/lab`, launch cleanup).
 
 The backend is fully built: all four pillars, account suspension, review
 moderation, message-report resolution, per-profile avatars, a real
@@ -439,6 +440,25 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   one queue customer care can act on, so every reviewer sees the
   buttons. "View creator" reuses the profile-review drawer. Menu badge
   = pending count.
+- Money (frontend-plan §C.7–C.11, hooks `custom-hooks/admin-money.js`):
+  Disputes (`/admin/disputes`, resolve with a note), Refunds & payouts
+  (`/admin/refunds-payouts`: refund and payout requests — approve /
+  decline with a reason, the backend works out the amount and refuses
+  without a payout account — plus **To pay**: approved money waiting for
+  an admin's bank transfer, marked paid with a reference or failed with a
+  reason), Jobs (`/admin/jobs`, search any job) and the Payments ledger
+  (`/admin/payments`). They share one job drawer,
+  `pages-admin/elements/job-review.jsx` (parties, money, stages, history,
+  contracts, payments; admins record a payment made outside Stripe).
+  Customer care sees the queues and job details, never acts; Jobs, To pay
+  and the ledger are admin / super_admin only. Menu badges: open disputes,
+  pending refund + payout requests.
+- `components/modal/reason-modal.jsx` — `await ref.current.ask({ eyebrow,
+  title, text, label, required, confirmLabel })` → the text, or null if
+  cancelled. Used for dispute / refund / payout notes, message reports and
+  admin decline / resolution reasons.
+- A modal's `close` / `cancel` handlers act only on their own dialog's
+  events — React passes a nested dialog's events up the component tree.
 - Money is **USD only** (`PLATFORM_CURRENCY` in `app-const.js`, mirrors
   the backend's `currencyReference.ts`) — forms send it, never ask.
 

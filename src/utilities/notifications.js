@@ -58,6 +58,12 @@ const NOTIFICATION_META = {
 		tone: 'info',
 		to: jobLink,
 	},
+	// an approved refund / payout's transfer was sent (or failed)
+	system_payout_settled: {
+		icon: LuWallet,
+		tone: 'info',
+		to: () => ROUTES.DASHBOARD_JOBS,
+	},
 	payment_request_decided: {
 		icon: LuWallet,
 		tone: 'info',

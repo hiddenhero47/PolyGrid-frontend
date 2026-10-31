@@ -22,6 +22,7 @@ import { AppButton } from '../../components/button';
 import { SkeletonBar } from '../../components/table/index.style';
 import { ReviewCard } from '../verifications/elements/index.style';
 import JobReview from '../elements/job-review';
+import ToPay from './elements/to-pay';
 import { MANAGE_ROLES } from '../../utilities/app-const';
 import { formatDate, formatMoney } from '../../utilities/basic-functions';
 
@@ -42,7 +43,7 @@ const KINDS = {
 		amountLabel: 'Refundable now',
 		why: (r) => r?.reason,
 		approveText: (row, amount) =>
-			`${formatMoney(amount)} still in escrow goes back to the client, and the job closes. It’s recorded as money owed to their payout account — make the transfer from there.`,
+			`${formatMoney(amount)} still in escrow goes back to the client, and the job closes. It then waits on To pay until you make the transfer.`,
 		empty: 'No refund requests waiting.',
 	},
 	payouts: {
@@ -54,7 +55,7 @@ const KINDS = {
 		amountLabel: 'Available to pay out',
 		why: (r) => r?.note,
 		approveText: (row, amount) =>
-			`${formatMoney(amount)} released for verified stages is recorded as owed to the provider’s payout account — make the transfer from there.`,
+			`${formatMoney(amount)} released for verified stages then waits on To pay until you make the transfer to the provider.`,
 		empty: 'No payout requests waiting.',
 	},
 };
@@ -66,11 +67,18 @@ const KINDS = {
 // the queues; admin / super_admin decide. URL: ?tab=refunds|payouts&page=
 function RefundsPayouts() {
 	const [params, setParams] = useSearchParams();
-	const tab = params.get('tab') === 'payouts' ? 'payouts' : 'refunds';
-	const page = Math.max(Number(params.get('page')) || 1, 1);
-	const kind = KINDS[tab];
 	const { user } = useSelector((state) => state.auth);
 	const canManage = MANAGE_ROLES.includes(user?.systemRole);
+	const tab =
+		['payouts', 'topay'].includes(params.get('tab')) &&
+		(params.get('tab') !== 'topay' || canManage)
+			? params.get('tab')
+			: 'refunds';
+	const page = Math.max(Number(params.get('page')) || 1, 1);
+	const kind = KINDS[tab] || KINDS.refunds;
+	const payStatus = ['paid', 'failed'].includes(params.get('status'))
+		? params.get('status')
+		: 'pending';
 
 	const refunds = AdminMoneyServices.refundRequests({
 		page: tab === 'refunds' ? page : 1,
@@ -80,13 +88,17 @@ function RefundsPayouts() {
 		page: tab === 'payouts' ? page : 1,
 		limit: LIMIT,
 	});
-	const query = tab === 'refunds' ? refunds : payouts;
+	const query = tab === 'payouts' ? payouts : refunds;
+	const owed = AdminMoneyServices.systemPayouts(
+		{ status: 'pending', page: 1, limit: 1 },
+		{ enabled: canManage }
+	);
 	const approveRefund = AdminMoneyServices.approveRefund();
 	const declineRefund = AdminMoneyServices.declineRefund();
 	const approvePayout = AdminMoneyServices.approvePayout();
 	const declinePayout = AdminMoneyServices.declinePayout();
-	const approve = tab === 'refunds' ? approveRefund : approvePayout;
-	const decline = tab === 'refunds' ? declineRefund : declinePayout;
+	const approve = tab === 'payouts' ? approvePayout : approveRefund;
+	const decline = tab === 'payouts' ? declinePayout : declineRefund;
 
 	const confirmRef = useRef(null);
 	const reasonRef = useRef(null);
@@ -104,6 +116,14 @@ function RefundsPayouts() {
 			value: 'payouts',
 			label: count(payouts) ? `Payouts (${count(payouts)})` : 'Payouts',
 		},
+		...(canManage
+			? [
+					{
+						value: 'topay',
+						label: count(owed) ? `To pay (${count(owed)})` : 'To pay',
+					},
+				]
+			: []),
 	];
 
 	const onApprove = async (row) => {
@@ -156,7 +176,7 @@ function RefundsPayouts() {
 			<PageHeader
 				eyebrow="Billing"
 				title="Refunds & payouts"
-				subtitle="Clients ask for what’s still in escrow back; providers ask for what’s been released to them. Approving records the money as owed to their payout account."
+				subtitle="Clients ask for what’s still in escrow back; providers ask for what’s been released to them. Approving puts the money on To pay — make the transfer, then mark it paid."
 			/>
 			<div className="mb-6">
 				<SegmentedControl
@@ -169,165 +189,195 @@ function RefundsPayouts() {
 				/>
 			</div>
 
-			{query.isPending && (
-				<div className="flex flex-col gap-4">
-					{Array.from({ length: 3 }, (_, i) => (
-						<SkeletonBar
-							key={i}
-							$width="100%"
-							style={{ height: 130, borderRadius: 18 }}
-						/>
-					))}
-				</div>
-			)}
-
-			{query.isError && (
-				<EmptyState
-					tone="error"
-					icon={<LuCloudOff />}
-					title="Couldn’t load the queue"
-					actions={
-						<AppButton icon={<LuRotateCw />} onClick={() => query.refetch()}>
-							Retry
-						</AppButton>
+			{tab === 'topay' ? (
+				<ToPay
+					status={payStatus}
+					page={page}
+					onStatus={(value) =>
+						setParams({
+							tab: 'topay',
+							...(value !== 'pending' && { status: value }),
+						})
 					}
+					onPage={(next) =>
+						setParams({
+							tab: 'topay',
+							...(payStatus !== 'pending' && { status: payStatus }),
+							...(next > 1 && { page: String(next) }),
+						})
+					}
+					onOpenJob={(jobId) => view({ jobId })}
 				/>
-			)}
+			) : (
+				<>
+					{query.isPending && (
+						<div className="flex flex-col gap-4">
+							{Array.from({ length: 3 }, (_, i) => (
+								<SkeletonBar
+									key={i}
+									$width="100%"
+									style={{ height: 130, borderRadius: 18 }}
+								/>
+							))}
+						</div>
+					)}
 
-			{!query.isPending && !query.isError && rows.length === 0 && (
-				<EmptyState
-					tone="success"
-					icon={<LuPartyPopper />}
-					title="Queue is clear"
-					text={kind.empty}
-				/>
-			)}
+					{query.isError && (
+						<EmptyState
+							tone="error"
+							icon={<LuCloudOff />}
+							title="Couldn’t load the queue"
+							actions={
+								<AppButton
+									icon={<LuRotateCw />}
+									onClick={() => query.refetch()}
+								>
+									Retry
+								</AppButton>
+							}
+						/>
+					)}
 
-			{rows.length > 0 && (
-				<div
-					className="flex flex-col gap-4 transition-opacity"
-					style={{ opacity: query.isFetching && !query.isPending ? 0.6 : 1 }}
-				>
-					{rows.map((row) => {
-						const request = kind.request(row);
-						const requester = who(row[kind.requester]);
-						const other = who(row[kind.other]);
-						const amount = kind.amount(row);
-						const reason = kind.why(request);
-						return (
-							<ReviewCard
-								key={idOf(request) || idOf(row.jobId)}
-								aria-labelledby={`req-${idOf(request)}`}
-							>
-								<div className="sc_who">
-									<div className="min-w-0 flex-1">
-										<h3 id={`req-${idOf(request)}`} className="sc_name">
-											{row.jobTitle}
-										</h3>
-										<div className="sc_meta">
-											<span>
-												Asked by{' '}
-												<strong className="text-(--pg-text-primary)">
-													{requester?.fullName || 'the ' + kind.requester}
-												</strong>{' '}
-												(the {kind.requester})
-											</span>
-											{requester?.email && (
-												<a
-													href={`mailto:${requester.email}`}
-													className="text-(--pg-text-highlight) hover:underline"
-												>
-													{requester.email}
-												</a>
-											)}
-											<span>{formatDate(request?.requestedAt, true)}</span>
-										</div>
-									</div>
-									<div className="text-right">
-										<p className="text-xs text-(--pg-text-secondary)">
-											{kind.amountLabel}
-										</p>
-										<p className="font-display text-2xl font-semibold text-(--pg-text-primary)">
-											{formatMoney(amount || 0)}
-										</p>
-									</div>
-								</div>
+					{!query.isPending && !query.isError && rows.length === 0 && (
+						<EmptyState
+							tone="success"
+							icon={<LuPartyPopper />}
+							title="Queue is clear"
+							text={kind.empty}
+						/>
+					)}
 
-								{reason ? (
-									<p className="rounded-xl bg-(--pg-surface-card) p-4 text-[15px] whitespace-pre-line text-(--pg-text-primary)">
-										{reason}
-									</p>
-								) : (
-									<p className="text-sm text-(--pg-text-secondary)">No note.</p>
-								)}
-
-								<p className="text-sm text-(--pg-text-secondary)">
-									Other side: {other?.fullName || '—'}
-									{other?.email ? ` · ${other.email}` : ''}
-								</p>
-
-								{amount <= 0 && (
-									<p className="text-sm font-semibold text-(--pg-status-warning)">
-										Nothing is{' '}
-										{tab === 'refunds'
-											? 'left to refund'
-											: 'available to pay out'}{' '}
-										right now — approving will fail; decline or wait.
-									</p>
-								)}
-
-								<div className="flex flex-wrap gap-2">
-									<AppButton
-										variant="secondary"
-										icon={<LuEye />}
-										onClick={() => view(row)}
+					{rows.length > 0 && (
+						<div
+							className="flex flex-col gap-4 transition-opacity"
+							style={{
+								opacity: query.isFetching && !query.isPending ? 0.6 : 1,
+							}}
+						>
+							{rows.map((row) => {
+								const request = kind.request(row);
+								const requester = who(row[kind.requester]);
+								const other = who(row[kind.other]);
+								const amount = kind.amount(row);
+								const reason = kind.why(request);
+								return (
+									<ReviewCard
+										key={idOf(request) || idOf(row.jobId)}
+										aria-labelledby={`req-${idOf(request)}`}
 									>
-										Open job
-									</AppButton>
-									{canManage && (
-										<>
-											<AppButton
-												icon={<LuCheck />}
-												onClick={() => onApprove(row)}
-												disabled={approve.isPending || amount <= 0}
-											>
-												Approve {formatMoney(amount || 0)}
-											</AppButton>
+										<div className="sc_who">
+											<div className="min-w-0 flex-1">
+												<h3 id={`req-${idOf(request)}`} className="sc_name">
+													{row.jobTitle}
+												</h3>
+												<div className="sc_meta">
+													<span>
+														Asked by{' '}
+														<strong className="text-(--pg-text-primary)">
+															{requester?.fullName || 'the ' + kind.requester}
+														</strong>{' '}
+														(the {kind.requester})
+													</span>
+													{requester?.email && (
+														<a
+															href={`mailto:${requester.email}`}
+															className="text-(--pg-text-highlight) hover:underline"
+														>
+															{requester.email}
+														</a>
+													)}
+													<span>{formatDate(request?.requestedAt, true)}</span>
+												</div>
+											</div>
+											<div className="text-right">
+												<p className="text-xs text-(--pg-text-secondary)">
+													{kind.amountLabel}
+												</p>
+												<p className="font-display text-2xl font-semibold text-(--pg-text-primary)">
+													{formatMoney(amount || 0)}
+												</p>
+											</div>
+										</div>
+
+										{reason ? (
+											<p className="rounded-xl bg-(--pg-surface-card) p-4 text-[15px] whitespace-pre-line text-(--pg-text-primary)">
+												{reason}
+											</p>
+										) : (
+											<p className="text-sm text-(--pg-text-secondary)">
+												No note.
+											</p>
+										)}
+
+										<p className="text-sm text-(--pg-text-secondary)">
+											Other side: {other?.fullName || '—'}
+											{other?.email ? ` · ${other.email}` : ''}
+										</p>
+
+										{amount <= 0 && (
+											<p className="text-sm font-semibold text-(--pg-status-warning)">
+												Nothing is{' '}
+												{tab === 'refunds'
+													? 'left to refund'
+													: 'available to pay out'}{' '}
+												right now — approving will fail; decline or wait.
+											</p>
+										)}
+
+										<div className="flex flex-wrap gap-2">
 											<AppButton
 												variant="secondary"
-												icon={<LuX />}
-												onClick={() => onDecline(row)}
-												disabled={decline.isPending}
+												icon={<LuEye />}
+												onClick={() => view(row)}
 											>
-												Decline
+												Open job
 											</AppButton>
-										</>
-									)}
-								</div>
-								{canManage && (
-									<p className="text-xs text-(--pg-text-secondary)">
-										The {kind.requester} needs a payout account in their
-										settings — approving tells you if it’s missing.
-									</p>
-								)}
-							</ReviewCard>
-						);
-					})}
-				</div>
-			)}
+											{canManage && (
+												<>
+													<AppButton
+														icon={<LuCheck />}
+														onClick={() => onApprove(row)}
+														disabled={approve.isPending || amount <= 0}
+													>
+														Approve {formatMoney(amount || 0)}
+													</AppButton>
+													<AppButton
+														variant="secondary"
+														icon={<LuX />}
+														onClick={() => onDecline(row)}
+														disabled={decline.isPending}
+													>
+														Decline
+													</AppButton>
+												</>
+											)}
+										</div>
+										{canManage && (
+											<p className="text-xs text-(--pg-text-secondary)">
+												The {kind.requester} needs a payout account in their
+												settings — approving tells you if it’s missing.
+											</p>
+										)}
+									</ReviewCard>
+								);
+							})}
+						</div>
+					)}
 
-			{query.data?.pagination?.totalPages > 1 && (
-				<div className="mt-6">
-					<Pagination
-						pagination={query.data.pagination}
-						changePage={(next) =>
-							setParams({
-								...(tab === 'payouts' && { tab }),
-								...(next > 1 && { page: String(next) }),
-							})
-						}
-					/>
-				</div>
+					{query.data?.pagination?.totalPages > 1 && (
+						<div className="mt-6">
+							<Pagination
+								pagination={query.data.pagination}
+								changePage={(next) =>
+									setParams({
+										...(tab === 'payouts' && { tab }),
+										...(next > 1 && { page: String(next) }),
+									})
+								}
+							/>
+						</div>
+					)}
+				</>
 			)}
 
 			<Modal.Right

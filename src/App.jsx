@@ -62,6 +62,7 @@ import DigitalReview from './pages-admin/digital-review';
 import AdminDisputes from './pages-admin/disputes';
 import RefundsPayouts from './pages-admin/refunds-payouts';
 import PaymentsLedger from './pages-admin/payments';
+import AdminJobs from './pages-admin/jobs';
 
 // Development-only pages, loaded lazily so production builds don't
 // include them at all. /dev-console is TEMPORARY — delete before launch.
@@ -192,6 +193,7 @@ function App() {
 								<Route path="disputes" element={<AdminDisputes />} />
 								<Route path="refunds-payouts" element={<RefundsPayouts />} />
 								<Route path="payments" element={<PaymentsLedger />} />
+								<Route path="jobs" element={<AdminJobs />} />
 								<Route path="digital-products" element={<DigitalReview />} />
 							</Route>
 

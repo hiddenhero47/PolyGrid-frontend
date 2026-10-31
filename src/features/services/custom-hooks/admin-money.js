@@ -61,8 +61,7 @@ const usePaymentsQuery = (filters = {}, options = {}) =>
 		...options,
 	});
 
-// GET /api/jobs/:id — any job, for admin / super_admin (customer care
-// gets 403 — the drawer then shows the queue row's details only)
+// GET /api/jobs/:id — any job, read-only for every review role
 const useJobQuery = (id, options = {}) =>
 	useQuery({
 		queryKey: [...ADMIN_MONEY_KEY, 'job', id],
@@ -80,6 +79,38 @@ const useJobPaymentsQuery = (id, options = {}) =>
 		queryFn: () =>
 			axiosCall({ url: `/api/jobs/${id}/payments`, method: 'GET' }),
 		enabled: Boolean(id),
+		...options,
+	});
+
+// GET /api/system-payouts?status=&requestType=&page= — money PolyGrid owes
+// after an approved refund / payout: { id, requestType, jobTitle, targetId,
+// amount, currency, status: pending|paid|failed, payoutAccount (snapshot
+// taken at approval), recipient: { fullName, email }, transferReference,
+// failureReason, createdAt } (admin / super_admin)
+const useSystemPayoutsQuery = (filters = {}, options = {}) =>
+	useQuery({
+		queryKey: [...ADMIN_MONEY_KEY, 'system-payouts', filters],
+		queryFn: () =>
+			pagedGet(
+				'/api/system-payouts',
+				Object.fromEntries(Object.entries(filters).filter(([, v]) => v))
+			),
+		placeholderData: keepPreviousData,
+		...options,
+	});
+
+// GET /api/jobs?q=&status=&userId=&page= — find any job (admin /
+// super_admin); q matches the title or either party's name / email; rows
+// are job summaries with party names
+const useSearchJobsQuery = (filters = {}, options = {}) =>
+	useQuery({
+		queryKey: [...ADMIN_MONEY_KEY, 'jobs', filters],
+		queryFn: () =>
+			pagedGet(
+				'/api/jobs',
+				Object.fromEntries(Object.entries(filters).filter(([, v]) => v))
+			),
+		placeholderData: keepPreviousData,
 		...options,
 	});
 
@@ -136,11 +167,36 @@ const useRecordPaymentMutation = () =>
 		})
 	);
 
+// PATCH /api/system-payouts/:id/paid { transferReference? } — the
+// transfer was made; …/failed { failureReason } — it bounced. Either way
+// the recipient is emailed and notified.
+const useMarkPayoutPaidMutation = () =>
+	useMoneyWrite(({ id, transferReference }) =>
+		axiosCall({
+			url: `/api/system-payouts/${id}/paid`,
+			method: 'PATCH',
+			data: transferReference ? { transferReference } : {},
+		})
+	);
+
+const useMarkPayoutFailedMutation = () =>
+	useMoneyWrite(({ id, failureReason }) =>
+		axiosCall({
+			url: `/api/system-payouts/${id}/failed`,
+			method: 'PATCH',
+			data: { failureReason },
+		})
+	);
+
 const AdminMoneyServices = {
 	disputes: useDisputesQuery,
 	refundRequests: useRefundRequestsQuery,
 	payoutRequests: usePayoutRequestsQuery,
 	payments: usePaymentsQuery,
+	systemPayouts: useSystemPayoutsQuery,
+	searchJobs: useSearchJobsQuery,
+	markPaid: useMarkPayoutPaidMutation,
+	markFailed: useMarkPayoutFailedMutation,
 	job: useJobQuery,
 	jobPayments: useJobPaymentsQuery,
 	resolveDispute: useResolveDisputeMutation,

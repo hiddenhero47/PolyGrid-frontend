@@ -58,6 +58,7 @@ export const ROUTES = {
 	ADMIN_DISPUTES: '/admin/disputes',
 	ADMIN_REFUNDS_PAYOUTS: '/admin/refunds-payouts',
 	ADMIN_PAYMENTS: '/admin/payments',
+	ADMIN_JOBS: '/admin/jobs',
 
 	ABOUT: '/about-us',
 	PRIVACY: '/privacy-policy',
