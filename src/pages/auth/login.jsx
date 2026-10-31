@@ -11,7 +11,7 @@ import {
 import AuthServices from '../../features/services/custom-hooks/auth';
 import { loginValidation } from '../../features/validations/auth-validation';
 import { toast } from '../../layouts/toast/toast-handler';
-import { ROUTES } from '../../utilities/app-routes';
+import { ROUTES, homeForUser } from '../../utilities/app-routes';
 import AuthHeader from './elements/auth-header';
 import { AuthSwitch } from './elements/index.style';
 
@@ -32,7 +32,7 @@ function Login() {
 
 	const finish = (user) => {
 		toast.success(`Welcome back, ${user.fullName?.split(' ')[0] || ''}`.trim());
-		navigate(location.state?.from || ROUTES.HOME, { replace: true });
+		navigate(location.state?.from || homeForUser(user), { replace: true });
 	};
 
 	const { values, errors, touched, handleChange, handleBlur, handleSubmit } =

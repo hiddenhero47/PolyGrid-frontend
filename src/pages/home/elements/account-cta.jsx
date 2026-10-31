@@ -20,7 +20,7 @@ export function LiveBoards() {
 	const hasCounts = tenders?.totalOpen != null || openings?.totalOpen != null;
 
 	return (
-		<section className="mx-auto w-full max-w-[1440px] px-4 md:px-8 xl:px-12">
+		<section className="mx-auto w-full max-w-360 px-4 md:px-8 xl:px-12">
 			<Card className="flex flex-col gap-5 p-5 sm:p-6 lg:flex-row lg:items-center lg:justify-between">
 				<div className="flex items-center gap-4">
 					<LiveDot />
@@ -68,7 +68,7 @@ const PERSONAS = [
 
 export function AccountCta() {
 	return (
-		<section className="mx-auto w-full max-w-[1440px] px-4 md:px-8 xl:px-12">
+		<section className="mx-auto w-full max-w-360 px-4 md:px-8 xl:px-12">
 			<Card className="relative grid gap-10 overflow-hidden p-6 sm:p-10 lg:grid-cols-[1.3fr_1fr] lg:items-center xl:p-14">
 				<HeroGlow />
 				<div className="relative">

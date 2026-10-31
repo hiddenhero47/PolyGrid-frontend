@@ -1,140 +1,94 @@
 # Notes for polygrid-backend — from the frontend
 
-Things the frontend found while building against the API. The frontend
-treats the backend as read-only, so none of these are fixed. Each item
-gives where the problem is, what it does, and what the frontend needs.
-Ordered by priority.
+Things the frontend finds while building against the API. The frontend
+treats the backend as read-only, so items here wait for a backend
+session. Each item gives where the problem is, what it does, and what
+the frontend needs. Add new items at the top and remove them once
+they're fixed.
 
-_Last updated: 2026-10-19 — after the email-verification pages and the
-first slice of the Admin Dashboard (Overview, Verifications, Plans,
-Subscriptions)._
+_Last updated: 2026-10-23._
 
----
+## Open
 
-## Bugs
+Nothing open right now.
 
-### 1. Profile search results have no `id`
+## Resolved
 
-**Where:** the list handlers in `consultancyProfileController.ts`
-(~L345–352), `contractorProfileController.ts` (~L302–309),
-`laborProfileController.ts` (~L315–322) and `storeProfileController.ts`
-(~L337–345).
+2026-10-31: `GET /api/stats/overview` gained `money`, `jobsByStatus`,
+`queues` and `last30Days { series, totals }` — the admin Overview uses them.
 
-**What happens:** these handlers use `Model.aggregate()`. That returns
-plain objects with no `.id` virtual, so `toPublic*Profile()` sends
-`id: undefined` for every result. The single-profile GET is fine.
-`digitalProductController` and `jobOpeningController` already handle
-this by adding `id: doc._id` after the mapper.
 
-**Fix:** do the same thing in those four handlers: spread the mapper,
-then set `id: doc._id.toString()`.
+Backend changes of 2026-10-31 for the moderation pages (in its working tree
+when the frontend switched to them): `GET /api/admin/profiles?profileType=&q=&status=`,
+a platform-wide `GET /api/reviews/moderation` (`isHidden`, `minRating` /
+`maxRating`, `profileName`), message reports with `?status=`, the sender,
+`resolvedBy` and `context { before, after }` (+ `note` on resolve), and
+bans with a reason, `bannedBy` / `bannedAt` and the owner notified
+(`profile_status_changed`).
 
-**Frontend workaround for now:** browse cards use `slug` (falling back
-to `userId`) as their key and link.
 
-### 2. Granting a subscription leaves the old one "active"
+Commit `8216d90` (2026-10-31): `/api/system-payouts` (list, mark paid with a reference, mark
+failed with a reason — the "To pay" tab), `GET /api/jobs?q=&status=&userId=`
+(the admin Jobs page), read-only `GET /api/jobs/:id` for every review role,
+and contract files keep their name.
 
-**Where:** `grantSubscription` in `subscriptionController.ts`.
 
-**What happens:** it creates a new subscription and moves
-`user.currentSubscription` to it, but the previous one keeps
-`status: "active"` until it expires. A user can end up with two active
-subscriptions at once. `GET /api/stats/overview` then counts both in
-`activeSubscriptions`, and the user's history shows two "Active" rows.
+Commit `aa4a617`: conversations are unique per pair (`pairKey`), not per
+person — the old `participants_1` index, which let each user into only one
+conversation ever, is dropped on the dev database by a setup task.
 
-**Fix:** when granting, end the user's existing active subscriptions
-first (`canceled`, or a new `superseded` status). Alternatively, if the
-tier is the same, extend `expiresAt`. The admin grant form tells the
-admin the new plan "replaces their current plan", so ending the old one
-matches what the UI says. The Stripe/webhook path may need the same
-check.
 
-### 3. Overview adds up money in different currencies
+Commit `f1d6552` (2026-10-23), all used by the frontend:
+- verifying a stage needs escrow to cover it (400 otherwise) — the job page
+  offers "Fund this stage to release it" instead of Verify;
+- jobs carry party names (`client.user` / `provider.user`), and summaries
+  carry `amountPaid` and a stages tally;
+- tender detail has `myBid`, `/bids/mine` rows carry a project summary;
+  opening detail has `myApplication`, `/applications/mine` rows carry a
+  posting summary, and applications carry `job`;
+- a pending digital purchase resumes (`resumed: true` + a client secret),
+  free files complete without Stripe (`requiresPayment: false`), and
+  `/digital-purchases/mine` rows carry `paymentId`;
+- store order rows carry the store `{ storeName, slug, logo }` and job
+  `{ id, status, amountPaid }`;
+- contacts carry `fullName` / `avatar`, and `GET /api/contacts?q=` searches.
 
-**Where:** `getPlatformOverview` in `statsController.ts`.
 
-**What happens:** `completedJobsGrossAmount` is a single `$sum` of
-`totalAmount` across all completed jobs, whatever their currency, so
-NGN and USD get added together.
+Commit `27d0358`: the digital-product review queue
+(`GET /api/digital-products/review`, used by `/admin/digital-products`),
+reviewers can open deliverables (`GET /api/digital-products/:id/download`),
+duplicate deliverable names are refused (400), the creator page lists
+approved files only, store list preview products carry `id`, and
+deliverables also accept XLSX, CSV, DWG, DXF and ZIP.
 
-**Fix:** group by currency and return something like
-`completedJobsGross: [{ currency, total }]`. Item 6 below would change
-this anyway.
 
-**Frontend workaround for now:** the number is shown with a
-"mixed currencies" label.
+Commit `cd7e035` resolved the second list:
+- sellers list their own products: `GET /me/products` on store and
+  digital-creator profiles (the dashboard's product managers use them);
+- payments recover without a webhook: `POST /api/payments/:id/refresh`
+  plus a 15-minute sweep (the Subscription page's "Check payment
+  status" uses it; Ada's stuck $49 payment recovered this way);
+- portfolio items can be edited: `PATCH …/me/portfolio/:itemId`;
+- `GET /api/users/me/profiles` (the profile hub uses it).
 
----
 
-## Gaps the admin dashboard runs into
+The backend fixed every item from the first list in commit `be7859f`:
+- search results now include `id`;
+- granting a subscription ends the previous one;
+- the overview's money total is split by currency;
+- `GET /api/users` has `?q=` search and admins can read it;
+- verification listings include the template's labels;
+- customer_care can open verification documents;
+- the whole platform is locked to USD (`PLATFORM_CURRENCY`).
 
-### 4. Admins can't find a user by email or name
+The frontend now uses all of these.
 
-**Where:** `GET /api/users`.
+Decided (no change needed): a password change ends every session, the
+requesting device included, with no new token. That's intended; the frontend
+signs the user out and sends them to sign in again.
 
-**What happens:** it only filters by `systemRole` and `userId`, and
-only a super_admin can call it.
-- Granting a subscription by hand means paging through every user to
-  find the right one.
-- A plain admin can grant subscriptions (`POST /api/subscriptions`) but
-  can't look anyone up. The frontend asks them to paste a user ID, or
-  to use "Grant a plan" on an approved verification.
-
-**Request:** add `?q=` (case-insensitive match on email / fullName) to
-`GET /api/users`. Also either let admins read it, or add a narrow
-admin-readable lookup (e.g. `GET /api/users/lookup?email=`).
-
-### 5. Verification records don't include the template's field labels
-
-**Where:** `GET /api/verifications`.
-
-**What happens:** each record's `form` is just keys and values
-(`fullName: "…"`) and its `documents[].type` is a key
-(`identity_document`). The readable labels ("Full legal name",
-"Government-issued ID") live on the `VerificationTemplate`, which the
-response doesn't include. The review card currently turns the keys
-into labels itself ("Full Name", "Identity Document").
-
-**Request:** populate `templateId` with `fields` and `documents`, or
-add the labels to each record.
-
-**Related question:** customer_care can see the verification queue,
-but `GET /api/files/private/:ownerId/:fileName/link` only allows the
-owner or admins, so customer_care can't open the documents. If that's
-intended, the frontend already shows the documents as locked for them.
-If not, add customer_care to that check (read-only).
-
----
-
-## Product decisions for the backend to plan
-
-### 6. Store money in USD, convert on the frontend
-
-The product owner would like every amount stored in **USD**, with the
-frontend converting it to the viewer's currency for display. Right
-now, services, plans, products and jobs each store their own
-`currency`. Doing this would need:
-- amounts saved in USD (or at least a USD-normalised field next to the
-  original);
-- an exchange-rates endpoint the frontend can cache, e.g.
-  `GET /api/reference/exchange-rates` → `{ base: "USD", rates: { NGN, … }, updatedAt }`;
-- a decision on what users type into price fields (USD, or their own
-  currency converted on save).
-
-This isn't decided yet. It's listed here so it's planned before
-payments go live.
-
-### 7. `mentorship.ratePerSession` has no currency
-
-**Where:** the consultancy profile model.
-
-**What happens:** `mentorship.ratePerSession` has no currency of its
-own. The profile page currently borrows the first service's currency.
-Either add `mentorship.currency`, or fold this into item 6.
-
-### 8. Current plan pricing (for when the DB is reset)
-
-Pro is meant to be **5,000 NGN per month, free for now**. The dev
-database currently has: Pro, "PolyGrid Pro", price `0`, `NGN`, 30 days,
-active. There are no Free or Enterprise plans yet. If deployment setup
-seeds plans, seed this one.
+Also resolved: free ($0) plans now activate through `POST /api/payments/intent`
+(`requiresPayment: false`), and unused days carry over (commit `0bd63cc`). The
+Subscription page uses it. The admin profile-review route (`e86fab4`) is used
+by the Verifications queue's "View profile" drawer. The dev database's NGN data (the Pro
+plan and Charles Okonkwo's services) was converted to USD through the API.

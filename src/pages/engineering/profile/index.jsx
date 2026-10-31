@@ -14,6 +14,7 @@ import {
 	LuCloudOff,
 	LuRotateCw,
 	LuLogIn,
+	LuHandshake,
 } from 'react-icons/lu';
 import ConsultancyServices from '../../../features/services/custom-hooks/consultancy';
 import { selectIsAuthenticated } from '../../../store/slice/auth';
@@ -29,6 +30,7 @@ import {
 	PROFILE_TYPE,
 	SPECIALIZATION_LABELS,
 	PRICING_MODE_LABELS,
+	PLATFORM_CURRENCY,
 } from '../../../utilities/app-const';
 import { countryName, formatMoney } from '../../../utilities/basic-functions';
 import { ROUTES } from '../../../utilities/app-routes';
@@ -46,6 +48,7 @@ function ConsultantProfile() {
 	const { idOrSlug } = useParams();
 	const location = useLocation();
 	const isAuthenticated = useSelector(selectIsAuthenticated);
+	const { user } = useSelector((state) => state.auth);
 	const {
 		data: profile,
 		isPending,
@@ -55,7 +58,7 @@ function ConsultantProfile() {
 	} = ConsultancyServices.getProfile(idOrSlug);
 
 	const wrap = (content) => (
-		<div className="mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 xl:px-12">
+		<div className="mx-auto w-full max-w-360 px-4 py-10 md:px-8 xl:px-12">
 			{content}
 		</div>
 	);
@@ -112,7 +115,7 @@ function ConsultantProfile() {
 	return (
 		<>
 			<ProfileHeader>
-				<div className="relative mx-auto w-full max-w-[1440px] px-4 py-10 md:px-8 lg:py-14 xl:px-12">
+				<div className="relative mx-auto w-full max-w-360 px-4 py-10 md:px-8 lg:py-14 xl:px-12">
 					<Link
 						to={ROUTES.ENGINEERING}
 						className="font-label mb-8 inline-flex items-center gap-2 text-xs font-semibold tracking-[0.12em] text-(--pg-text-secondary) uppercase hover:text-(--pg-text-primary)"
@@ -170,15 +173,22 @@ function ConsultantProfile() {
 							</div>
 						</div>
 
-						{/* Hiring is a Job (Phase 3) — until then, sign-in is the step */}
+						{/* Hiring is a Job: the draft opens in the dashboard with them filled in */}
 						<div className="flex flex-col gap-3 lg:items-end">
 							{isAuthenticated ? (
-								<>
-									<AppButton disabled>Request a job</AppButton>
-									<span className="text-sm text-(--pg-text-secondary)">
-										Hiring through PolyGrid opens soon.
-									</span>
-								</>
+								profile.userId &&
+								String(profile.userId) !== String(user?.id) && (
+									<AppButton
+										to={`${ROUTES.DASHBOARD_JOBS}/new?${new URLSearchParams({
+											with: String(profile.userId),
+											name: profile.headline || '',
+											type: 'engineering',
+										})}`}
+										icon={<LuHandshake />}
+									>
+										Request a job
+									</AppButton>
+								)
 							) : (
 								<AppButton
 									to={ROUTES.LOGIN}
@@ -193,7 +203,7 @@ function ConsultantProfile() {
 				</div>
 			</ProfileHeader>
 
-			<div className="mx-auto grid w-full max-w-[1440px] gap-6 px-4 py-10 md:px-8 lg:grid-cols-[minmax(0,1fr)_380px] xl:px-12">
+			<div className="mx-auto grid w-full max-w-360 gap-6 px-4 py-10 md:px-8 lg:grid-cols-[minmax(0,1fr)_380px] xl:px-12">
 				<div className="flex min-w-0 flex-col gap-6">
 					{onBreak && (
 						<div className="flex items-center gap-3 rounded-xl border border-(--pg-card-border) bg-(--pg-status-warningSoft) p-4 text-[15px] text-(--pg-text-primary)">
@@ -276,10 +286,9 @@ function ConsultantProfile() {
 								</div>
 							)}
 							<p className="mt-4 font-semibold text-(--pg-text-primary)">
-								{/* the backend's mentorship.ratePerSession has no currency
-								    of its own — shown in the profile's service currency */}
+								{/* platform is USD-only, so the rate has no currency field */}
 								{mentorship.ratePerSession
-									? `${formatMoney(mentorship.ratePerSession, profile.services?.[0]?.currency || 'USD')} per session`
+									? `${formatMoney(mentorship.ratePerSession, PLATFORM_CURRENCY)} per session`
 									: 'Free mentorship'}
 							</p>
 						</ProfileSection>

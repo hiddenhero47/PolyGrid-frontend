@@ -12,7 +12,7 @@ import {
 import AuthServices from '../../features/services/custom-hooks/auth';
 import { registerValidation } from '../../features/validations/auth-validation';
 import { toast } from '../../layouts/toast/toast-handler';
-import { ROUTES } from '../../utilities/app-routes';
+import { ROUTES, homeForUser } from '../../utilities/app-routes';
 import AuthHeader from './elements/auth-header';
 import { AuthSwitch } from './elements/index.style';
 
@@ -63,7 +63,9 @@ function Register() {
 							`We sent a verification link to ${user.email} — open it to confirm your account.`,
 							{ title: `Welcome, ${user.fullName?.split(' ')[0] || ''}`.trim() }
 						);
-						navigate(location.state?.from || ROUTES.HOME, { replace: true });
+						navigate(location.state?.from || homeForUser(user), {
+							replace: true,
+						});
 					},
 				}
 			);

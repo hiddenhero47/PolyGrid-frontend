@@ -103,6 +103,11 @@ export const SelectMenu = styled.div`
 		gap: 10px;
 		width: 100%;
 		padding: 10px 12px;
+
+		/* a gap so a hovered row never touches the selected one */
+		& + .sc_option {
+			margin-top: 2px;
+		}
 		border-radius: 7px;
 		font-size: 15px;
 		cursor: pointer;

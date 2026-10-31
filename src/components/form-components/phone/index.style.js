@@ -122,6 +122,11 @@ export const CountryMenu = styled.div`
 		gap: 10px;
 		width: 100%;
 		padding: 9px 10px;
+
+		/* a gap so a hovered row never touches the selected one */
+		& + .sc_option {
+			margin-top: 2px;
+		}
 		border-radius: 7px;
 		font-size: 14px;
 		text-align: left;

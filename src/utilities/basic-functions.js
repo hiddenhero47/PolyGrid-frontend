@@ -1,3 +1,5 @@
+import { CONTRACTOR_SPECIALTY_LABELS, LABOR_SKILL_LABELS } from './app-const';
+
 export const getFromLocalStorage = (value) => {
 	if (!value || typeof window === 'undefined') {
 		return '';
@@ -68,3 +70,11 @@ export const formatDate = (value, withTime = false) => {
 		...(withTime && { hour: '2-digit', minute: '2-digit' }),
 	});
 };
+
+// contractor specialty / tender category value → label (same enum)
+export const specialtyLabel = (value) =>
+	CONTRACTOR_SPECIALTY_LABELS[value] || humanize(value);
+
+// worker skill / SiteForce job category value → label (same enum)
+export const skillLabel = (value) =>
+	LABOR_SKILL_LABELS[value] || humanize(value);

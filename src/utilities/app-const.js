@@ -81,6 +81,10 @@ export const SYSTEM_ROLE_LABELS = {
 	user: 'User',
 };
 
+// helpers/currencyReference.ts — the platform is USD-only for now; every
+// money field the backend accepts must be this.
+export const PLATFORM_CURRENCY = 'USD';
+
 // src/models/planModel.ts
 export const PLAN_TIER = {
 	FREE: 'free',
@@ -102,4 +106,220 @@ export const PROFILE_TYPE_LABELS = {
 	ContractorProfile: 'Contractor',
 	ClientProfile: 'Client',
 	LaborProfile: 'SiteForce worker',
+};
+
+// models/portfolioItem.ts + helpers/fileStorage.ts — portfolio images
+export const MAX_PORTFOLIO_ITEMS = 20;
+export const MAX_MEDIA_PER_ITEM = 6;
+export const PORTFOLIO_ACCEPT = 'image/jpeg,image/png,image/avif';
+// avatar / logo uploads (IMAGE_ONLY_MIME_TYPES)
+export const AVATAR_ACCEPT = 'image/jpeg,image/png,image/webp,image/avif';
+
+// src/models/contractorProfileModel.ts
+export const CONTRACTOR_SPECIALTY = {
+	GENERAL_CONTRACTING: 'general_contracting',
+	STRUCTURAL: 'structural',
+	ELECTRICAL: 'electrical',
+	PLUMBING: 'plumbing',
+	ROOFING: 'roofing',
+	ARCHITECTURAL_DESIGN: 'architectural_design',
+	EXCAVATION_EARTHWORKS: 'excavation_earthworks',
+	HVAC: 'hvac',
+	MASONRY: 'masonry',
+	CARPENTRY: 'carpentry',
+	PAINTING_FINISHING: 'painting_finishing',
+	LANDSCAPING: 'landscaping',
+	OTHER: 'other',
+};
+
+export const CONTRACTOR_SPECIALTY_LABELS = {
+	general_contracting: 'General contracting',
+	architectural_design: 'Architectural design',
+	excavation_earthworks: 'Excavation & earthworks',
+	hvac: 'HVAC',
+	painting_finishing: 'Painting & finishing',
+};
+
+// src/models/laborProfileModel.ts — also the SiteForce job-board categories
+export const LABOR_SKILL = {
+	FOREMAN: 'foreman',
+	CARPENTRY: 'carpentry',
+	PLUMBING: 'plumbing',
+	ELECTRICAL: 'electrical',
+	MASONRY: 'masonry',
+	PAINTING: 'painting',
+	WELDING: 'welding',
+	ROOFING: 'roofing',
+	GENERAL_LABOR: 'general_labor',
+	OTHER: 'other',
+};
+
+export const LABOR_SKILL_LABELS = {
+	foreman: 'Foreman / supervisor',
+	general_labor: 'General labour',
+};
+
+// src/models/storeProfileModel.ts — a store's categories decide what it
+// can sell; removing one deletes the store's products in it.
+export const MATERIAL_CATEGORY = {
+	CEMENT_CONCRETE: 'cement_concrete',
+	STEEL_REINFORCEMENT: 'steel_reinforcement',
+	AGGREGATES: 'aggregates',
+	BLOCKS_BRICKS: 'blocks_bricks',
+	ROOFING: 'roofing',
+	TIMBER_WOOD: 'timber_wood',
+	DOORS_WINDOWS: 'doors_windows',
+	ELECTRICAL: 'electrical',
+	PLUMBING: 'plumbing',
+	PAINT_FINISHES: 'paint_finishes',
+	TILES_FLOORING: 'tiles_flooring',
+	TOOLS_EQUIPMENT: 'tools_equipment',
+	SAFETY_GEAR: 'safety_gear',
+};
+
+export const MATERIAL_CATEGORY_LABELS = {
+	cement_concrete: 'Cement & concrete',
+	steel_reinforcement: 'Steel & reinforcement',
+	aggregates: 'Aggregates (sand, gravel, stone)',
+	blocks_bricks: 'Blocks & bricks',
+	timber_wood: 'Timber & wood',
+	doors_windows: 'Doors & windows',
+	paint_finishes: 'Paint & finishes',
+	tiles_flooring: 'Tiles & flooring',
+	tools_equipment: 'Tools & equipment',
+	safety_gear: 'Safety gear',
+};
+
+// src/models/productModel.ts
+export const STOCK_STATUS = {
+	IN_STOCK: 'in_stock',
+	OUT_OF_STOCK: 'out_of_stock',
+	MADE_TO_ORDER: 'made_to_order',
+};
+export const MAX_PRODUCT_IMAGES = 6;
+export const MAX_SHIPPING_LOCATIONS = 20;
+// fileStorage DEFAULT_ALLOWED_MIME_TYPES minus PDF — product photos
+export const PRODUCT_IMAGE_ACCEPT = 'image/jpeg,image/png,image/webp';
+
+// src/models/digitalProductModel.ts
+export const DIGITAL_PRODUCT_CATEGORY = {
+	FLOOR_PLAN: 'floor_plan',
+	STRUCTURAL_DRAFTING: 'structural_drafting',
+	SITE_LAYOUT_TEMPLATE: 'site_layout_template',
+	BOQ_SHEET: 'boq_sheet',
+	OTHER: 'other',
+};
+export const DIGITAL_PRODUCT_CATEGORY_LABELS = {
+	site_layout_template: 'Site layout template',
+	boq_sheet: 'BOQ sheet',
+};
+export const MAX_PREVIEW_IMAGES = 6;
+export const MAX_DELIVERABLE_FILES = 10;
+// what the backend accepts for deliverables (helpers/fileStorage.ts) — by
+// extension, since browsers often report no MIME type for DWG / DXF / CSV
+export const DELIVERABLE_ACCEPT =
+	'.pdf,.jpg,.jpeg,.png,.webp,.xlsx,.csv,.dwg,.dxf,.zip';
+export const DELIVERABLE_ACCEPT_LABEL =
+	'PDF, images, XLSX, CSV, DWG, DXF or ZIP';
+
+// src/models/jobModel.ts
+export const JOB_TYPE = {
+	ENGINEERING: 'engineering',
+	TENDERS: 'tenders',
+	STORE: 'store',
+	SITEFORCE: 'siteforce',
+	OTHER: 'other',
+};
+export const JOB_TYPE_LABELS = {
+	engineering: 'Engineering',
+	tenders: 'Tender',
+	store: 'Store order',
+	siteforce: 'SiteForce',
+	other: 'Other',
+};
+export const JOB_STATUS_BADGES = {
+	pending_confirmation: { label: 'Awaiting confirmation', tone: 'warning' },
+	active: { label: 'Active', tone: 'info' },
+	completed: { label: 'Completed', tone: 'success' },
+	disputed: { label: 'Disputed', tone: 'error' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
+	closed: { label: 'Closed (refunded)', tone: 'neutral' },
+};
+
+// src/models/tenderProjectModel.ts — same values as CONTRACTOR_SPECIALTY
+export const TENDER_CATEGORY = CONTRACTOR_SPECIALTY;
+export const TENDER_STATUS_BADGES = {
+	open: { label: 'Open for bids', tone: 'info' },
+	awarded: { label: 'Awarded', tone: 'success' },
+	closed: { label: 'Closed', tone: 'neutral' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
+};
+export const MAX_PROJECT_FILES = 10;
+// helpers/fileStorage.ts DEFAULT_ALLOWED_MIME_TYPES + DOCX (project specs,
+// drawings, site photos; 10 MB each)
+export const PROJECT_FILE_ACCEPT =
+	'image/jpeg,image/png,image/webp,application/pdf,.docx';
+export const PROJECT_FILE_ACCEPT_LABEL = 'JPG, PNG, WebP, PDF or Word (.docx)';
+
+// src/models/bidModel.ts
+export const BID_STATUS_BADGES = {
+	pending: { label: 'Pending', tone: 'warning' },
+	accepted: { label: 'Awarded', tone: 'success' },
+	rejected: { label: 'Not chosen', tone: 'neutral' },
+	withdrawn: { label: 'Withdrawn', tone: 'neutral' },
+};
+
+// src/models/jobOpeningModel.ts
+export const PAY_TYPE = { HOURLY: 'hourly', DAILY: 'daily', FIXED: 'fixed' };
+export const PAY_TYPE_LABELS = {
+	hourly: 'per hour',
+	daily: 'per day',
+	fixed: 'fixed',
+};
+export const EMPLOYMENT_TYPE = {
+	SHORT_TERM: 'short_term',
+	LONG_TERM: 'long_term',
+};
+export const EMPLOYMENT_TYPE_LABELS = {
+	short_term: 'Short-term',
+	long_term: 'Long-term',
+};
+export const OPENING_STATUS_BADGES = {
+	open: { label: 'Open', tone: 'info' },
+	filled: { label: 'Filled', tone: 'success' },
+	closed: { label: 'Closed', tone: 'neutral' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
+};
+export const MAX_OPENING_FILES = 5;
+
+// src/models/jobApplicationModel.ts
+export const APPLICATION_STATUS_BADGES = {
+	pending: { label: 'Pending', tone: 'warning' },
+	accepted: { label: 'Accepted', tone: 'success' },
+	rejected: { label: 'Not chosen', tone: 'neutral' },
+	withdrawn: { label: 'Withdrawn', tone: 'neutral' },
+};
+
+// src/models/paymentModel.ts
+export const PAYMENT_TARGET_TYPE = {
+	JOB: 'Job',
+	SUBSCRIPTION: 'Subscription',
+	DIGITAL_PURCHASE: 'DigitalPurchase',
+};
+export const PAYMENT_TARGET_LABELS = {
+	Job: 'Job escrow',
+	Subscription: 'Subscription',
+	DigitalPurchase: 'Digital file',
+};
+export const PAYMENT_STATUS_BADGES = {
+	pending: { label: 'Pending', tone: 'warning' },
+	success: { label: 'Paid', tone: 'success' },
+	failed: { label: 'Failed', tone: 'error' },
+	refunded: { label: 'Refunded', tone: 'neutral' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
+};
+// src/models/paymentProviderModel.ts
+export const PAYMENT_PROVIDER_LABELS = {
+	stripe: 'Card (Stripe)',
+	manual: 'Recorded by an admin',
 };

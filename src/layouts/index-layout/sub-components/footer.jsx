@@ -9,10 +9,12 @@ const COLUMNS = [
 		heading: 'Pillars',
 		links: [
 			{ label: 'Engineering consultants', to: ROUTES.ENGINEERING },
-			{ label: 'Tenders & contractors', to: ROUTES.TENDERS },
+			{ label: 'Tenders', to: ROUTES.TENDERS },
+			{ label: 'Find contractors', to: ROUTES.CONTRACTORS },
 			{ label: 'Materials store', to: ROUTES.STORE },
 			{ label: 'Digital files', to: ROUTES.DIGITAL_STORE },
 			{ label: 'SiteForce jobs', to: ROUTES.SITEFORCE },
+			{ label: 'Find tradespeople', to: ROUTES.WORKERS },
 		],
 	},
 	{
@@ -36,7 +38,7 @@ const COLUMNS = [
 function Footer() {
 	return (
 		<FooterWrapper>
-			<div className="mx-auto grid w-full max-w-[1440px] gap-12 px-4 py-16 md:px-8 lg:grid-cols-[1.4fr_2fr] xl:px-12">
+			<div className="mx-auto grid w-full max-w-360 gap-12 px-4 py-16 md:px-8 lg:grid-cols-[1.4fr_2fr] xl:px-12">
 				<div className="max-w-sm">
 					<AppLogo />
 					<p className="mt-5 leading-relaxed">
@@ -64,7 +66,7 @@ function Footer() {
 			</div>
 
 			<div className="sc_bottom">
-				<div className="mx-auto flex w-full max-w-[1440px] flex-col gap-2 px-4 py-6 sm:flex-row sm:items-center sm:justify-between md:px-8 xl:px-12">
+				<div className="mx-auto flex w-full max-w-360 flex-col gap-2 px-4 py-6 sm:flex-row sm:items-center sm:justify-between md:px-8 xl:px-12">
 					<span>
 						© {new Date().getFullYear()} PolyGrid. All rights reserved.
 					</span>

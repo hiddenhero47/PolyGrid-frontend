@@ -71,7 +71,7 @@ function Hero() {
 	return (
 		<section className="relative overflow-hidden">
 			<HeroGlow />
-			<div className="relative mx-auto grid w-full max-w-[1440px] gap-5 px-4 pt-6 pb-10 md:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:pt-10 xl:px-12">
+			<div className="relative mx-auto grid w-full max-w-360 gap-5 px-4 pt-6 pb-10 md:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:pt-10 xl:px-12">
 				<Card className="flex flex-col p-6 sm:p-10 xl:p-12">
 					<div className="flex flex-wrap items-center justify-between gap-3">
 						<Chip $accent>One account · Four pillars</Chip>
@@ -119,7 +119,7 @@ function Hero() {
 					</div>
 				</Card>
 
-				<ImagePanel $hero className="min-h-[420px] lg:min-h-[640px]">
+				<ImagePanel $hero className="min-h-105 lg:min-h-160">
 					<img
 						src={heroImage}
 						alt="A large bridge under construction at dusk, cranes along the deck"

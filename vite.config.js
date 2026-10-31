@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => {
 			port: 5009,
 			strictPort: true,
 			// polygrid-backend's CORS allow-list (corsMiddleware.ts) doesn't
-			// include :5174, so in development the browser calls /api on this
+			// include :5009, so in development the browser calls /api on this
 			// same origin and Vite forwards it to the backend — no CORS
 			// involved. index-client.js uses relative URLs in dev for this.
 			proxy: {
@@ -23,6 +23,13 @@ export default defineConfig(({ mode }) => {
 					// If VITE_API_URL is an ngrok tunnel, ngrok answers browser
 					// requests with an HTML warning page unless this is sent.
 					// Harmless for any other target.
+					headers: { 'ngrok-skip-browser-warning': 'true' },
+				},
+				// Socket.IO (live notifications, chat) — same origin in dev too
+				'/socket.io': {
+					target: env.VITE_API_URL || 'http://localhost:4000',
+					changeOrigin: true,
+					ws: true,
 					headers: { 'ngrok-skip-browser-warning': 'true' },
 				},
 			},

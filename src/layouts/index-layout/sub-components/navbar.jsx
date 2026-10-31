@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
 	LuMenu,
@@ -9,6 +9,8 @@ import {
 	LuMoon,
 	LuArrowRight,
 	LuLogOut,
+	LuLayoutDashboard,
+	LuSettings,
 } from 'react-icons/lu';
 import AppLogo from '../../../components/logo';
 import { AppButton } from '../../../components/button';
@@ -17,12 +19,15 @@ import { selectIsAuthenticated } from '../../../store/slice/auth';
 import AuthServices from '../../../features/services/custom-hooks/auth';
 import { toast } from '../../toast/toast-handler';
 import { THEMES } from '../../../theme';
-import { ROUTES } from '../../../utilities/app-routes';
+import { ROUTES, homeForUser } from '../../../utilities/app-routes';
+import AccountMenu from '../../../components/account-menu';
+import NotificationBell from '../../../components/notification-bell';
 import { NavWrapper, MobileMenu } from './navbar.style';
 
 const PILLAR_LINKS = [
 	{ label: 'Engineering', to: ROUTES.ENGINEERING },
-	{ label: 'Tenders', to: ROUTES.TENDERS },
+	// Contractors belong to the Tenders pillar (direct hire)
+	{ label: 'Tenders', to: ROUTES.TENDERS, also: [ROUTES.CONTRACTORS] },
 	{ label: 'Store', to: ROUTES.STORE },
 	{ label: 'SiteForce', to: ROUTES.SITEFORCE },
 ];
@@ -34,7 +39,7 @@ function Navbar({ ready = true }) {
 	const isAuthenticated = useSelector(selectIsAuthenticated);
 	const { user } = useSelector((state) => state.auth);
 	const logout = AuthServices.logout();
-	const firstName = user?.fullName?.split(' ')[0];
+	const isStaff = homeForUser(user) === ROUTES.ADMIN;
 
 	const handleLogout = () => {
 		logout();
@@ -42,20 +47,28 @@ function Navbar({ ready = true }) {
 		toast.info('Signed out');
 	};
 
+	const { pathname } = useLocation();
 	const isDark = THEMES[theme].mode === 'dark';
 	const closeMenu = () => setMenuOpen(false);
 
 	return (
 		<NavWrapper $ready={ready}>
-			<nav className="mx-auto flex h-[72px] w-full max-w-[1440px] items-center justify-between gap-6 px-4 md:px-8 xl:px-12">
+			<nav className="mx-auto flex h-18 w-full max-w-360 items-center justify-between gap-6 px-4 md:px-8 xl:px-12">
 				<Link to={ROUTES.HOME} aria-label="PolyGrid home" onClick={closeMenu}>
 					<AppLogo size={34} textSize="text-[22px]" />
 				</Link>
 
 				<ul className="hidden items-center gap-9 lg:flex">
-					{PILLAR_LINKS.map(({ label, to }) => (
+					{PILLAR_LINKS.map(({ label, to, also }) => (
 						<li key={to}>
-							<NavLink to={to} className="sc_link">
+							<NavLink
+								to={to}
+								className={({ isActive }) =>
+									isActive || also?.some((path) => pathname.startsWith(path))
+										? 'sc_link active'
+										: 'sc_link'
+								}
+							>
 								{label}
 							</NavLink>
 						</li>
@@ -76,20 +89,17 @@ function Navbar({ ready = true }) {
 
 					{isAuthenticated ? (
 						<>
-							<span className="font-label hidden text-xs font-semibold tracking-[0.12em] text-(--pg-navbar-link) uppercase sm:inline">
-								Hi,{' '}
-								<span className="text-(--pg-text-primary)">{firstName}</span>
-							</span>
 							<span className="hidden sm:inline-flex">
 								<AppButton
+									to={homeForUser(user)}
 									size="sm"
-									variant="secondary"
-									icon={<LuLogOut />}
-									onClick={handleLogout}
+									icon={<LuLayoutDashboard />}
 								>
-									Log out
+									{isStaff ? 'Admin' : 'Dashboard'}
 								</AppButton>
 							</span>
+							<NotificationBell />
+							<AccountMenu showName={false} />
 						</>
 					) : (
 						<>
@@ -143,13 +153,30 @@ function Navbar({ ready = true }) {
 							))}
 							<div className="mt-6 flex flex-col gap-3 sm:hidden">
 								{isAuthenticated ? (
-									<AppButton
-										variant="secondary"
-										icon={<LuLogOut />}
-										onClick={handleLogout}
-									>
-										Log out
-									</AppButton>
+									<>
+										<AppButton
+											to={homeForUser(user)}
+											icon={<LuLayoutDashboard />}
+											onClick={closeMenu}
+										>
+											{isStaff ? 'Admin' : 'Dashboard'}
+										</AppButton>
+										<AppButton
+											to={ROUTES.DASHBOARD_SETTINGS}
+											variant="secondary"
+											icon={<LuSettings />}
+											onClick={closeMenu}
+										>
+											Settings
+										</AppButton>
+										<AppButton
+											variant="secondary"
+											icon={<LuLogOut />}
+											onClick={handleLogout}
+										>
+											Log out
+										</AppButton>
+									</>
 								) : (
 									<>
 										<AppButton to={ROUTES.REGISTER} onClick={closeMenu}>

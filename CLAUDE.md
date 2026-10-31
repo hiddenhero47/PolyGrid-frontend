@@ -76,7 +76,7 @@ drawn from.
 
 ## Current status
 
-**Phase 1 in progress.** Built: the React + Vite setup, store, API
+**Phase 1 (public pages) — built:** the React + Vite setup, store, API
 client, multi-theme color system, public layout (`layouts/index-layout`:
 navbar, footer, first-visit intro), Home (`pages/home`), the shared
 component kit (form controls, table, pagination, status badge, modals,
@@ -85,21 +85,56 @@ profile avatar, reviews block — all on `/lab`, dev only), auth
 (`pages/auth`, incl. email verification: `/verify-email/:token` + the
 `components/verify-email-banner` strip under the navbar), and PolyGrid
 Engineering: Browse Consultants (`/engineering`) and the Consultant
-profile (`/engineering/:idOrSlug`).
+profile (`/engineering/:idOrSlug`). PolyGrid Tenders and SiteForce: the board
+landings `/tenders` and `/siteforce` (`pages/board-teaser`, one page
+for both — public counts only, plus find / post / join entry points) and
+two directories on the Engineering pattern, from one generic browse +
+profile in `pages/directory/` driven by `config.js` (`DIRECTORIES`):
+contractors (`/contractors`, filter `specialty`) and SiteForce workers
+(`/siteforce/workers`, filter `skill`). Profile editors exist for all
+six pillars (consultant, contractor, SiteForce worker, store, digital
+creator, client), with a Products tab for stores and digital creators. PolyGrid
+Store, public side (`pages/store/`, hooks `custom-hooks/store.js`):
+`/store` browse stores (store-first, preview products; filters
+category + country), `/store/shops/:idOrSlug` store page + catalog
+(category tabs, sub-category pills), `/store/products/:id` product page
+(gallery, stock, delivery list, seller), `/store/digital` the flat
+digital feed (category tabs), `/store/creators/:idOrSlug` and
+`/store/digital/:id`; `elements/store-switch.jsx` flips Materials ↔
+Digital files. `/clients/:id` is the client (poster) page — never
+gated, reached from things they post. `store/elements/page-states.jsx`
+(`<PublicPage query noun browseTo>{(data) => …}</PublicPage>`) is the
+loader / 404 / error / unavailable wrapper for those single views.
+Ordering (cart → checkout) and buying digital files live in the dashboard (Phase 3).
 
 **Admin Dashboard started early (Phase 4, first slice)** — the
-consultant pipeline: `layouts/admin-layout` + `pages/admin/` (Overview,
+consultant pipeline: `layouts/admin-layout` + `pages-admin/` (Overview,
 Verifications, Plans, Subscriptions) at `/admin`. See "Admin Dashboard"
 below.
-Next: the other pillars' browse + profile pages on the same pattern
-(contractors, stores, digital creators, workers, client profiles) and
-the tender / SiteForce public teasers. Remaining form controls
-(search-select, chips, file upload) wait until a page needs them. The backend is fully built: all four pillars, account suspension, review
+
+**User Dashboard (Phase 2)** — `/dashboard`: home, Business Profile
+hub, profile editors for every pillar (one generic editor driven by
+`pages-dashboard/profiles/editor/config.js`), Verification Center
+(template-driven form + documents + history), Subscription (self-serve:
+free plans activate at once, paid ones go through Stripe), Account
+Settings and Notifications. See "User Dashboard" below.
+
+**Phase 3 (transactional dashboard) — built:** Jobs with escrow funding,
+Tenders (board, bids, projects, award), SiteForce (board with distance
+search, applications, postings, two-tier openings), Store orders (cart →
+checkout → job) and digital purchases (Stripe + download center),
+Contacts and Messages (live over Socket.IO). Backend gaps found along the
+way are in `docs/backend-handoff.md`. Phase 4 is built: stage A (money: disputes, refunds & payouts, To pay,
+jobs, payments), B (templates, message reports, profile and review
+moderation) and C (Overview stats from `GET /api/stats/overview` —
+every queue, money, the last 30 days as a one-measure bar chart with a
+table view, jobs by status; the user dashboard's "Your activity";
+`/lab` file & tags; `/dev-console` removed).
+
+The backend is fully built: all four pillars, account suspension, review
 moderation, message-report resolution, per-profile avatars, a real
 notification system, SiteForce geo search, public board teasers, and a
-stats route. `docs/frontend-plan.md`'s §1 used to track backend gaps
-against the frontend plan; all of those are now closed, with routes
-noted inline throughout.
+stats route.
 
 Per §4's roadmap, build order is: design tokens + form states (Phase
 0) → Public/Basic View (Phase 1) → Account & Business Profile core
@@ -122,7 +157,12 @@ with an HTML warning page (curl works, the browser doesn't). Production
 builds call `VITE_API_URL` directly. Copy
 `.env.example` to `.env`; `VITE_API_URL` points at the backend (:4000).
 
-- `src/pages/<page>/index.jsx` + `elements/index.style.js`,
+- Pages live in three folders: `src/pages/` (the public site — home,
+  auth, browse and profile pages, the Store), `src/pages-dashboard/` (the
+  signed-in user's workspace at `/dashboard`) and `src/pages-admin/` (the
+  staff console at `/admin`). Never put a dashboard or admin page under
+  `src/pages/`; shared dashboard pieces sit in `pages-dashboard/elements/`.
+- `<folder>/<page>/index.jsx` + `elements/index.style.js`,
   `src/layouts/`, `src/components/`, `src/features/services/`
   (`index-client.js` = axios; per-resource TanStack Query hooks go in
   `custom-hooks/`, HM-style), `src/features/validations/` (yup),
@@ -246,21 +286,17 @@ hint — or the error in its place — wired with `aria-invalid` /
 - Build select/radio options from backend enums with
   `enumToOptions(ENUM, labelOverrides)` (`utilities/basic-functions`).
 
-**`/dev-console` (dev only, TEMPORARY — delete `pages/dev-console` and
-its route in `App.jsx` before launch):** runs the backend's
-`POST /api/deployment/setup` and shows each task's result, plus a tiny
-request builder (method, path, JSON body, optional Bearer token,
-history) using plain `fetch` through the dev proxy. The setup route is
-gated by `timeWindowGuard(start, hours)` in
-`polygrid-backend/src/routes/deploymentRoutes.ts`; outside that window
-it answers 403. All dev pages (`/lab`, `/theme-preview`,
-`/dev-console`) are lazy-loaded under `import.meta.env.DEV`, so they're
+The temporary `/dev-console` page (a deployment-setup runner and request
+builder) was deleted before launch; run `POST /api/deployment/setup` with
+any HTTP client inside its time window instead. Dev pages (`/lab`,
+`/theme-preview`) are lazy-loaded under `import.meta.env.DEV`, so they're
 not in production builds.
 
 `/lab` (dev only, `pages/lab`) shows every control in every state plus a
 live Formik + yup form, the table and the modals — build and test
-shared components there first. Still to come: search-select /
-combobox, chips, file upload.
+shared components there first, including `CustomFile` and `CustomTags`
+("File & tags"). A search-select / combobox isn't built — nothing needs
+one yet.
 
 - `CustomPhone` — value is the backend's `{ number, country }`
   (`number` normalized to E.164 once valid). Countries from
@@ -287,11 +323,11 @@ not `_id`.** `AuthServices.logout()` also clears the query cache.
 (except reset). Yup rules in `features/validations/auth-validation.js`
 mirror `polygrid-backend/src/validators/user/userValidator.ts`.
 
-Known backend-side gap (not a frontend bug): the local backend has no
-`MAILGUN_API_KEY` yet, so `POST /api/users/request-reset` returns 500
-"MAILGUN_API_KEY is not set" — forgot-password shows that toast and
-keeps the form. Reset emails work once the key is added to the
-backend's `.env`.
+Outside production the backend also returns the verify link / reset token
+in those responses (`verifyUrl`, `verifyEmailToken`, `token`) — handy
+for testing without an inbox; `setSession` never stores them. Real
+emails go through the Mailgun sandbox (authorized recipients only;
+check spam).
 
 ### Feedback & profile building blocks
 
@@ -361,7 +397,7 @@ backend's `{ total, page, limit, totalPages }`) with `changePage`.
 badge: `<StatusBadge status={x} map={{ value: { label, tone } }} />`,
 tones from the `status` tokens. Colors: `table` token group.
 
-### Admin Dashboard — `layouts/admin-layout`, `pages/admin/`
+### Admin Dashboard — `layouts/admin-layout`, `pages-admin/`
 
 HM's dashboard shape (floating panels on the page background: side menu
 card, top bar card, page card) in PolyGrid colors, after the Stitch
@@ -376,15 +412,250 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   1024px. Colors: the `sidebar` token group (active item coral in dark,
   slate in light — coral stays for actions).
 - Every page starts with `sub-components/page-header.jsx`; shared tiles,
-  sections and status tabs are in `pages/admin/elements/index.style.js`.
+  sections and status tabs are in `pages-admin/elements/index.style.js`.
 - Queue filters live in the URL (`?status=&profileType=&page=`,
   `/admin/subscriptions?userId=`), like the public browse pages.
 - Hooks: `custom-hooks/admin.js` (overview, verifications, signed
-  private-file links, users), `plans.js`, `subscriptions.js`.
+  private-file links, users with `?q=` search, `getProfileForReview`),
+  `plans.js`, `subscriptions.js`.
+- Reviewing a profile: the public profile page hides anything
+  unverified / unsubscribed — i.e. everything in the queue — so the
+  Verifications card's "View profile" opens a `Modal.Right` drawer
+  (`verifications/elements/profile-review.jsx`) fed by
+  `GET /api/admin/profiles/:profileType/:id` (REVIEW_ROLES, read-only,
+  any pillar; renders whichever common sections the profile has).
+- Users (`/admin/users`, frontend-plan §C.2): search / role filter for
+  admin + super_admin; only super_admin sees "Add staff"
+  (`admin-create` always makes an admin — customer care is a role change
+  straight after) and per-row "Manage" (role select, suspend /
+  reinstate, both behind ConfirmModal). Never offered for yourself or
+  the Super Admin. `pages-admin/elements/user-search.jsx` is shared with
+  Subscriptions.
+- Digital files (`/admin/digital-products`, frontend-plan §C.6): the
+  review queue (`GET /api/digital-products/review?status=pending|approved`)
+  with approve / revoke (`PATCH /api/digital-products/:id/verify`). The
+  one queue customer care can act on, so every reviewer sees the
+  buttons. "View creator" reuses the profile-review drawer. Menu badge
+  = pending count.
+- Money (frontend-plan §C.7–C.11, hooks `custom-hooks/admin-money.js`):
+  Disputes (`/admin/disputes`, resolve with a note), Refunds & payouts
+  (`/admin/refunds-payouts`: refund and payout requests — approve /
+  decline with a reason, the backend works out the amount and refuses
+  without a payout account — plus **To pay**: approved money waiting for
+  an admin's bank transfer, marked paid with a reference or failed with a
+  reason), Jobs (`/admin/jobs`, search any job) and the Payments ledger
+  (`/admin/payments`). They share one job drawer,
+  `pages-admin/elements/job-review.jsx` (parties, money, stages, history,
+  contracts, payments; admins record a payment made outside Stripe).
+  Customer care sees the queues and job details, never acts; Jobs, To pay
+  and the ledger are admin / super_admin only. Menu badges: open disputes,
+  pending refund + payout requests.
+- Trust & safety (frontend-plan §C.3, §C.3b, §C.5, §C.12, hooks
+  `custom-hooks/admin-moderation.js`): **Templates**
+  (`/admin/verification-templates`, admin / super_admin) — every version
+  per profile type + country; the form only ever publishes the next
+  version (it says which live one it replaces), starting blank or from an
+  existing version; keys come from labels. **Message reports**
+  (`/admin/message-reports`) — open / resolved, the flagged message shown
+  between the messages around it; resolve keeping it or replacing its
+  text. **Moderation** (`/admin/moderation`) — Profiles: search by type
+  (+ name / owner / email, status), ban with a reason (the owner is told)
+  / unban, applied to the row at once; Reviews: the platform-wide feed
+  (or one profile's), visible / hidden and 1–2★ filters, hide (reason) /
+  unhide / delete (permanent, its own warning). Staff see a "Moderate"
+  link on every public `ReviewsBlock`. Customer care sees all of it, acts
+  on none.
+- `components/modal/reason-modal.jsx` — `await ref.current.ask({ eyebrow,
+  title, text, label, required, confirmLabel })` → the text, or null if
+  cancelled. Used for dispute / refund / payout notes, message reports and
+  admin decline / resolution reasons.
+- A modal's `close` / `cancel` handlers act only on their own dialog's
+  events — React passes a nested dialog's events up the component tree.
+- Money is **USD only** (`PLATFORM_CURRENCY` in `app-const.js`, mirrors
+  the backend's `currencyReference.ts`) — forms send it, never ask.
 
 A consultant shows on `/engineering` only when verified **and** their
 owner has an active subscription: approve on Verifications → "Grant a
 plan" on the approved card → Subscriptions.
+
+### Dashboards — `layouts/dashboard-shell`
+
+Both dashboards use `DashboardShell` (`sections`, `counts`,
+`consoleLabel`, `eyebrow`, `roleLabel`, `collapseKey`): side menu card
+(`sub-components/sidebar-nav.jsx`), top bar, page card with `<Outlet />`,
+Modal.Left drawer on small screens. Every dashboard page starts with
+`sub-components/page-header.jsx`. The layouts only add their guard and
+menu: `admin-layout` (staff roles, `admin-nav.js`) and
+`dashboard-layout` (any signed-in user, `dashboard-nav.js`). After login
+/ register, `homeForUser(user)` (`app-routes.js`) sends staff to
+`/admin` and everyone else to `/dashboard`; the navbar shows the same
+link.
+
+Notifications (frontend-plan §2, §B.17): `components/notification-bell`
+(badge + popover of the latest 8, "Mark all read", "See all") sits next
+to the account menu in the navbar and the dashboard top bar;
+`/dashboard/notifications` lists them all. Hooks
+`custom-hooks/notifications.js` (unread count also polls every 2 min as
+a fallback; mark-read updates the badge and lists instantly).
+`utilities/notifications.js` maps each backend type to an icon, tone and
+link (`notificationLink`) — anything with a `jobId` opens that job. Live delivery: `layouts/
+realtime-bridge.jsx` (mounted once in `App.jsx`) keeps one Socket.IO
+connection (`features/services/socket.js`, JWT in the handshake) while
+signed in; `notification:new` refreshes the queries and shows a toast
+with "View". In dev the socket goes through Vite's `/socket.io` proxy
+(`ws: true`), like `/api`. The bridge is the one intentional
+`useEffect` — it syncs with an outside system (the socket).
+
+`components/account-menu` — the signed-in user's avatar button and
+popover menu (Admin console for staff, Dashboard, Business profiles,
+Settings, Log out), used in the public navbar and the dashboards' top
+bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
+(fallback placement in `beforetoggle`), like CustomSelect's menu.
+
+### User Dashboard — `pages-dashboard/`
+
+- `elements/profile-types.js` — one entry per business profile type
+  (label, pillar, icon, pitch, `editor` route once built, `publicPath`,
+  `name(profile)`) for the hub.
+- `profiles/editor/` — ONE editor page for every pillar
+  (`<ProfileEditor profileType=…>`), shaped by `config.js`
+  (`PROFILE_EDITORS`): the name field (`headline` / `displayName`), an
+  optional disciplines list (`specializations` / `specialties`),
+  years of experience, which tabs exist (services and mentorship are
+  consultancy-only; portfolio and links are shared) and the go-live
+  wording, plus `bioField` (a store's is `description`), `imageField`
+  (a store has a `logo`, uploaded to `/me/logo`) and
+  `disciplines.removalWarning` (removing a store category deletes its
+  products — the form confirms first). A new pillar is mostly a config
+  entry plus any tab of its own.
+- Subscription (`subscription/`): `PaymentServices.subscribe`
+  (`POST /api/payments/intent`). `requiresPayment: false` means the plan
+  is already active; otherwise the Stripe Payment Element opens in
+  `elements/checkout-modal.jsx` (themed from `THEMES[name].tokens`, the
+  only `<Elements>` in the app). Stripe's webhook activates the plan, so
+  `SubscriptionServices.awaitActivation` polls (about a minute) until
+  the new subscription is current, then refreshes plan / profile
+  caches; after that it offers "Check payment status". Unused days carry
+  over (backend).
+- Products (`profiles/editor/elements/products/`, hooks
+  `custom-hooks/products.js`): the store's and the digital creator's own
+  products from the owner-only `GET <base>/me/products` (any state).
+  Store: category limited to the store's own, unit (free text with
+  suggestions), delivery rows (country, optional state, price — at least
+  one, each country/state once), photos; edit adds stock status, photo
+  add/remove and delete. Digital: preview images (public) + deliverables
+  (private, 1–10, PDF/JPG/PNG/WebP — the backend's allow-list) on
+  create; edit has the on-sale switch, previews and deliverables; no
+  delete. Deliverables are stored and removed by original file name, so
+  the form refuses a name already on the product.
+- Jobs (`jobs/`, frontend-plan §B.6, hooks `custom-hooks/jobs.js`): My
+  Jobs (`/dashboard/jobs`, status tabs in `?status=`), new job
+  (`/dashboard/jobs/new?with=<userId>&name=&type=&role=` — "Request a job"
+  on the consultant / contractor / worker profiles opens it) and the job
+  page (`/dashboard/jobs/:id`). Stage `payment` is a percentage (all
+  stages ≤ 100%; `elements/stage-editor.jsx`). The page offers only what
+  the job's state and your role allow: confirm, edit / cancel (creator,
+  before confirmation), fund (client → `PaymentServices.fundJob` → the
+  shared `components/checkout-modal.jsx`, then `/payments/:id/refresh`),
+  mark done (provider) / verify & release (client), propose / accept /
+  reject stages, contract upload (PDF / DOCX), dispute, refund (client)
+  and payout (provider) requests — the backend works out those amounts.
+  Party names come from the backend's `client.user` / `provider.user`;
+  `elements/job-helpers.js` falls back to "The client" / "The provider".
+  Notifications with a `jobId` open the job.
+- Tenders (`tenders/`, frontend-plan §B.7–B.9, hooks
+  `custom-hooks/tenders.js`) and SiteForce (`siteforce/`, §B.10–B.12,
+  `custom-hooks/siteforce.js`) share one shape: a hub page with
+  `?view=` tabs (board · my bids / applications · my projects /
+  postings), `new.jsx` (posting needs a live client profile) and a
+  detail page that branches on poster vs. contractor / worker. Boards
+  answer 403 to anyone without a live contractor / worker profile —
+  that 403 shows `elements/eligibility-gate.jsx` (the go-live checklist
+  for the profile needed), never an empty list. Bids and applications
+  are sealed; the poster's detail lists them all with award / accept.
+  SiteForce detail is two-tier: the exact site (map, address, contact,
+  photos) comes back only for the poster or an accepted worker — the
+  page shows it unlocked when `files` is present, else a locked panel.
+  The board can search near a point (`?near=lat,lng&radius=`, browser
+  geolocation or "Near a place" on the map). `components/
+  location-picker` is the Leaflet + OpenStreetMap pin picker (click,
+  "Use my location", or paste "lat, lng"; dark themes invert the tiles)
+  and `location-map.jsx` a read-only pin. Opening photos are JPG / PNG
+  / AVIF only; tender files also take PDF / DOCX. Shared dashboard
+  pieces: `elements/panels.jsx` (`Panel`, `BackLink`, `ListingCard`,
+  `FileList`, `Fact`) and `elements/listing-helpers.js` (`placeText`,
+  `budgetText`, `payText`, `closesText`).
+- Store orders (`orders/`, frontend-plan §B.13, hooks
+  `custom-hooks/orders.js`): the cart is a persisted Redux slice
+  (`store/slice/cart.js`), kept per store because an order is one
+  store's products to one destination. Product pages add to it
+  (`store/elements/add-to-cart.jsx`; `cart-link.jsx` shows the count on
+  Store pages). Checkout (`/dashboard/orders/checkout/:storeId`) prices
+  delivery per line the way the backend does (`lineShipping`: state row,
+  else country row, else "doesn't deliver there") and blocks lines that
+  can't ship; placing the order creates a Job (store already confirmed)
+  and opens it so the buyer confirms and funds. `/dashboard/orders`:
+  my orders · cart · my store's orders, each row linking to its job.
+- Digital purchases (`purchases/`, §B.14, hooks `custom-hooks/
+  purchases.js`): "Buy" on a digital file (`store/elements/
+  buy-digital.jsx`) → `targetType: 'DigitalPurchase'` intent → the shared
+  checkout modal → `/payments/:id/refresh` → Purchases. The download
+  center mints short-lived links per purchase; 410 (copy expired after a
+  lapsed plan) and 503 (still preparing) are shown as states, not
+  errors. Pending purchases offer "Check payment status".
+- Messages (`messages/`, §B.16, hooks `custom-hooks/messages.js`) and
+  Contacts (`contacts/`, §B.15, `custom-hooks/contacts.js`): one
+  conversation per pair of contacts — only contacts can message, and
+  jobs / awards / accepted applications / orders connect people
+  automatically (or add by email on Contacts; removing is one-way).
+  `/dashboard/messages/:id` is list + thread (one or the other on small
+  screens); the thread is an infinite query of newest-first pages shown
+  oldest → newest, Enter sends / Shift+Enter new line, a flag on the
+  other person's messages reports it. `message:new` over the socket goes
+  through `layouts/realtime-bridge.jsx` (`addMessageToCache`) — a toast
+  unless that thread is open. Opening a thread marks it read (the
+  thread's one effect, keyed by its newest message). The menu badge is
+  the sum of unread counts. The job page has "Message" for the other
+  party.
+- Pending Stripe payments: "Check payment status" (Subscription page
+  banner and pending rows in Payments) calls
+  `POST /api/payments/:id/refresh`; the backend also sweeps them every
+  15 minutes.
+- Portfolio items are editable (details only — images are managed in
+  the project's dialog): `PATCH …/me/portfolio/:itemId`.
+- The profile hub asks `GET /api/users/me/profiles` which profiles exist,
+  then loads only those.
+- Settings (`settings/`): profile (name, phone, account photo),
+  account type, password (the backend ends EVERY session on a change,
+  this one too — the app signs out and sends the user to /login), 2FA
+  (identity check → QR → first code turns it on; turning off needs a
+  code), payout account, log out everywhere. Hooks:
+  `custom-hooks/account.js` — writes go straight into the auth slice.
+- `components/modal/confirm-identity-modal.jsx` — frontend-plan §2's
+  confirm-with-password-or-2FA pattern: `await ref.current.ask({ action })`
+  → `{ currentPassword }` | `{ otpToken }` | null.
+- `elements/go-live.jsx` + `go-live-state.js` — the go-live checklist
+  (details · verification · subscription · taking work): a profile is
+  public only when it's verified, active and its owner has a live plan.
+- Hooks: `custom-hooks/profiles.js` (`PROFILE_API` per type; `/me`
+  404 → `null`; `getMyProfiles` = six parallel `/me` queries; every
+  write replaces the `['my-profile', type]` cache with the returned
+  profile), `verification.js` (template lookup, submit, history),
+  `subscriptions.js` (`getCurrentSubscription`, `getMySubscriptions`).
+- Multipart uploads (portfolio, verification) send the non-file fields as
+  one JSON `data` field plus the files — the backend's
+  `parseMultipartData` convention.
+- Verification forms are built from the template at runtime:
+  `features/validations/template-form.js` copies the backend's
+  `templateFormSchema.ts`.
+- Profile form rules: `features/validations/profile-validation.js`.
+
+New shared pieces: `CustomFile` (drop zone + native file input;
+`File[]` or `File`; type/size checked client-side, previews revoked on
+remove), `CustomTags` (Enter/comma chips, `string[]`),
+`components/segmented-control` (status tabs, editor sections),
+`components/modal/confirm-modal.jsx` (`await ref.current.ask({ title,
+text, confirmLabel })` → boolean).
 
 ### Typography
 

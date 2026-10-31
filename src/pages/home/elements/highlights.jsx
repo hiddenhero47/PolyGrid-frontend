@@ -34,7 +34,7 @@ const HIGHLIGHTS = [
 
 function Highlights() {
 	return (
-		<section className="mx-auto w-full max-w-[1440px] px-4 md:px-8 xl:px-12">
+		<section className="mx-auto w-full max-w-360 px-4 md:px-8 xl:px-12">
 			<Card className="grid gap-6 p-6 sm:grid-cols-2 sm:p-8 xl:grid-cols-4">
 				{HIGHLIGHTS.map(({ icon, title, text }) => (
 					<div key={title} className="flex items-start gap-4">

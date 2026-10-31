@@ -25,6 +25,7 @@ function CustomCheckboxGroup({
 	inline = false,
 	max,
 	className,
+	columns = 1,
 }) {
 	const autoId = useId();
 	const groupId = id || name || autoId;
@@ -50,7 +51,7 @@ function CustomCheckboxGroup({
 			errormessage={errormessage}
 			className={className}
 		>
-			<OptionList $inline={inline}>
+			<OptionList $inline={inline} $columns={columns}>
 				{options.map((option) => {
 					const checked = value.some((item) => isSame(item, option.value));
 					const isDisabled = disabled || option.disabled || (atMax && !checked);
@@ -112,6 +113,7 @@ CustomCheckboxGroup.propTypes = {
 	inline: PropTypes.bool,
 	max: PropTypes.number,
 	className: PropTypes.string,
+	columns: PropTypes.number, // grid columns from 640px up
 };
 
 export default CustomCheckboxGroup;

@@ -165,6 +165,15 @@ export const OptionList = styled.div`
 	flex-direction: ${({ $inline }) => ($inline ? 'row' : 'column')};
 	flex-wrap: wrap;
 	gap: ${({ $inline }) => ($inline ? '10px 24px' : '12px')};
+
+	/* $columns: a grid of N columns from 640px up (long option lists) */
+	${({ $columns }) =>
+		$columns > 1 &&
+		`@media (min-width: 640px) {
+			display: grid;
+			grid-template-columns: repeat(${$columns}, minmax(0, 1fr));
+			gap: 12px 24px;
+		}`}
 `;
 
 // Toggle: a native checkbox with role="switch".
