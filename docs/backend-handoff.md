@@ -14,6 +14,10 @@ Nothing open right now.
 
 ## Resolved
 
+2026-10-31: `GET /api/stats/overview` gained `money`, `jobsByStatus`,
+`queues` and `last30Days { series, totals }` — the admin Overview uses them.
+
+
 Backend changes of 2026-10-31 for the moderation pages (in its working tree
 when the frontend switched to them): `GET /api/admin/profiles?profileType=&q=&status=`,
 a platform-wide `GET /api/reviews/moderation` (`isHidden`, `minRating` /

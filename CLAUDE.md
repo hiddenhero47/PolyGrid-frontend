@@ -124,10 +124,12 @@ Tenders (board, bids, projects, award), SiteForce (board with distance
 search, applications, postings, two-tier openings), Store orders (cart →
 checkout → job) and digital purchases (Stripe + download center),
 Contacts and Messages (live over Socket.IO). Backend gaps found along the
-way are in `docs/backend-handoff.md`. Phase 4 stages A (money: disputes, refunds & payouts, To pay, jobs,
-payments) and B (templates, message reports, profile and review
-moderation) are built; next is stage C (stats, dashboard home, `/lab`,
-launch cleanup).
+way are in `docs/backend-handoff.md`. Phase 4 is built: stage A (money: disputes, refunds & payouts, To pay,
+jobs, payments), B (templates, message reports, profile and review
+moderation) and C (Overview stats from `GET /api/stats/overview` —
+every queue, money, the last 30 days as a one-measure bar chart with a
+table view, jobs by status; the user dashboard's "Your activity";
+`/lab` file & tags; `/dev-console` removed).
 
 The backend is fully built: all four pillars, account suspension, review
 moderation, message-report resolution, per-profile avatars, a real
