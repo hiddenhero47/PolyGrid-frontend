@@ -10,7 +10,33 @@ _Last updated: 2026-10-23._
 
 ## Open
 
-Nothing open right now.
+### Approved refunds / payouts: no way to see or settle what's owed
+
+Approving a refund or payout creates a `SystemPayout` (pending → paid /
+failed, with the recipient's payout account snapshotted), but no route lists
+them or marks one paid, so after approving an admin has no list of transfers
+to make. Needed (admin / super_admin):
+- `GET /api/system-payouts?status=&requestType=&page=` — with the job title
+  and the recipient's name / email;
+- `PATCH /api/system-payouts/:id/paid` (optionally a transfer reference) and
+  `…/failed` (a reason) — and tell the recipient.
+The frontend would add a "To pay" tab beside Refunds and Payouts.
+
+### Customer care can't open a job
+
+`GET /api/jobs/:id` (`assertParty`) lets in the two parties and admin /
+super_admin only, but customer care can see the disputes, refund and payout
+queues (`REVIEW_ROLES`). Their job drawer shows only the queue row and the
+job's payments. Needed: read access for `REVIEW_ROLES` on `GET /api/jobs/:id`
+(no writes).
+
+### Admin can't find a job that isn't in a queue
+
+The admin console reaches a job only through a dispute, refund, payout or a
+job payment in the ledger, so an admin can't record a manual payment (`POST
+/api/jobs/:id/payments`) for a job that has none of those yet. Needed: an
+admin job search — `GET /api/jobs?q=&status=&userId=&page=` (title, party
+name / email) for admin / super_admin.
 
 ## Resolved
 

@@ -8,6 +8,7 @@ import {
 	LuWallet,
 	LuShieldAlert,
 	LuUsers,
+	LuReceipt,
 } from 'react-icons/lu';
 import { ROUTES } from '../../utilities/app-routes';
 import { REVIEW_ROLES, MANAGE_ROLES } from '../../utilities/app-const';
@@ -45,7 +46,13 @@ export const ADMIN_NAV = [
 				roles: REVIEW_ROLES,
 				countKey: 'pendingDigital',
 			},
-			{ label: 'Disputes', icon: LuGavel, roles: REVIEW_ROLES, soon: true },
+			{
+				label: 'Disputes',
+				to: ROUTES.ADMIN_DISPUTES,
+				icon: LuGavel,
+				roles: REVIEW_ROLES,
+				countKey: 'openDisputes',
+			},
 			{
 				label: 'Moderation',
 				icon: LuShieldAlert,
@@ -71,9 +78,16 @@ export const ADMIN_NAV = [
 			},
 			{
 				label: 'Refunds & payouts',
+				to: ROUTES.ADMIN_REFUNDS_PAYOUTS,
 				icon: LuWallet,
+				roles: REVIEW_ROLES,
+				countKey: 'pendingMoneyRequests',
+			},
+			{
+				label: 'Payments',
+				to: ROUTES.ADMIN_PAYMENTS,
+				icon: LuReceipt,
 				roles: MANAGE_ROLES,
-				soon: true,
 			},
 		],
 	},

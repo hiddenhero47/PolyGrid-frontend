@@ -299,3 +299,27 @@ export const APPLICATION_STATUS_BADGES = {
 	rejected: { label: 'Not chosen', tone: 'neutral' },
 	withdrawn: { label: 'Withdrawn', tone: 'neutral' },
 };
+
+// src/models/paymentModel.ts
+export const PAYMENT_TARGET_TYPE = {
+	JOB: 'Job',
+	SUBSCRIPTION: 'Subscription',
+	DIGITAL_PURCHASE: 'DigitalPurchase',
+};
+export const PAYMENT_TARGET_LABELS = {
+	Job: 'Job escrow',
+	Subscription: 'Subscription',
+	DigitalPurchase: 'Digital file',
+};
+export const PAYMENT_STATUS_BADGES = {
+	pending: { label: 'Pending', tone: 'warning' },
+	success: { label: 'Paid', tone: 'success' },
+	failed: { label: 'Failed', tone: 'error' },
+	refunded: { label: 'Refunded', tone: 'neutral' },
+	cancelled: { label: 'Cancelled', tone: 'neutral' },
+};
+// src/models/paymentProviderModel.ts
+export const PAYMENT_PROVIDER_LABELS = {
+	stripe: 'Card (Stripe)',
+	manual: 'Recorded by an admin',
+};

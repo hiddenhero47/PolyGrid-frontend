@@ -1,14 +1,16 @@
-import React, { useImperativeHandle, useRef, useState } from 'react';
+import React, { useId, useImperativeHandle, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import Modal from '../../../components/modal/index_modal';
-import { AppButton } from '../../../components/button';
-import { CustomTextarea } from '../../../components/form-components';
+import Modal from './index_modal';
+import { AppButton } from '../button';
+import { CustomTextarea } from '../form-components';
 
-// A short "why" for a job action — dispute, refund, payout — as a promise:
+// A short "why" as a promise — a dispute, refund or payout note, a
+// message report, an admin's decline reason or resolution note:
 //   const text = await ref.current.ask({ title, text, label, required, confirmLabel });
 //   if (text === null) return; // cancelled
 function ReasonModal({ refName }) {
 	const modalRef = useRef(null);
+	const formId = useId();
 	const resolver = useRef(null);
 	const [opts, setOpts] = useState({});
 	const [value, setValue] = useState('');
@@ -50,7 +52,7 @@ function ReasonModal({ refName }) {
 			onClose={() => settle(null)}
 		>
 			<Modal.Card
-				eyebrow={opts.eyebrow || 'Job'}
+				eyebrow={opts.eyebrow}
 				title={opts.title}
 				subtitle={opts.text}
 				footer={
@@ -61,13 +63,13 @@ function ReasonModal({ refName }) {
 						>
 							Cancel
 						</AppButton>
-						<AppButton type="submit" form="job-reason-form">
+						<AppButton type="submit" form={formId}>
 							{opts.confirmLabel || 'Send'}
 						</AppButton>
 					</>
 				}
 			>
-				<form id="job-reason-form" noValidate onSubmit={submit}>
+				<form id={formId} noValidate onSubmit={submit}>
 					<CustomTextarea
 						label={opts.label || 'Reason'}
 						name="reason"

@@ -10,7 +10,7 @@ import ProfileAvatar from '../../../components/profile-avatar';
 import { AppButton } from '../../../components/button';
 import { ROUTES } from '../../../utilities/app-routes';
 import { idOf } from '../../elements/listing-helpers';
-import ReasonModal from '../../jobs/elements/reason-modal';
+import ReasonModal from '../../../components/modal/reason-modal';
 
 const MAX_BODY = 4000;
 

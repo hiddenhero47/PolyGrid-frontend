@@ -42,7 +42,7 @@ import { formatDate, skillLabel } from '../../utilities/basic-functions';
 import { ROUTES, workerPath } from '../../utilities/app-routes';
 import { BackLink, Fact, FileList, Panel } from '../elements/panels';
 import { idOf, isPast, payText, placeText } from '../elements/listing-helpers';
-import ReasonModal from '../jobs/elements/reason-modal';
+import ReasonModal from '../../components/modal/reason-modal';
 import EditOpeningModal from './elements/edit-opening-modal';
 
 const jobPath = (id) => `${ROUTES.DASHBOARD_JOBS}/${id}`;

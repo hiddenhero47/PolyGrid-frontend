@@ -43,7 +43,7 @@ import {
 	partyUser,
 	stageAmount,
 } from './elements/job-helpers';
-import ReasonModal from './elements/reason-modal';
+import ReasonModal from '../../components/modal/reason-modal';
 import StagesModal from './elements/stages-modal';
 import FundModal from './elements/fund-modal';
 import EditJobModal from './elements/edit-modal';

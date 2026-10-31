@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { LuShieldOff } from 'react-icons/lu';
 import { selectIsAuthenticated } from '../../store/slice/auth';
 import AdminServices from '../../features/services/custom-hooks/admin';
+import AdminMoneyServices from '../../features/services/custom-hooks/admin-money';
 import EmptyState from '../../components/empty-state';
 import { AppButton } from '../../components/button';
 import DashboardShell from '../dashboard-shell';
@@ -33,6 +34,18 @@ function AdminLayout() {
 
 	const { data: pendingDigital } = AdminServices.getDigitalReview(
 		{ status: 'pending', page: 1, limit: 1 },
+		{ enabled: allowed }
+	);
+	const { data: disputes } = AdminMoneyServices.disputes(
+		{ page: 1, limit: 1 },
+		{ enabled: allowed }
+	);
+	const { data: refunds } = AdminMoneyServices.refundRequests(
+		{ page: 1, limit: 1 },
+		{ enabled: allowed }
+	);
+	const { data: payouts } = AdminMoneyServices.payoutRequests(
+		{ page: 1, limit: 1 },
 		{ enabled: allowed }
 	);
 
@@ -66,6 +79,9 @@ function AdminLayout() {
 			counts={{
 				pendingVerifications: pending?.pagination?.total || 0,
 				pendingDigital: pendingDigital?.pagination?.total || 0,
+				openDisputes: disputes?.pagination?.total || 0,
+				pendingMoneyRequests:
+					(refunds?.pagination?.total || 0) + (payouts?.pagination?.total || 0),
 			}}
 			consoleLabel="Command console"
 			eyebrow="Admin console"

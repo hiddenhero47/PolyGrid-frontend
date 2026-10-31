@@ -55,6 +55,9 @@ export const ROUTES = {
 	ADMIN_SUBSCRIPTIONS: '/admin/subscriptions',
 	ADMIN_USERS: '/admin/users',
 	ADMIN_DIGITAL_REVIEW: '/admin/digital-products',
+	ADMIN_DISPUTES: '/admin/disputes',
+	ADMIN_REFUNDS_PAYOUTS: '/admin/refunds-payouts',
+	ADMIN_PAYMENTS: '/admin/payments',
 
 	ABOUT: '/about-us',
 	PRIVACY: '/privacy-policy',

@@ -9,10 +9,7 @@ import ProfileAvatar from '../../../components/profile-avatar';
 import StatusBadge from '../../../components/status-badge';
 import { AppButton } from '../../../components/button';
 import { CustomSelect } from '../../../components/form-components';
-import {
-	SYSTEM_ROLE,
-	SYSTEM_ROLE_LABELS,
-} from '../../../utilities/app-const';
+import { SYSTEM_ROLE, SYSTEM_ROLE_LABELS } from '../../../utilities/app-const';
 import { formatDate } from '../../../utilities/basic-functions';
 
 // The roles a super admin can hand out (super_admin itself is never
