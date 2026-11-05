@@ -81,7 +81,6 @@ export const NavShell = styled.nav`
 		flex: 1;
 		overflow-y: auto;
 		padding: 14px 12px;
-		scrollbar-width: thin;
 	}
 
 	.sc_section + .sc_section {

@@ -33,6 +33,47 @@ const GlobalStyleInjector = createGlobalStyle`
     position: relative;
   }
 
+  /* Slim pill scrollbars. Chromium / Safari: the thumb floats inside a
+     transparent border, so it reads as a pill, and only the page's own
+     bar gets a track color — inner scrollers (menus, drawers, tables)
+     show their own surface behind it. Firefox only takes two colors. */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  html::-webkit-scrollbar-track {
+    background: var(--pg-scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    min-height: 40px;
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-color: var(--pg-scrollbar-thumb);
+    background-clip: padding-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--pg-scrollbar-thumbHover);
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--pg-scrollbar-thumb) transparent;
+    }
+
+    html {
+      scrollbar-color: var(--pg-scrollbar-thumb) var(--pg-scrollbar-track);
+    }
+  }
+
   ::selection {
     background-color: var(--pg-accent-soft);
     color: var(--pg-text-primary);

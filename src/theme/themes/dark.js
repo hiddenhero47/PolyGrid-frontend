@@ -200,6 +200,12 @@ const dark = {
 		activeText: '#1A0A06',
 	},
 
+	scrollbar: {
+		track: '#0B0D12',
+		thumb: 'rgba(242, 242, 242, 0.16)',
+		thumbHover: 'rgba(255, 91, 61, 0.8)',
+	},
+
 	table: {
 		headerBg: '#1C202B',
 		headerText: '#9CA3AF',

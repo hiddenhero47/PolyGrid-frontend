@@ -311,12 +311,15 @@ one yet.
 
 ### Auth — `pages/auth`, `features/services/custom-hooks/auth.js`
 
-Register (`POST /api/users`), login (`POST /api/users/login`; if the
-account has 2FA the first try fails with code `2FA_REQUIRED` — no
-toast, `error.twoFactorCode` — and the page asks for the 6-digit code,
-`2FA_INVALID` = wrong code), forgot (`/request-reset`, always the same
+Register (`POST /api/users` — no token: the account can't sign in until
+its email is verified, so the page ends on `elements/check-email.jsx`,
+"check your email" with a resend button), login (`POST /api/users/login`;
+if the account has 2FA the first try fails with code `2FA_REQUIRED` — no
+toast, `error.silentCode` — and the page asks for the 6-digit code,
+`2FA_INVALID` = wrong code; an unverified account fails with
+`EMAIL_NOT_VERIFIED` and gets the same check-email screen), forgot (`/request-reset`, always the same
 generic answer) and reset (`/reset-password`; the emailed link is
-`/reset-password/:token`). Success stores the session with
+`/reset-password/:token`). A successful login stores the session with
 `setSession` (user + token). **The backend's user id field is `id`,
 not `_id`.** `AuthServices.logout()` also clears the query cache.
 `layouts/auth-layout` sends signed-in users away from these pages
@@ -325,9 +328,9 @@ mirror `polygrid-backend/src/validators/user/userValidator.ts`.
 
 Outside production the backend also returns the verify link / reset token
 in those responses (`verifyUrl`, `verifyEmailToken`, `token`) — handy
-for testing without an inbox; `setSession` never stores them. Real
-emails go through the Mailgun sandbox (authorized recipients only;
-check spam).
+for testing without an inbox; `setSession` never stores them. In
+development every email lands in **Mailpit** (run `mailpit`, inbox at
+`localhost:8025`, any address works); production sends through Mailgun.
 
 ### Feedback & profile building blocks
 

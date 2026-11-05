@@ -101,6 +101,8 @@ export const THEME_SCHEMA = {
 		'switchTrack',
 		'switchThumb',
 	],
+	// scrollbars: the page's track, and the thumb everywhere
+	scrollbar: ['track', 'thumb', 'thumbHover'],
 	// numbered / counter badges
 	badge: ['background', 'text'],
 	tab: ['activeBg', 'activeText'],

@@ -13,20 +13,21 @@ import { loginValidation } from '../../features/validations/auth-validation';
 import { toast } from '../../layouts/toast/toast-handler';
 import { ROUTES, homeForUser } from '../../utilities/app-routes';
 import AuthHeader from './elements/auth-header';
+import CheckEmail from './elements/check-email';
 import { AuthSwitch } from './elements/index.style';
 
 const CODE_LENGTH = 6;
 
 // frontend-plan §A.3 — POST /api/users/login. Two steps when the account
 // has 2FA: the first attempt comes back 2FA_REQUIRED (no toast — the API
-// client marks it is2FARequired), so we ask for the authenticator code and
+// client sets error.silentCode), so we ask for the authenticator code and
 // send the same credentials again with `token`.
 function Login() {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { mutate: login, isPending } = AuthServices.login();
 
-	const [step, setStep] = useState('credentials'); // | 'twoFactor'
+	const [step, setStep] = useState('credentials'); // | 'twoFactor' | 'unverified'
 	const [code, setCode] = useState('');
 	const [codeError, setCodeError] = useState('');
 
@@ -45,10 +46,13 @@ function Login() {
 					{
 						onSuccess: finish,
 						onError: (error) => {
-							if (error.twoFactorCode === '2FA_REQUIRED') {
+							if (error.silentCode === '2FA_REQUIRED') {
 								setStep('twoFactor');
 								setCode('');
 								setCodeError('');
+							}
+							if (error.silentCode === 'EMAIL_NOT_VERIFIED') {
+								setStep('unverified');
 							}
 						},
 					}
@@ -66,7 +70,7 @@ function Login() {
 			{
 				onSuccess: finish,
 				onError: (error) => {
-					if (error.twoFactorCode === '2FA_INVALID') {
+					if (error.silentCode === '2FA_INVALID') {
 						setCodeError(
 							"That code didn't work — check your app and try again"
 						);
@@ -78,6 +82,28 @@ function Login() {
 	};
 
 	const err = (field) => (touched[field] && errors[field]) || false;
+
+	if (step === 'unverified') {
+		return (
+			<CheckEmail
+				email={values.email.trim()}
+				title="Verify your email first"
+				text={
+					<>
+						Open the link we sent to <strong>{values.email.trim()}</strong>,
+						then sign in. Links last 24 hours.
+					</>
+				}
+			>
+				<AuthSwitch className="self-stretch">
+					<button type="button" onClick={() => setStep('credentials')}>
+						<LuArrowLeft className="mr-1 inline" aria-hidden="true" />
+						Back to sign in
+					</button>
+				</AuthSwitch>
+			</CheckEmail>
+		);
+	}
 
 	if (step === 'twoFactor') {
 		return (

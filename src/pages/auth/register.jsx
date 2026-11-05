@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { LuArrowRight } from 'react-icons/lu';
 import { AppButton } from '../../components/button';
@@ -11,9 +11,9 @@ import {
 } from '../../components/form-components';
 import AuthServices from '../../features/services/custom-hooks/auth';
 import { registerValidation } from '../../features/validations/auth-validation';
-import { toast } from '../../layouts/toast/toast-handler';
-import { ROUTES, homeForUser } from '../../utilities/app-routes';
+import { ROUTES } from '../../utilities/app-routes';
 import AuthHeader from './elements/auth-header';
+import CheckEmail from './elements/check-email';
 import { AuthSwitch } from './elements/index.style';
 
 // Best guess at the visitor's country for the phone field, from the
@@ -24,11 +24,13 @@ const guessCountry = () => {
 };
 
 // frontend-plan §A.2 — POST /api/users. One account for every pillar:
-// signing up never asks which pillar; business profiles come later.
+// signing up never asks which pillar; business profiles come later. The
+// account can't sign in until the emailed link is opened, so this ends on
+// "check your email", not in the dashboard.
 function Register() {
-	const navigate = useNavigate();
 	const location = useLocation();
 	const { mutate: register, isPending } = AuthServices.register();
+	const [sentTo, setSentTo] = useState('');
 
 	const {
 		values,
@@ -58,21 +60,35 @@ function Register() {
 					...(phoneNumber.number ? { phoneNumber } : {}),
 				},
 				{
-					onSuccess: (user) => {
-						toast.success(
-							`We sent a verification link to ${user.email} — open it to confirm your account.`,
-							{ title: `Welcome, ${user.fullName?.split(' ')[0] || ''}`.trim() }
-						);
-						navigate(location.state?.from || homeForUser(user), {
-							replace: true,
-						});
-					},
+					onSuccess: (user) => setSentTo(user.email),
 				}
 			);
 		},
 	});
 
 	const err = (field) => (touched[field] && errors[field]) || false;
+
+	if (sentTo) {
+		return (
+			<CheckEmail
+				email={sentTo}
+				title="Check your email"
+				text={
+					<>
+						We sent a link to <strong>{sentTo}</strong>. Open it to confirm your
+						account, then sign in. It lasts 24 hours.
+					</>
+				}
+			>
+				<AuthSwitch className="self-stretch">
+					Already verified?{' '}
+					<Link to={ROUTES.LOGIN} state={location.state}>
+						Sign in
+					</Link>
+				</AuthSwitch>
+			</CheckEmail>
+		);
+	}
 
 	return (
 		<>

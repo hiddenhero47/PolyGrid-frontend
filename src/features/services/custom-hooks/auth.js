@@ -7,23 +7,22 @@ import {
 	logout,
 } from '../../../store/slice/auth';
 
-// polygrid-backend src/routes/userRoutes.ts. Register and login both
-// answer with toPublicUser() + token, which setSession stores.
+// polygrid-backend src/routes/userRoutes.ts. Login answers with
+// toPublicUser() + token, which setSession stores.
 
-// POST /api/users  { fullName, email, password, phoneNumber? }
-const useRegisterMutation = () => {
-	const dispatch = useDispatch();
-	return useMutation({
+// POST /api/users  { fullName, email, password, phoneNumber? } — no token:
+// the account can't sign in until its email is verified.
+const useRegisterMutation = () =>
+	useMutation({
 		mutationFn: (data) =>
 			axiosCall({ url: '/api/users', method: 'POST', data }),
-		onSuccess: (res) => dispatch(setSession(res)),
 	});
-};
 
 // POST /api/users/login  { email, password, token? }
 // If the account has 2FA, the first attempt fails with code 2FA_REQUIRED
-// (no toast — error.is2FARequired) and the page asks for the 6-digit code;
-// a wrong code fails with 2FA_INVALID.
+// (no toast — error.silentCode) and the page asks for the 6-digit code;
+// a wrong code fails with 2FA_INVALID. An unverified account fails with
+// EMAIL_NOT_VERIFIED (no toast either) and the page offers a new link.
 const useLoginMutation = () => {
 	const dispatch = useDispatch();
 	return useMutation({

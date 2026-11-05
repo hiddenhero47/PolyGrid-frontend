@@ -17,8 +17,9 @@ const BASE_URL = import.meta.env.DEV
 
 // Codes the caller handles itself — no generic error toast.
 // 2FA_REQUIRED / 2FA_INVALID come from userController's enforceTwoFactor:
-// the login form shows a code prompt instead.
-const SILENT_CODES = ['2FA_REQUIRED', '2FA_INVALID'];
+// the login form shows a code prompt instead. EMAIL_NOT_VERIFIED comes
+// from loginUser: the form shows the "check your email" screen.
+const SILENT_CODES = ['2FA_REQUIRED', '2FA_INVALID', 'EMAIL_NOT_VERIFIED'];
 
 export const getErrorMessage = (error) =>
 	error?.response?.data?.message ||
@@ -55,8 +56,7 @@ axiosInstance.interceptors.response.use(
 		const code = error.response?.data?.code;
 
 		if (SILENT_CODES.includes(code)) {
-			error.is2FARequired = true;
-			error.twoFactorCode = code; // '2FA_REQUIRED' | '2FA_INVALID'
+			error.silentCode = code;
 			return Promise.reject(error);
 		}
 

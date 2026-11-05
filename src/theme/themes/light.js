@@ -211,6 +211,12 @@ const light = {
 		activeBg: '#456882',
 		activeText: '#FFFFFF',
 	},
+	scrollbar: {
+		track: '#F7F7F7',
+		thumb: 'rgba(57, 62, 70, 0.22)',
+		thumbHover: '#456882',
+	},
+
 	table: {
 		headerBg: '#F3F4F6',
 		headerText: '#5E6573',
