@@ -21,7 +21,10 @@ import StatusBadge from '../../components/status-badge';
 import { AppButton } from '../../components/button';
 import { SkeletonBar } from '../../components/table/index.style';
 import { Chip } from '../../pages/home/elements/index.style';
-import { DIGITAL_PRODUCT_CATEGORY_LABELS } from '../../utilities/app-const';
+import {
+	DIGITAL_PRODUCT_CATEGORY_LABELS,
+	paymentBadge,
+} from '../../utilities/app-const';
 import {
 	formatDate,
 	formatMoney,
@@ -29,6 +32,7 @@ import {
 } from '../../utilities/basic-functions';
 import { ROUTES, digitalProductPath } from '../../utilities/app-routes';
 import { idOf } from '../elements/listing-helpers';
+import PaymentHoldNotice from '../elements/payment-hold-notice';
 
 const LIMIT = 12;
 const STATUS = {
@@ -125,6 +129,7 @@ function Purchases() {
 	const refreshPurchases = PurchaseServices.useRefresh();
 	const links = PurchaseServices.downloadLinks();
 	const refreshPayment = PaymentServices.refresh();
+	const held = PaymentServices.useHeld();
 	const modalRef = useRef(null);
 	const [current, setCurrent] = useState(null);
 	const rows = query.data?.data || [];
@@ -145,7 +150,11 @@ function Purchases() {
 		refreshPayment.mutate(purchase.paymentId, {
 			onSuccess: (res) => {
 				refreshPurchases();
-				if (res?.status === 'success')
+				if (res?.payment?.isOnHold)
+					toast.info(
+						'Payment received — your files unlock after a security check'
+					);
+				else if (res?.status === 'success')
 					toast.success('Payment confirmed — your files are ready');
 				else if (res?.status === 'failed')
 					toast.error(
@@ -212,11 +221,20 @@ function Purchases() {
 						const product =
 							typeof purchase.product === 'object' ? purchase.product : null;
 						const image = product?.previewImages?.[0]?.url;
+						const hold = held.of(purchase.id)[0];
 						return (
 							<li
 								key={purchase.id}
 								className="flex flex-wrap items-center gap-4 rounded-2xl border border-(--pg-card-border) bg-(--pg-surface-background) p-4"
 							>
+								{hold && (
+									<div className="w-full [&>p]:mb-0">
+										<PaymentHoldNotice
+											payment={hold}
+											unlocks="your files unlock"
+										/>
+									</div>
+								)}
 								{image ? (
 									<img
 										src={image}
@@ -259,8 +277,12 @@ function Purchases() {
 										· {formatDate(purchase.createdAt)}
 									</p>
 								</div>
-								<StatusBadge status={purchase.status} map={STATUS} />
-								{purchase.status === 'success' ? (
+								{hold ? (
+									<StatusBadge {...paymentBadge(hold)} />
+								) : (
+									<StatusBadge status={purchase.status} map={STATUS} />
+								)}
+								{hold ? null : purchase.status === 'success' ? (
 									<AppButton
 										icon={<LuDownload />}
 										onClick={() => openDownloads(purchase)}

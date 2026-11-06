@@ -49,6 +49,7 @@ import {
 import ReasonModal from '../../components/modal/reason-modal';
 import StagesModal from './elements/stages-modal';
 import FundModal from './elements/fund-modal';
+import PaymentHoldNotice from '../elements/payment-hold-notice';
 import EditJobModal from './elements/edit-modal';
 import { BackLink, Panel, eyebrowClass } from '../elements/panels';
 
@@ -95,6 +96,7 @@ function JobDetail() {
 	const requestRefund = JobServices.requestRefund();
 	const requestPayout = JobServices.requestPayout();
 	const fundJob = PaymentServices.fundJob();
+	const held = PaymentServices.useHeld();
 	const refreshPayment = PaymentServices.refresh();
 	const startChat = MessageServices.start();
 	const navigate = useNavigate();
@@ -152,7 +154,13 @@ function JobDetail() {
 	const active = job.status === 'active';
 	const disputed = job.status === 'disputed';
 	const currency = job.currency;
-	const unfunded = Math.max((job.totalAmount || 0) - (job.amountPaid || 0), 0);
+	// held money isn't in amountPaid yet, but it mustn't be asked for twice
+	const heldPayments = held.of(job._id);
+	const heldAmount = heldPayments.reduce((sum, p) => sum + p.amount, 0);
+	const unfunded = Math.max(
+		(job.totalAmount || 0) - (job.amountPaid || 0) - heldAmount,
+		0
+	);
 	const proposal = job.proposedStages?.stages?.length
 		? job.proposedStages
 		: null;
@@ -298,8 +306,14 @@ function JobDetail() {
 	const paid = () => {
 		const { paymentId, amount } = checkout;
 		checkoutRef.current.close();
-		toast.success(`${formatMoney(amount, currency)} paid into escrow`);
 		refreshPayment.mutate(paymentId, {
+			onSuccess: (res) => {
+				if (res.payment?.isOnHold)
+					toast.info(
+						'Payment received — it reaches escrow after a security check'
+					);
+				else toast.success(`${formatMoney(amount, currency)} paid into escrow`);
+			},
 			onSettled: () =>
 				queryClient.invalidateQueries({ queryKey: jobKey(job._id) }),
 		});
@@ -396,6 +410,14 @@ function JobDetail() {
 					</AppButton>
 				)}
 			</div>
+
+			{heldPayments.map((payment) => (
+				<PaymentHoldNotice
+					key={payment._id}
+					payment={payment}
+					unlocks="it reaches escrow"
+				/>
+			))}
 
 			{needs && (
 				<p className="mb-6 flex items-start gap-2 rounded-2xl border border-(--pg-card-border) bg-(--pg-surface-card) p-4 text-sm text-(--pg-text-primary)">

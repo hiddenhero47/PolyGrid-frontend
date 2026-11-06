@@ -7,12 +7,17 @@ import Modal from '../../components/modal/index_modal';
 import CustomTable from '../../components/table/custom-table';
 import StatusBadge from '../../components/status-badge';
 import { CustomSelect } from '../../components/form-components';
+import ConfirmModal from '../../components/modal/confirm-modal';
+import SegmentedControl from '../../components/segmented-control';
+import { AppButton } from '../../components/button';
+import { toast } from '../../layouts/toast/toast-handler';
 import JobReview from '../elements/job-review';
 import {
 	PAYMENT_PROVIDER_LABELS,
 	PAYMENT_STATUS_BADGES,
 	PAYMENT_TARGET_LABELS,
 	PAYMENT_TARGET_TYPE,
+	paymentBadge,
 } from '../../utilities/app-const';
 import {
 	enumToOptions,
@@ -31,12 +36,25 @@ const TARGET_OPTIONS = enumToOptions(
 const PROVIDER_OPTIONS = Object.entries(PAYMENT_PROVIDER_LABELS).map(
 	([value, label]) => ({ value, label })
 );
+const VIEWS = [
+	{ value: '', label: 'All' },
+	{ value: 'held', label: 'On hold' },
+	{ value: 'review', label: 'Manual review' },
+	{ value: 'disputed', label: 'Disputed' },
+];
+const VIEW_FILTERS = {
+	held: { isOnHold: 'true' },
+	review: { pendingManualReview: 'true' },
+	disputed: { hasDispute: 'true' },
+};
 
 // frontend-plan §C.10 — every payment on the platform (admin /
 // super_admin): card payments through Stripe and payments an admin
 // recorded by hand. Filters live in the URL:
-// ?status=&targetType=&provider=&user=&page= — click a payer to see only
-// theirs, and a job payment to open the job.
+// ?view=&status=&targetType=&provider=&user=&page= — click a payer to see
+// only theirs, and a job payment to open the job. Held payments release on
+// their own unless they're above the manual-review amount; "Release" is
+// the early (or only) way out. A dispute is answered in Stripe.
 function PaymentsLedger() {
 	const [params, setParams] = useSearchParams();
 	const filters = {
@@ -45,13 +63,17 @@ function PaymentsLedger() {
 		provider: params.get('provider') || '',
 		user: params.get('user') || '',
 	};
+	const view = params.get('view') || '';
 	const page = Math.max(Number(params.get('page')) || 1, 1);
 	const payments = AdminMoneyServices.payments({
 		...filters,
+		...VIEW_FILTERS[view],
 		page,
 		limit: LIMIT,
 	});
+	const release = AdminMoneyServices.releaseHold();
 	const drawerRef = useRef(null);
+	const confirmRef = useRef(null);
 	const [jobId, setJobId] = useState(null);
 	const rows = payments.data?.data || [];
 	const userEmail =
@@ -65,6 +87,18 @@ function PaymentsLedger() {
 		);
 		next.delete('page');
 		setParams(next);
+	};
+
+	const onRelease = async (row) => {
+		const ok = await confirmRef.current.ask({
+			title: 'Release this payment now?',
+			text: `${formatMoney(row.amount, row.currency)} from ${row.userEmail || 'this buyer'}. What it paid for is delivered straight away, and this can’t be undone.`,
+			confirmLabel: 'Release now',
+		});
+		if (ok)
+			release.mutate(row._id, {
+				onSuccess: () => toast.success('Payment released'),
+			});
 	};
 
 	const fields = [
@@ -114,8 +148,39 @@ function PaymentsLedger() {
 			Header: 'Status',
 			accessor: 'status',
 			Cell: ({ row: { original: row } }) => (
-				<StatusBadge status={row.status} map={PAYMENT_STATUS_BADGES} />
+				<span className="inline-flex flex-col items-start gap-1">
+					<StatusBadge {...paymentBadge(row)} />
+					{row.isOnHold && row.holdReleaseAt && (
+						<span className="text-xs text-(--pg-text-secondary)">
+							Until {formatDate(row.holdReleaseAt, true)}
+						</span>
+					)}
+					{row.disputedAt && (
+						<span className="text-xs text-(--pg-status-error)">
+							Disputed {formatDate(row.disputedAt, true)}
+						</span>
+					)}
+				</span>
 			),
+		},
+		{
+			Header: '',
+			accessor: '_id',
+			align: 'right',
+			Cell: ({ row: { original: row } }) =>
+				row.isOnHold ? (
+					<AppButton
+						size="sm"
+						variant="secondary"
+						disabled={release.isPending}
+						onClick={(e) => {
+							e.stopPropagation();
+							onRelease(row);
+						}}
+					>
+						Release
+					</AppButton>
+				) : null,
 		},
 	];
 
@@ -126,6 +191,15 @@ function PaymentsLedger() {
 				title="Payments"
 				subtitle="Every payment into PolyGrid — job escrow, subscriptions and digital files. Click a job payment to open its job."
 			/>
+
+			<div className="mb-5">
+				<SegmentedControl
+					label="Show"
+					options={VIEWS}
+					value={view}
+					onChange={(v) => update({ view: v })}
+				/>
+			</div>
 
 			<div className="mb-5 grid gap-4 sm:grid-cols-3 lg:max-w-200">
 				<CustomSelect
@@ -195,6 +269,7 @@ function PaymentsLedger() {
 				emptySbText="Try clearing a filter."
 			/>
 
+			<ConfirmModal refName={confirmRef} />
 			<Modal.Right
 				refName={drawerRef}
 				width="560px"

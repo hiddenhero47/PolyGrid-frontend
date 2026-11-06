@@ -10,6 +10,7 @@ import EmptyState from '../../components/empty-state';
 import { AppButton } from '../../components/button';
 import DashboardShell from '../dashboard-shell';
 import {
+	MANAGE_ROLES,
 	REVIEW_ROLES,
 	SYSTEM_ROLE_LABELS,
 	VERIFICATION_STATUS,
@@ -44,6 +45,10 @@ function AdminLayout() {
 	const { data: reports } = AdminModerationServices.messageReports(
 		{ status: 'pending', page: 1, limit: 1 },
 		{ enabled: allowed }
+	);
+	const { data: forReview } = AdminMoneyServices.payments(
+		{ pendingManualReview: 'true', page: 1, limit: 1 },
+		{ enabled: isAuthenticated && MANAGE_ROLES.includes(user?.systemRole) }
 	);
 	const { data: refunds } = AdminMoneyServices.refundRequests(
 		{ page: 1, limit: 1 },
@@ -86,6 +91,7 @@ function AdminLayout() {
 				pendingDigital: pendingDigital?.pagination?.total || 0,
 				openDisputes: disputes?.pagination?.total || 0,
 				openReports: reports?.pagination?.total || 0,
+				paymentsForReview: forReview?.pagination?.total || 0,
 				pendingMoneyRequests:
 					(refunds?.pagination?.total || 0) + (payouts?.pagination?.total || 0),
 			}}

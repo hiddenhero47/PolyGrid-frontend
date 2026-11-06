@@ -20,6 +20,14 @@ const jobLink = (data) =>
 		? `${ROUTES.DASHBOARD_JOBS}/${data.jobId}`
 		: ROUTES.DASHBOARD_JOBS;
 
+// A held payment leads to whatever it paid for.
+const paymentLink = (data) => {
+	if (data?.targetType === 'Job' && data.targetId)
+		return `${ROUTES.DASHBOARD_JOBS}/${data.targetId}`;
+	if (data?.targetType === 'DigitalPurchase') return ROUTES.DASHBOARD_PURCHASES;
+	return ROUTES.DASHBOARD_SUBSCRIPTION;
+};
+
 const NOTIFICATION_META = {
 	verification_approved: {
 		icon: LuBadgeCheck,
@@ -75,6 +83,12 @@ const NOTIFICATION_META = {
 		icon: LuWallet,
 		tone: 'info',
 		to: jobLink,
+	},
+	// a large payment went on a security hold, or came off it
+	payment_on_hold: {
+		icon: LuWallet,
+		tone: 'info',
+		to: paymentLink,
 	},
 };
 

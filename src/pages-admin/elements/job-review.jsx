@@ -13,7 +13,7 @@ import {
 	JOB_STATUS_BADGES,
 	JOB_TYPE_LABELS,
 	MANAGE_ROLES,
-	PAYMENT_STATUS_BADGES,
+	paymentBadge,
 } from '../../utilities/app-const';
 import { formatDate, formatMoney } from '../../utilities/basic-functions';
 
@@ -355,7 +355,7 @@ function JobReview({ jobId, fallback }) {
 											: 'Card (Stripe)'}
 									</span>
 								</span>
-								<StatusBadge status={p.status} map={PAYMENT_STATUS_BADGES} />
+								<StatusBadge {...paymentBadge(p)} />
 							</li>
 						))}
 					</ul>

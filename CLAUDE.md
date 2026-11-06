@@ -450,8 +450,12 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   (`/admin/payments`). They share one job drawer,
   `pages-admin/elements/job-review.jsx` (parties, money, stages, history,
   contracts, payments; admins record a payment made outside Stripe).
-  Customer care sees the queues and job details, never acts; Jobs, To pay
-  and the ledger are admin / super_admin only. Menu badges: open disputes,
+  The ledger's views (`?view=held|review|disputed`) list held and disputed
+  payments, and "Release" delivers a held one now
+  (`POST /api/payments/:id/approve-hold`) — above the manual-review amount
+  it's the only way out; the menu badge counts those. Customer care sees
+  the queues and job details, never acts; Jobs, To pay and the ledger are
+  admin / super_admin only. Menu badges: open disputes,
   pending refund + payout requests.
 - Trust & safety (frontend-plan §C.3, §C.3b, §C.5, §C.12, hooks
   `custom-hooks/admin-moderation.js`): **Templates**
@@ -633,6 +637,14 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   (`custom-hooks/payments.js`) with a `ConfirmIdentityModal` on the page —
   it asks, then sends the intent again. Every card charge goes through
   3D Secure; `confirmPayment` shows the challenge itself.
+- Held payments: a card charge above the hold amount succeeds, but what
+  it paid for waits (`payment.isOnHold`, `holdReleaseAt`; a dispute stops
+  it for good). So a job stays unfunded, a purchase stays `pending` and a
+  subscription stays inactive while the money is taken. Before offering
+  to take money, check `PaymentServices.useHeld()` (`all`, `of(targetId)`)
+  and show `pages-dashboard/elements/payment-hold-notice.jsx`; a held
+  amount doesn't count as unfunded. `paymentBadge(payment)` (`app-const`)
+  gives the StatusBadge props.
 - Pending Stripe payments: "Check payment status" (Subscription page
   banner and pending rows in Payments) calls
   `POST /api/payments/:id/refresh`; the backend also sweeps them every

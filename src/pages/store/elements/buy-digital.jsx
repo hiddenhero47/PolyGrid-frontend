@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
-import { LuDownload, LuShoppingBag } from 'react-icons/lu';
+import { LuDownload, LuShieldCheck, LuShoppingBag } from 'react-icons/lu';
 import PurchaseServices from '../../../features/services/custom-hooks/purchases';
 import PaymentServices, {
 	withStepUp,
@@ -27,6 +27,7 @@ function BuyDigital({ product }) {
 	const refreshPurchases = PurchaseServices.useRefresh();
 	const buy = PurchaseServices.buy();
 	const refreshPayment = PaymentServices.refresh();
+	const held = PaymentServices.useHeld();
 	const owned = (purchases.data?.data || []).find(
 		(p) => idOf(p.product) === product.id
 	);
@@ -39,6 +40,14 @@ function BuyDigital({ product }) {
 			</AppButton>
 		);
 
+	// charged, but the file waits for a security check: never offer to pay
+	if (owned && held.of(owned.id).length)
+		return (
+			<AppButton to={purchasesTo} variant="secondary" icon={<LuShieldCheck />}>
+				Paid — on a security check
+			</AppButton>
+		);
+
 	const start = () =>
 		withStepUp(
 			buy,
@@ -48,6 +57,12 @@ function BuyDigital({ product }) {
 			{ productId: product.id },
 			{
 				onSuccess: (res) => {
+					if (res.held) {
+						refreshPurchases();
+						toast.info('Paid — your files unlock after a security check');
+						navigate(purchasesTo);
+						return;
+					}
 					if (!res.clientSecret) {
 						refreshPurchases();
 						toast.success('It’s yours — find it in Purchases');
@@ -67,8 +82,14 @@ function BuyDigital({ product }) {
 	// wait for the webhook, then go to the downloads
 	const paid = () => {
 		checkoutRef.current.close();
-		toast.success('Paid — preparing your download');
 		refreshPayment.mutate(checkout.paymentId, {
+			onSuccess: (res) => {
+				if (res.payment?.isOnHold)
+					toast.info(
+						'Payment received — your files unlock after a security check'
+					);
+				else toast.success('Paid — preparing your download');
+			},
 			onSettled: () => {
 				refreshPurchases();
 				navigate(purchasesTo);

@@ -19,6 +19,8 @@ import StatusBadge from '../../components/status-badge';
 import EmptyState from '../../components/empty-state';
 import ConfirmModal from '../../components/modal/confirm-modal';
 import ConfirmIdentityModal from '../../components/modal/confirm-identity-modal';
+import PaymentHoldNotice from '../elements/payment-hold-notice';
+import { paymentBadge } from '../../utilities/app-const';
 import { AppButton } from '../../components/button';
 import { SkeletonBar } from '../../components/table/index.style';
 import { TierCard } from '../../pages-admin/plans/elements/index.style';
@@ -36,14 +38,6 @@ const SUBSCRIPTION_BADGES = {
 	past_due: { label: 'Past due', tone: 'error' },
 	canceled: { label: 'Ended', tone: 'neutral' },
 	expired: { label: 'Expired', tone: 'neutral' },
-};
-
-const PAYMENT_BADGES = {
-	pending: { label: 'Pending', tone: 'warning' },
-	success: { label: 'Paid', tone: 'success' },
-	failed: { label: 'Failed', tone: 'error' },
-	refunded: { label: 'Refunded', tone: 'info' },
-	cancelled: { label: 'Cancelled', tone: 'neutral' },
 };
 
 const HISTORY_FIELDS = [
@@ -96,7 +90,7 @@ const PAYMENT_FIELDS = [
 	{
 		Header: 'Status',
 		accessor: 'status',
-		Cell: ({ value }) => <StatusBadge status={value} map={PAYMENT_BADGES} />,
+		Cell: ({ row }) => <StatusBadge {...paymentBadge(row.original)} />,
 	},
 ];
 
@@ -128,15 +122,21 @@ function MySubscription() {
 	const plans = PlanServices.getPlans();
 	const history = SubscriptionServices.getMySubscriptions();
 	const payments = PaymentServices.getMyPayments();
+	const held = PaymentServices.useHeld();
 	const subscribe = PaymentServices.subscribe();
 	const refresh = PaymentServices.refresh();
 
 	// Ask Stripe directly about a pending payment (its webhook may never
 	// have arrived) — POST /api/payments/:id/refresh.
-	const checkStatus = (paymentId) =>
+	const checkStatus = (paymentId, { quiet = false } = {}) =>
 		refresh.mutate(paymentId, {
 			onSuccess: (res) => {
-				if (res.status === 'success') {
+				if (res.payment?.isOnHold) {
+					setAwaiting(null);
+					toast.info(
+						'Payment received — your plan starts after a security check'
+					);
+				} else if (res.status === 'success') {
 					setAwaiting(null);
 					toast.success(
 						res.subscription
@@ -148,7 +148,7 @@ function MySubscription() {
 					toast.error(
 						'This payment didn’t go through — you weren’t charged for a plan.'
 					);
-				} else {
+				} else if (!quiet) {
 					toast.info(
 						'Stripe is still processing this payment. Try again in a few minutes.'
 					);
@@ -218,6 +218,7 @@ function MySubscription() {
 	const paid = () => {
 		setAwaiting(checkout.subscriptionId);
 		checkoutRef.current.close();
+		checkStatus(checkout.paymentId, { quiet: true });
 	};
 
 	const buttonLabel = (plan, isCurrent) => {
@@ -246,6 +247,15 @@ function MySubscription() {
 						Current plan
 					</h3>
 				</div>
+				{held.all
+					.filter((p) => p.targetType === 'Subscription')
+					.map((payment) => (
+						<PaymentHoldNotice
+							key={payment._id}
+							payment={payment}
+							unlocks="your plan starts"
+						/>
+					))}
 				{confirming && !activation.gaveUp && (
 					<p
 						role="status"

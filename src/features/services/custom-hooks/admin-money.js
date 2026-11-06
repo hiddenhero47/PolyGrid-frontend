@@ -48,7 +48,9 @@ const usePayoutRequestsQuery = ({ page = 1, limit = 10 } = {}, options = {}) =>
 	});
 
 // GET /api/payments?status=&targetType=&targetId=&user=&provider=&page=
-// — every payment record (admin / super_admin)
+// — every payment record (admin / super_admin). Also isOnHold=true,
+// pendingManualReview=true (held, above the review amount: only an admin
+// can release these) and hasDispute=true (disputed, even after release).
 const usePaymentsQuery = (filters = {}, options = {}) =>
 	useQuery({
 		queryKey: [...ADMIN_MONEY_KEY, 'payments', filters],
@@ -125,6 +127,13 @@ const useMoneyWrite = (request) => {
 	});
 };
 
+// POST /api/payments/:id/approve-hold — delivers what a held payment paid
+// for right now (admin / super_admin); the buyer is told
+const useReleaseHoldMutation = () =>
+	useMoneyWrite((id) =>
+		axiosCall({ url: `/api/payments/${id}/approve-hold`, method: 'POST' })
+	);
+
 // PATCH /api/jobs/:id/dispute/resolve { note } — appended to the job's
 // dispute history; the job goes back to active and both sides are told
 const useResolveDisputeMutation = () =>
@@ -193,6 +202,7 @@ const AdminMoneyServices = {
 	refundRequests: useRefundRequestsQuery,
 	payoutRequests: usePayoutRequestsQuery,
 	payments: usePaymentsQuery,
+	releaseHold: useReleaseHoldMutation,
 	systemPayouts: useSystemPayoutsQuery,
 	searchJobs: useSearchJobsQuery,
 	markPaid: useMarkPayoutPaidMutation,

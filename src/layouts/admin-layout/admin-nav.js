@@ -111,6 +111,7 @@ export const ADMIN_NAV = [
 				to: ROUTES.ADMIN_PAYMENTS,
 				icon: LuReceipt,
 				roles: MANAGE_ROLES,
+				countKey: 'paymentsForReview',
 			},
 			{
 				label: 'Payment settings',

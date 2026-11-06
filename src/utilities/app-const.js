@@ -317,7 +317,14 @@ export const PAYMENT_STATUS_BADGES = {
 	failed: { label: 'Failed', tone: 'error' },
 	refunded: { label: 'Refunded', tone: 'neutral' },
 	cancelled: { label: 'Cancelled', tone: 'neutral' },
+	disputed: { label: 'Disputed', tone: 'error' },
 };
+// StatusBadge props for one payment: a held payment's status is 'success'
+// (the card was charged), but nothing has been delivered yet.
+export const paymentBadge = (payment) =>
+	payment.isOnHold
+		? { label: 'On hold', tone: 'warning' }
+		: { status: payment.status, map: PAYMENT_STATUS_BADGES };
 // src/models/paymentProviderModel.ts
 export const PAYMENT_PROVIDER_LABELS = {
 	stripe: 'Card (Stripe)',

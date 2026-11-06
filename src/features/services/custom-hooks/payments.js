@@ -59,7 +59,7 @@ export const refreshSubscription = (queryClient) => {
 };
 
 // GET /api/payments/me — every charge, any target type, newest first.
-const useGetMyPaymentsQuery = ({ page = 1, limit = 10 } = {}) =>
+const useGetMyPaymentsQuery = ({ page = 1, limit = 10 } = {}, options = {}) =>
 	useQuery({
 		queryKey: ['my-payments', { page, limit }],
 		queryFn: () =>
@@ -69,12 +69,29 @@ const useGetMyPaymentsQuery = ({ page = 1, limit = 10 } = {}) =>
 				params: { page, limit },
 			}),
 		placeholderData: keepPreviousData,
+		...options,
 	});
+
+// The buyer's charged payments whose value hasn't been delivered: on a
+// fraud hold (isOnHold, holdReleaseAt) or stopped by a dispute. The thing
+// they paid for still looks unpaid, so pages check here before offering
+// to take the money again. of(targetId) = the ones for a job / purchase.
+const useHeldPayments = (options) => {
+	const { data } = useGetMyPaymentsQuery({ page: 1, limit: 100 }, options);
+	const held = (data?.data || []).filter(
+		(p) => p.isOnHold || p.status === 'disputed'
+	);
+	return {
+		all: held,
+		of: (targetId) => held.filter((p) => p.targetId === targetId),
+	};
+};
 
 // POST /api/payments/:id/refresh — asks Stripe directly about a payment
 // that's still pending (e.g. its webhook never arrived) and, if it went
 // through, activates what it paid for. Idempotent. Answers
 // { status: 'success' | 'pending' | 'failed', payment, subscription? }.
+// A success can still be payment.isOnHold — charged, but not delivered yet.
 // (The backend also sweeps stuck payments every 15 minutes.)
 const useRefreshPaymentMutation = () => {
 	const queryClient = useQueryClient();
@@ -103,6 +120,7 @@ const PaymentServices = {
 	refresh: useRefreshPaymentMutation,
 	subscribe: useSubscribeMutation,
 	getMyPayments: useGetMyPaymentsQuery,
+	useHeld: useHeldPayments,
 };
 
 export default PaymentServices;
