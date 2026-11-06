@@ -12,6 +12,7 @@ import {
 	LuHandshake,
 	LuClipboardList,
 	LuMessageSquareWarning,
+	LuSlidersHorizontal,
 } from 'react-icons/lu';
 import { ROUTES } from '../../utilities/app-routes';
 import { REVIEW_ROLES, MANAGE_ROLES } from '../../utilities/app-const';
@@ -110,6 +111,12 @@ export const ADMIN_NAV = [
 				to: ROUTES.ADMIN_PAYMENTS,
 				icon: LuReceipt,
 				roles: MANAGE_ROLES,
+			},
+			{
+				label: 'Payment settings',
+				to: ROUTES.ADMIN_SYSTEM_SETTINGS,
+				icon: LuSlidersHorizontal,
+				roles: REVIEW_ROLES,
 			},
 		],
 	},

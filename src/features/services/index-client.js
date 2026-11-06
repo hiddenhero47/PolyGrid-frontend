@@ -19,7 +19,14 @@ const BASE_URL = import.meta.env.DEV
 // 2FA_REQUIRED / 2FA_INVALID come from userController's enforceTwoFactor:
 // the login form shows a code prompt instead. EMAIL_NOT_VERIFIED comes
 // from loginUser: the form shows the "check your email" screen.
-const SILENT_CODES = ['2FA_REQUIRED', '2FA_INVALID', 'EMAIL_NOT_VERIFIED'];
+// IDENTITY_REQUIRED: a large payment needs a password / 2FA check first —
+// see withStepUp in custom-hooks/payments.js.
+const SILENT_CODES = [
+	'2FA_REQUIRED',
+	'2FA_INVALID',
+	'EMAIL_NOT_VERIFIED',
+	'IDENTITY_REQUIRED',
+];
 
 export const getErrorMessage = (error) =>
 	error?.response?.data?.message ||

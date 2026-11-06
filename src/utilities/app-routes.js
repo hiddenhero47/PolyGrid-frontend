@@ -62,6 +62,7 @@ export const ROUTES = {
 	ADMIN_TEMPLATES: '/admin/verification-templates',
 	ADMIN_MESSAGE_REPORTS: '/admin/message-reports',
 	ADMIN_MODERATION: '/admin/moderation',
+	ADMIN_SYSTEM_SETTINGS: '/admin/system-settings',
 
 	ABOUT: '/about-us',
 	PRIVACY: '/privacy-policy',

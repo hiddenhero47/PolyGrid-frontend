@@ -34,11 +34,15 @@ const useMyPurchasesQuery = ({ page = 1, limit = 12 } = {}, options = {}) =>
 // owned, or a purchase is still pending.
 const useBuyMutation = () =>
 	useMutation({
-		mutationFn: (productId) =>
+		mutationFn: ({ productId, ...identity }) =>
 			axiosCall({
 				url: '/api/payments/intent',
 				method: 'POST',
-				data: { targetType: 'DigitalPurchase', targetId: productId },
+				data: {
+					targetType: 'DigitalPurchase',
+					targetId: productId,
+					...identity,
+				},
 			}),
 	});
 

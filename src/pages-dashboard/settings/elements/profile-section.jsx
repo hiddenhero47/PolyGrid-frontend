@@ -4,21 +4,27 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { LuSave, LuCamera } from 'react-icons/lu';
 import AccountServices from '../../../features/services/custom-hooks/account';
+import ReferenceServices from '../../../features/services/custom-hooks/reference';
 import { toast } from '../../../layouts/toast/toast-handler';
 import ProfileAvatar from '../../../components/profile-avatar';
 import { AppButton } from '../../../components/button';
-import { CustomInput, CustomPhone } from '../../../components/form-components';
+import {
+	CustomInput,
+	CustomPhone,
+	CustomSelect,
+} from '../../../components/form-components';
 import { phoneField } from '../../../features/validations/common';
 import { AVATAR_ACCEPT } from '../../../utilities/app-const';
 import SettingsCard from './settings-card';
 
 const MAX_AVATAR = 10 * 1024 * 1024;
 
-// Name, phone and the account photo — the photo every business profile
+// Name, phone, country and the account photo — the photo every business profile
 // falls back to until it gets its own. PUT /api/users/profile.
 function ProfileSection() {
 	const { user } = useSelector((state) => state.auth);
 	const update = AccountServices.updateProfile();
+	const { data: countries = [] } = ReferenceServices.getCountries();
 	const [avatar, setAvatar] = useState(null);
 	const preview = useMemo(
 		() => (avatar ? URL.createObjectURL(avatar) : null),
@@ -32,6 +38,7 @@ function ProfileSection() {
 			phoneNumber: user?.phoneNumber?.number
 				? { number: user.phoneNumber.number, country: user.phoneNumber.country }
 				: { number: '', country: '' },
+			country: user?.country || '',
 		},
 		validationSchema: yup.object({
 			fullName: yup
@@ -44,6 +51,7 @@ function ProfileSection() {
 		onSubmit: (values) => {
 			const fields = { fullName: values.fullName.trim() };
 			if (values.phoneNumber?.number) fields.phoneNumber = values.phoneNumber;
+			if (values.country) fields.country = values.country;
 			update.mutate(
 				{ fields, avatar },
 				{
@@ -129,6 +137,18 @@ function ProfileSection() {
 					onBlur={form.handleBlur}
 					isError={err('phoneNumber')}
 					errormessage={form.errors.phoneNumber}
+				/>
+				<CustomSelect
+					id="settings-country"
+					label="Country"
+					placeholder="Choose your country"
+					hint="Needed before you can make a payment."
+					options={countries.map((c) => ({
+						value: c.isoCode,
+						label: c.name,
+					}))}
+					value={form.values.country}
+					onChange={(code) => form.setFieldValue('country', code)}
 				/>
 				<div>
 					<AppButton

@@ -3,9 +3,12 @@ import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { LuDownload, LuShoppingBag } from 'react-icons/lu';
 import PurchaseServices from '../../../features/services/custom-hooks/purchases';
-import PaymentServices from '../../../features/services/custom-hooks/payments';
+import PaymentServices, {
+	withStepUp,
+} from '../../../features/services/custom-hooks/payments';
 import { toast } from '../../../layouts/toast/toast-handler';
 import CheckoutModal from '../../../components/checkout-modal';
+import ConfirmIdentityModal from '../../../components/modal/confirm-identity-modal';
 import { AppButton } from '../../../components/button';
 import { formatMoney } from '../../../utilities/basic-functions';
 import { ROUTES } from '../../../utilities/app-routes';
@@ -18,6 +21,7 @@ import { idOf } from '../../../pages-dashboard/elements/listing-helpers';
 function BuyDigital({ product }) {
 	const navigate = useNavigate();
 	const checkoutRef = useRef(null);
+	const idRef = useRef(null);
 	const [checkout, setCheckout] = useState(null); // { clientSecret, paymentId }
 	const purchases = PurchaseServices.mine({ page: 1, limit: 100 });
 	const refreshPurchases = PurchaseServices.useRefresh();
@@ -36,21 +40,28 @@ function BuyDigital({ product }) {
 		);
 
 	const start = () =>
-		buy.mutate(product.id, {
-			onSuccess: (res) => {
-				if (!res.clientSecret) {
-					refreshPurchases();
-					toast.success('It’s yours — find it in Purchases');
-					navigate(purchasesTo);
-					return;
-				}
-				setCheckout({
-					clientSecret: res.clientSecret,
-					paymentId: res.paymentId,
-				});
-				checkoutRef.current.open();
-			},
-		});
+		withStepUp(
+			buy,
+			idRef,
+			'buy this file'
+		)(
+			{ productId: product.id },
+			{
+				onSuccess: (res) => {
+					if (!res.clientSecret) {
+						refreshPurchases();
+						toast.success('It’s yours — find it in Purchases');
+						navigate(purchasesTo);
+						return;
+					}
+					setCheckout({
+						clientSecret: res.clientSecret,
+						paymentId: res.paymentId,
+					});
+					checkoutRef.current.open();
+				},
+			}
+		);
 
 	// card accepted — ask the backend to check with Stripe now rather than
 	// wait for the webhook, then go to the downloads
@@ -93,6 +104,7 @@ function BuyDigital({ product }) {
 				clientSecret={checkout?.clientSecret}
 				onPaid={paid}
 			/>
+			<ConfirmIdentityModal refName={idRef} />
 		</>
 	);
 }

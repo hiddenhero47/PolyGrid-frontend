@@ -10,6 +10,7 @@ import SubscriptionServices from '../../features/services/custom-hooks/subscript
 import PlanServices from '../../features/services/custom-hooks/plans';
 import PaymentServices, {
 	refreshSubscription,
+	withStepUp,
 } from '../../features/services/custom-hooks/payments';
 import PageHeader from '../../layouts/dashboard-shell/sub-components/page-header';
 import { toast } from '../../layouts/toast/toast-handler';
@@ -17,6 +18,7 @@ import CustomTable from '../../components/table/custom-table';
 import StatusBadge from '../../components/status-badge';
 import EmptyState from '../../components/empty-state';
 import ConfirmModal from '../../components/modal/confirm-modal';
+import ConfirmIdentityModal from '../../components/modal/confirm-identity-modal';
 import { AppButton } from '../../components/button';
 import { SkeletonBar } from '../../components/table/index.style';
 import { TierCard } from '../../pages-admin/plans/elements/index.style';
@@ -110,6 +112,7 @@ function MySubscription() {
 	const queryClient = useQueryClient();
 	const checkoutRef = useRef(null);
 	const confirmRef = useRef(null);
+	const idRef = useRef(null);
 	const [checkout, setCheckout] = useState(null); // { plan, clientSecret, subscriptionId, paymentId }
 	const [awaiting, setAwaiting] = useState(null); // subscriptionId waiting on the webhook
 
@@ -188,7 +191,11 @@ function MySubscription() {
 			});
 			if (!ok) return;
 		}
-		subscribe.mutate(
+		withStepUp(
+			subscribe,
+			idRef,
+			'pay for this plan'
+		)(
 			{ planTier: plan.planTier },
 			{
 				onSuccess: (res) => {
@@ -418,6 +425,7 @@ function MySubscription() {
 				onPaid={paid}
 			/>
 			<ConfirmModal refName={confirmRef} />
+			<ConfirmIdentityModal refName={idRef} />
 		</>
 	);
 }

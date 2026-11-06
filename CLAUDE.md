@@ -474,6 +474,13 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   admin decline / resolution reasons.
 - A modal's `close` / `cancel` handlers act only on their own dialog's
   events — React passes a nested dialog's events up the component tree.
+- Payment settings (`/admin/system-settings`, hooks
+  `custom-hooks/system-settings.js`): the one settings record — per-payment
+  and held-at-once caps, supported countries, fraud hold, manual review.
+  Starts closed on an empty database until deployment setup seeds it
+  (`INITIAL_SYSTEM_SETTINGS` in the backend's `deploymentSetup.ts`).
+  Reviewers read it, only the super admin saves. The page warns when
+  payments are closed or a threshold can never be reached.
 - Money is **USD only** (`PLATFORM_CURRENCY` in `app-const.js`, mirrors
   the backend's `currencyReference.ts`) — forms send it, never ask.
 
@@ -620,6 +627,12 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   thread's one effect, keyed by its newest message). The menu badge is
   the sum of unread counts. The job page has "Message" for the other
   party.
+- Paying needs `user.country` (Settings → Profile) in the supported list.
+  Above the manual-review amount the intent answers `IDENTITY_REQUIRED`:
+  wrap the mutation in `withStepUp(mutation, idRef, action)`
+  (`custom-hooks/payments.js`) with a `ConfirmIdentityModal` on the page —
+  it asks, then sends the intent again. Every card charge goes through
+  3D Secure; `confirmPayment` shows the challenge itself.
 - Pending Stripe payments: "Check payment status" (Subscription page
   banner and pending rows in Payments) calls
   `POST /api/payments/:id/refresh`; the backend also sweeps them every

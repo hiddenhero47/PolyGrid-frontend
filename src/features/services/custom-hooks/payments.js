@@ -8,6 +8,23 @@ import { axiosCall } from '../index-client';
 
 // polygrid-backend paymentRoutes.ts
 
+// Above the admin's manual-review amount, POST /api/payments/intent also
+// wants { currentPassword } or { otpToken }. Buyers can't see that amount,
+// so try without, and on IDENTITY_REQUIRED ask and send it again:
+//   const pay = withStepUp(mutation, idRef, 'make this payment');
+//   pay(variables, { onSuccess });   // mutate's signature
+// with <ConfirmIdentityModal refName={idRef} /> on the page. A wrong
+// password is a normal error toast; pressing pay again asks again.
+export const withStepUp = (mutation, idRef, action) => (variables, options) =>
+	mutation.mutate(variables, {
+		...options,
+		onError: async (error) => {
+			if (error.silentCode !== 'IDENTITY_REQUIRED') return;
+			const identity = await idRef.current.ask({ action });
+			if (identity) mutation.mutate({ ...variables, ...identity }, options);
+		},
+	});
+
 // POST /api/payments/intent { targetType: 'Subscription', planTier,
 // autoRenew? } — subscribe to a plan.
 //   price 0 → activated on the spot: { requiresPayment: false, status:
@@ -20,11 +37,11 @@ import { axiosCall } from '../index-client';
 const useSubscribeMutation = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: ({ planTier, autoRenew = false }) =>
+		mutationFn: ({ planTier, autoRenew = false, ...identity }) =>
 			axiosCall({
 				url: '/api/payments/intent',
 				method: 'POST',
-				data: { targetType: 'Subscription', planTier, autoRenew },
+				data: { targetType: 'Subscription', planTier, autoRenew, ...identity },
 			}),
 		onSuccess: (res) => {
 			if (!res.requiresPayment) refreshSubscription(queryClient);
@@ -73,11 +90,11 @@ const useRefreshPaymentMutation = () => {
 // { clientSecret, paymentId } for Stripe's card form.
 const useFundJobMutation = () =>
 	useMutation({
-		mutationFn: ({ jobId, amount }) =>
+		mutationFn: ({ jobId, amount, ...identity }) =>
 			axiosCall({
 				url: '/api/payments/intent',
 				method: 'POST',
-				data: { targetType: 'Job', targetId: jobId, amount },
+				data: { targetType: 'Job', targetId: jobId, amount, ...identity },
 			}),
 	});
 

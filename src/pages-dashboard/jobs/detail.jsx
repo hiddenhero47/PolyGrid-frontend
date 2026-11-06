@@ -21,7 +21,9 @@ import {
 	LuMessageSquare,
 } from 'react-icons/lu';
 import JobServices, { jobKey } from '../../features/services/custom-hooks/jobs';
-import PaymentServices from '../../features/services/custom-hooks/payments';
+import PaymentServices, {
+	withStepUp,
+} from '../../features/services/custom-hooks/payments';
 import MessageServices from '../../features/services/custom-hooks/messages';
 import PageHeader from '../../layouts/dashboard-shell/sub-components/page-header';
 import { toast } from '../../layouts/toast/toast-handler';
@@ -30,6 +32,7 @@ import EmptyState from '../../components/empty-state';
 import StatusBadge from '../../components/status-badge';
 import ProfileAvatar from '../../components/profile-avatar';
 import ConfirmModal from '../../components/modal/confirm-modal';
+import ConfirmIdentityModal from '../../components/modal/confirm-identity-modal';
 import CheckoutModal from '../../components/checkout-modal';
 import { AppButton } from '../../components/button';
 import { Chip } from '../../pages/home/elements/index.style';
@@ -97,6 +100,7 @@ function JobDetail() {
 	const navigate = useNavigate();
 
 	const confirmRef = useRef(null);
+	const idRef = useRef(null);
 	const reasonRef = useRef(null);
 	const stagesRef = useRef(null);
 	const fundRef = useRef(null);
@@ -270,7 +274,11 @@ function JobDetail() {
 	};
 
 	const startFunding = (amount) =>
-		fundJob.mutate(
+		withStepUp(
+			fundJob,
+			idRef,
+			'fund this job'
+		)(
 			{ jobId: job._id, amount },
 			{
 				onSuccess: (res) => {
@@ -811,6 +819,7 @@ function JobDetail() {
 
 			<ConfirmModal refName={confirmRef} />
 			<ReasonModal refName={reasonRef} />
+			<ConfirmIdentityModal refName={idRef} />
 			<StagesModal
 				refName={stagesRef}
 				job={job}

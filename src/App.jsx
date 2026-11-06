@@ -65,6 +65,7 @@ import AdminJobs from './pages-admin/jobs';
 import VerificationTemplates from './pages-admin/verification-templates';
 import MessageReports from './pages-admin/message-reports';
 import Moderation from './pages-admin/moderation';
+import SystemSettings from './pages-admin/system-settings';
 
 // Development-only pages, loaded lazily so production builds don't
 // include them at all.
@@ -191,6 +192,7 @@ function App() {
 								/>
 								<Route path="message-reports" element={<MessageReports />} />
 								<Route path="moderation" element={<Moderation />} />
+								<Route path="system-settings" element={<SystemSettings />} />
 								<Route path="digital-products" element={<DigitalReview />} />
 							</Route>
 
