@@ -85,6 +85,10 @@ export const SYSTEM_ROLE_LABELS = {
 // money field the backend accepts must be this.
 export const PLATFORM_CURRENCY = 'USD';
 
+// Stripe won't create Connect accounts here from PolyGrid's US platform, so
+// people in these countries are only ever paid by manual bank transfer.
+export const NO_STRIPE_CONNECT_COUNTRIES = ['NG'];
+
 // src/models/planModel.ts
 export const PLAN_TIER = {
 	FREE: 'free',

@@ -444,9 +444,14 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   Disputes (`/admin/disputes`, resolve with a note), Refunds & payouts
   (`/admin/refunds-payouts`: refund and payout requests — approve /
   decline with a reason, the backend works out the amount and refuses
-  without a payout account — plus **To pay**: approved money waiting for
-  an admin's bank transfer, marked paid with a reference or failed with a
-  reason), Jobs (`/admin/jobs`, search any job) and the Payments ledger
+  without a payout account; the other side answers first, and approving
+  without that takes a recorded `bypassReason` — plus **To pay**: approved
+  money waiting for an admin, marked failed with a reason. A row's
+  `settlementMethod` decides the action: `manual` = "Mark paid" after the
+  bank transfer, with a reference; `stripe` = "Send through Stripe", which
+  is what actually moves the money — a refund to the card or a transfer to
+  the recipient's Stripe account, released to their bank from Stripe's
+  dashboard. Creator payouts land here too, with no job to open), Jobs (`/admin/jobs`, search any job) and the Payments ledger
   (`/admin/payments`). They share one job drawer,
   `pages-admin/elements/job-review.jsx` (parties, money, stages, history,
   contracts, payments; admins record a payment made outside Stripe).
@@ -561,7 +566,8 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   (private, 1–10, PDF/JPG/PNG/WebP — the backend's allow-list) on
   create; edit has the on-sale switch, previews and deliverables; no
   delete. Deliverables are stored and removed by original file name, so
-  the form refuses a name already on the product.
+  the form refuses a name already on the product. "Request payout" bundles
+  every unpaid sale into one payout for an admin to send.
 - Jobs (`jobs/`, frontend-plan §B.6, hooks `custom-hooks/jobs.js`): My
   Jobs (`/dashboard/jobs`, status tabs in `?status=`), new job
   (`/dashboard/jobs/new?with=<userId>&name=&type=&role=` — "Request a job"
@@ -573,7 +579,9 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   shared `components/checkout-modal.jsx`, then `/payments/:id/refresh`),
   mark done (provider) / verify & release (client), propose / accept /
   reject stages, contract upload (PDF / DOCX), dispute, refund (client)
-  and payout (provider) requests — the backend works out those amounts.
+  and payout (provider) requests — the backend works out those amounts,
+  and the other party approves or rejects (with a reason) before an admin
+  decides: `JobServices.answerRequest`.
   Party names come from the backend's `client.user` / `provider.user`;
   `elements/job-helpers.js` falls back to "The client" / "The provider".
   Notifications with a `jobId` open the job.
@@ -653,8 +661,13 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   the project's dialog): `PATCH …/me/portfolio/:itemId`.
 - The profile hub asks `GET /api/users/me/profiles` which profiles exist,
   then loads only those.
-- Settings (`settings/`): profile (name, phone, account photo),
-  account type, password (the backend ends EVERY session on a change,
+- Settings (`settings/`): profile (name, phone, country, account photo),
+  Stripe payouts (`elements/connect-section.jsx`:
+  `POST /me/connect/onboard` → Stripe's hosted form → `/connect/return` or
+  `/connect/refresh`, which redirect to Settings with `?connect=`; the
+  section re-reads the user, since Stripe reports by webhook; hidden for
+  `NO_STRIPE_CONNECT_COUNTRIES` — Stripe won't create Connect accounts in
+  Nigeria from our US platform, so those users are paid manually), account type, password (the backend ends EVERY session on a change,
   this one too — the app signs out and sends the user to /login), 2FA
   (identity check → QR → first code turns it on; turning off needs a
   code), payout account, log out everywhere. Hooks:

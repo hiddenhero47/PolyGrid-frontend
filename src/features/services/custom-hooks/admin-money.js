@@ -149,11 +149,12 @@ const useResolveDisputeMutation = () =>
 // and records money owed in its payout ledger; it refuses (400) if the
 // recipient has no payout account. Approving a refund closes the job.
 const useDecideRequestMutation = (kind, decision) =>
-	useMoneyWrite(({ jobId, requestId, declineReason }) =>
+	useMoneyWrite(({ jobId, requestId, declineReason, bypassReason }) =>
 		axiosCall({
 			url: `/api/jobs/${jobId}/${kind}-requests/${requestId}/${decision}`,
 			method: 'PATCH',
 			...(decision === 'decline' && { data: { declineReason } }),
+			...(bypassReason && { data: { bypassReason } }),
 		})
 	);
 const useApproveRefundMutation = () =>

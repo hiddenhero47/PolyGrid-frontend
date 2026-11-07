@@ -95,6 +95,7 @@ function JobDetail() {
 	const dispute = JobServices.dispute();
 	const requestRefund = JobServices.requestRefund();
 	const requestPayout = JobServices.requestPayout();
+	const answerRequest = JobServices.answerRequest();
 	const fundJob = PaymentServices.fundJob();
 	const held = PaymentServices.useHeld();
 	const refreshPayment = PaymentServices.refresh();
@@ -168,6 +169,22 @@ function JobDetail() {
 		proposal && String(proposal.proposedBy) === String(user?.id);
 	const pendingRefund = job.refunds?.some((r) => r.status === 'pending');
 	const pendingPayout = job.payouts?.some((p) => p.status === 'pending');
+	// a refund is the provider's to answer, a payout the client's
+	const isAnswerer = (r) =>
+		me === (r.kind === 'Refund' ? 'provider' : 'client');
+	const isMine = (r) =>
+		r.status === 'pending' &&
+		r.counterpartyApproval?.status === 'pending' &&
+		isAnswerer(r);
+	const requests = [
+		...(job.refunds || []).map((r) => ({
+			...r,
+			kind: 'Refund',
+			text: r.reason,
+		})),
+		...(job.payouts || []).map((p) => ({ ...p, kind: 'Payout', text: p.note })),
+	].sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
+	const toAnswer = requests.find(isMine);
 	const heldInEscrow = Math.max(
 		(job.amountPaid || 0) -
 			(job.amountDisbursed || 0) -
@@ -183,6 +200,62 @@ function JobDetail() {
 	const finished = ['completed', 'cancelled', 'closed'].includes(job.status);
 
 	const ask = (opts) => confirmRef.current.ask(opts);
+	const answerVars = (r, decision, declineReason) => ({
+		id: job._id,
+		kind: r.kind.toLowerCase(),
+		requestId: r._id,
+		decision,
+		declineReason,
+	});
+
+	const onApproveRequest = async (r) => {
+		const ok = await ask({
+			title: `Approve this ${r.kind.toLowerCase()}?`,
+			text: `${themName} asked for ${formatMoney(r.amount, currency)}. PolyGrid’s team makes the final decision after you approve.`,
+			confirmLabel: 'Approve',
+		});
+		if (ok)
+			run(
+				answerRequest,
+				answerVars(r, 'approve'),
+				'Approved — sent to PolyGrid'
+			);
+	};
+
+	const onRejectRequest = async (r) => {
+		const reason = await reasonRef.current.ask({
+			eyebrow: `Reject ${r.kind.toLowerCase()}`,
+			title: `${r.kind} of ${formatMoney(r.amount, currency)}`,
+			text: `${themName} and PolyGrid’s team see this reason. PolyGrid makes the final decision.`,
+			label: 'Why are you rejecting it?',
+			required: true,
+			confirmLabel: 'Reject',
+		});
+		if (reason)
+			run(
+				answerRequest,
+				answerVars(r, 'reject', reason),
+				'Rejected — sent to PolyGrid'
+			);
+	};
+
+	// Where a request stands with the party who has to answer it.
+	const approvalText = (r) => {
+		const approval = r.counterpartyApproval;
+		if (!approval) return '';
+		const answerer = isAnswerer(r) ? 'You' : themName;
+		if (approval.bypassReason)
+			return 'PolyGrid decided this without that approval.';
+		if (r.status !== 'pending') return '';
+		if (approval.status === 'approved')
+			return `${answerer} approved it. PolyGrid’s team decides next.`;
+		if (approval.status === 'rejected')
+			return `${answerer} rejected it: ${approval.declineReason}. PolyGrid’s team decides next.`;
+		return isMine(r)
+			? 'Needs your answer before PolyGrid’s team can decide.'
+			: `Waiting for ${themName} to answer.`;
+	};
+
 	const run = (mutation, vars, message) =>
 		mutation.mutate(vars, {
 			onSuccess: () => message && toast.success(message),
@@ -326,6 +399,8 @@ function JobDetail() {
 	else if (pending) needs = `Waiting for ${themName} to confirm.`;
 	else if (disputed)
 		needs = 'This job is in dispute. PolyGrid’s team is reviewing it.';
+	else if (toAnswer)
+		needs = `${themName} asked for a ${toAnswer.kind.toLowerCase()} — approve or reject it below.`;
 	else if (active && proposal && !proposedByMe)
 		needs = `${themName} proposed new stages — accept or reject them below.`;
 	else if (active && me === 'client' && unfunded > 0 && job.amountPaid === 0)
@@ -612,47 +687,56 @@ function JobDetail() {
 						</Panel>
 					)}
 
-					{(job.refunds?.length > 0 || job.payouts?.length > 0) && (
+					{requests.length > 0 && (
 						<Panel
 							title="Refund & payout requests"
 							icon={<LuWallet aria-hidden="true" />}
 						>
 							<ul className="flex flex-col divide-y divide-(--pg-card-border)">
-								{[
-									...(job.refunds || []).map((r) => ({
-										...r,
-										kind: 'Refund',
-										text: r.reason,
-									})),
-									...(job.payouts || []).map((p) => ({
-										...p,
-										kind: 'Payout',
-										text: p.note,
-									})),
-								]
-									.sort(
-										(a, b) => new Date(b.requestedAt) - new Date(a.requestedAt)
-									)
-									.map((r) => (
-										<li
-											key={r._id}
-											className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
-										>
-											<div className="min-w-0 flex-1 text-sm">
-												<p className="font-semibold text-(--pg-text-primary)">
-													{r.kind} · {formatMoney(r.amount, currency)}
-												</p>
+								{requests.map((r) => (
+									<li
+										key={r._id}
+										className="flex flex-wrap items-center gap-3 py-3 first:pt-0 last:pb-0"
+									>
+										<div className="min-w-0 flex-1 text-sm">
+											<p className="font-semibold text-(--pg-text-primary)">
+												{r.kind} · {formatMoney(r.amount, currency)}
+											</p>
+											<p className="text-(--pg-text-secondary)">
+												{formatDate(r.requestedAt)}
+												{r.text ? ` — ${r.text}` : ''}
+												{r.declineReason
+													? ` · Declined: ${r.declineReason}`
+													: ''}
+											</p>
+											{approvalText(r) && (
 												<p className="text-(--pg-text-secondary)">
-													{formatDate(r.requestedAt)}
-													{r.text ? ` — ${r.text}` : ''}
-													{r.declineReason
-														? ` · Declined: ${r.declineReason}`
-														: ''}
+													{approvalText(r)}
 												</p>
+											)}
+										</div>
+										<StatusBadge status={r.status} map={REQUEST_BADGES} />
+										{isMine(r) && (
+											<div className="flex w-full flex-wrap gap-2">
+												<AppButton
+													size="sm"
+													disabled={answerRequest.isPending}
+													onClick={() => onApproveRequest(r)}
+												>
+													Approve
+												</AppButton>
+												<AppButton
+													size="sm"
+													variant="secondary"
+													disabled={answerRequest.isPending}
+													onClick={() => onRejectRequest(r)}
+												>
+													Reject
+												</AppButton>
 											</div>
-											<StatusBadge status={r.status} map={REQUEST_BADGES} />
-										</li>
-									))}
+										)}
+									</li>
+								))}
 							</ul>
 						</Panel>
 					)}

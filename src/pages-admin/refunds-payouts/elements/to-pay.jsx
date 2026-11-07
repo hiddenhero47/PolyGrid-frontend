@@ -12,6 +12,7 @@ import {
 import AdminMoneyServices from '../../../features/services/custom-hooks/admin-money';
 import { toast } from '../../../layouts/toast/toast-handler';
 import ReasonModal from '../../../components/modal/reason-modal';
+import ConfirmModal from '../../../components/modal/confirm-modal';
 import EmptyState from '../../../components/empty-state';
 import Pagination from '../../../components/pagination';
 import StatusBadge from '../../../components/status-badge';
@@ -42,17 +43,42 @@ const copy = (text) =>
 		() => toast.error('Couldn’t copy')
 	);
 
+const usesStripe = (row) => row.settlementMethod === 'stripe';
+const isRefund = (row) => row.requestType === 'refund';
+
 // Money PolyGrid owes after an approved refund or payout (admin / super
-// admin). Nothing pays automatically yet: an admin makes the bank transfer
-// to the account details captured at approval, then marks it paid (with
-// the bank's reference) or failed (with why). The recipient is emailed
-// either way.
+// admin). Nothing goes out on its own. A manual row: an admin makes the
+// bank transfer to the account details captured at approval, then marks it
+// paid (with the bank's reference). A Stripe row: the same action is what
+// moves the money — a refund to the card, or a transfer to the recipient's
+// Stripe account (the bank payout from there is released in Stripe's
+// dashboard). If Stripe refuses, it stays here to try again. Failed needs a
+// reason. The recipient is emailed either way.
 function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 	const query = AdminMoneyServices.systemPayouts({ status, page, limit: 10 });
 	const markPaid = AdminMoneyServices.markPaid();
 	const markFailed = AdminMoneyServices.markFailed();
 	const reasonRef = useRef(null);
+	const confirmRef = useRef(null);
 	const rows = query.data?.data || [];
+
+	const onSend = async (row) => {
+		const ok = await confirmRef.current.ask({
+			title: `Send ${formatMoney(row.amount, row.currency)} through Stripe?`,
+			text: isRefund(row)
+				? `This refunds the card ${row.recipient?.fullName || 'the client'} paid with, right now. It can’t be undone.`
+				: `This transfers the money to ${row.recipient?.fullName || 'the recipient'}’s Stripe account, right now. It can’t be undone.`,
+			confirmLabel: 'Send now',
+		});
+		if (ok)
+			markPaid.mutate(
+				{ id: row.id },
+				{
+					onSuccess: () =>
+						toast.success('Sent — the recipient has been emailed'),
+				}
+			);
+	};
 
 	const onPaid = async (row) => {
 		const transferReference = await reasonRef.current.ask({
@@ -161,7 +187,12 @@ function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 													{row.recipient.email}
 												</a>
 											)}
-											<span>{row.jobTitle || 'Job'}</span>
+											<span>
+												{row.jobTitle || row.creatorDisplayName || 'Job'}
+											</span>
+											<span>
+												{usesStripe(row) ? 'Stripe' : 'Bank transfer'}
+											</span>
 											<span>Approved {formatDate(row.createdAt, true)}</span>
 										</div>
 									</div>
@@ -173,52 +204,65 @@ function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 									</div>
 								</div>
 
-								<dl className="grid gap-3 rounded-xl bg-(--pg-surface-card) p-4 text-sm sm:grid-cols-2">
-									<div>
-										<dt className="text-xs text-(--pg-text-secondary)">
-											Account name
-										</dt>
-										<dd className="font-semibold text-(--pg-text-primary)">
-											{acct.accountName || '—'}
-										</dd>
-									</div>
-									<div>
-										<dt className="text-xs text-(--pg-text-secondary)">
-											Account number
-										</dt>
-										<dd className="inline-flex items-center gap-2 font-semibold text-(--pg-text-primary)">
-											{acct.accountNumber || '—'}
-											{acct.accountNumber && (
-												<button
-													type="button"
-													onClick={() => copy(acct.accountNumber)}
-													aria-label="Copy account number"
-													className="text-(--pg-text-secondary) hover:text-(--pg-text-primary)"
-												>
-													<LuCopy aria-hidden="true" />
-												</button>
-											)}
-										</dd>
-									</div>
-									<div>
-										<dt className="text-xs text-(--pg-text-secondary)">Bank</dt>
-										<dd className="font-semibold text-(--pg-text-primary)">
-											{acct.bankName || '—'}
-											{acct.bankCode ? ` · ${acct.bankCode}` : ''}
-										</dd>
-									</div>
-									<div>
-										<dt className="text-xs text-(--pg-text-secondary)">
-											Country
-										</dt>
-										<dd className="font-semibold text-(--pg-text-primary)">
-											{countryName(acct.country) || '—'}
-										</dd>
-									</div>
-								</dl>
-								<p className="text-xs text-(--pg-text-secondary)">
-									Account details as they were when the request was approved.
-								</p>
+								{usesStripe(row) ? (
+									<p className="text-sm text-(--pg-text-secondary)">
+										{isRefund(row)
+											? 'Goes back to the card that paid.'
+											: 'Goes to their Stripe account. Release it to their bank in Stripe’s dashboard.'}
+									</p>
+								) : (
+									<>
+										<dl className="grid gap-3 rounded-xl bg-(--pg-surface-card) p-4 text-sm sm:grid-cols-2">
+											<div>
+												<dt className="text-xs text-(--pg-text-secondary)">
+													Account name
+												</dt>
+												<dd className="font-semibold text-(--pg-text-primary)">
+													{acct.accountName || '—'}
+												</dd>
+											</div>
+											<div>
+												<dt className="text-xs text-(--pg-text-secondary)">
+													Account number
+												</dt>
+												<dd className="inline-flex items-center gap-2 font-semibold text-(--pg-text-primary)">
+													{acct.accountNumber || '—'}
+													{acct.accountNumber && (
+														<button
+															type="button"
+															onClick={() => copy(acct.accountNumber)}
+															aria-label="Copy account number"
+															className="text-(--pg-text-secondary) hover:text-(--pg-text-primary)"
+														>
+															<LuCopy aria-hidden="true" />
+														</button>
+													)}
+												</dd>
+											</div>
+											<div>
+												<dt className="text-xs text-(--pg-text-secondary)">
+													Bank
+												</dt>
+												<dd className="font-semibold text-(--pg-text-primary)">
+													{acct.bankName || '—'}
+													{acct.bankCode ? ` · ${acct.bankCode}` : ''}
+												</dd>
+											</div>
+											<div>
+												<dt className="text-xs text-(--pg-text-secondary)">
+													Country
+												</dt>
+												<dd className="font-semibold text-(--pg-text-primary)">
+													{countryName(acct.country) || '—'}
+												</dd>
+											</div>
+										</dl>
+										<p className="text-xs text-(--pg-text-secondary)">
+											Account details as they were when the request was
+											approved.
+										</p>
+									</>
+								)}
 
 								{row.transferReference && (
 									<p className="text-sm text-(--pg-text-primary)">
@@ -232,21 +276,29 @@ function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 								)}
 
 								<div className="flex flex-wrap gap-2">
-									<AppButton
-										variant="secondary"
-										icon={<LuEye />}
-										onClick={() => onOpenJob(String(row.targetId))}
-									>
-										Open job
-									</AppButton>
+									{row.targetType === 'Job' && (
+										<AppButton
+											variant="secondary"
+											icon={<LuEye />}
+											onClick={() => onOpenJob(String(row.targetId))}
+										>
+											Open job
+										</AppButton>
+									)}
 									{row.status === 'pending' && (
 										<>
 											<AppButton
 												icon={<LuCheck />}
-												onClick={() => onPaid(row)}
+												onClick={() =>
+													usesStripe(row) ? onSend(row) : onPaid(row)
+												}
 												disabled={markPaid.isPending}
 											>
-												Mark paid
+												{usesStripe(row)
+													? markPaid.isPending
+														? 'Sending…'
+														: 'Send through Stripe'
+													: 'Mark paid'}
 											</AppButton>
 											<AppButton
 												variant="secondary"
@@ -271,6 +323,7 @@ function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 				</div>
 			)}
 			<ReasonModal refName={reasonRef} />
+			<ConfirmModal refName={confirmRef} />
 		</>
 	);
 }

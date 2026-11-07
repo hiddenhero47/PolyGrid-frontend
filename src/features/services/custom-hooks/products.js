@@ -158,6 +158,19 @@ const useRemoveDeliverableMutation = () =>
 		})
 	);
 
+// POST /api/digital-creator-profiles/me/request-payout — bundles every
+// sale not yet paid out, net of the platform fee, into one payout for an
+// admin to send. 400 if nothing's unpaid or there's no payout account.
+// Answers { systemPayout, purchasesBundled }.
+const useRequestCreatorPayoutMutation = () =>
+	useMutation({
+		mutationFn: () =>
+			axiosCall({
+				url: '/api/digital-creator-profiles/me/request-payout',
+				method: 'POST',
+			}),
+	});
+
 const ProductServices = {
 	myStoreProducts: useMyStoreProductsQuery,
 	createStoreProduct: useCreateStoreProductMutation,
@@ -166,6 +179,7 @@ const ProductServices = {
 	addStoreProductImages: useAddStoreProductImagesMutation,
 	removeStoreProductImage: useRemoveStoreProductImageMutation,
 	myDigitalProducts: useMyDigitalProductsQuery,
+	requestCreatorPayout: useRequestCreatorPayoutMutation,
 	createDigitalProduct: useCreateDigitalProductMutation,
 	updateDigitalProduct: useUpdateDigitalProductMutation,
 	addPreviewImages: useAddPreviewImagesMutation,

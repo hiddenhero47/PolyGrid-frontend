@@ -135,6 +135,17 @@ const useRequestPayoutMutation = () =>
 		post(`/api/jobs/${id}/payout-requests`, note ? { note } : {})
 	);
 
+// The other side answers a pending request before an admin decides it:
+// the provider a refund, the client a payout. Rejecting needs a reason.
+// PATCH /api/jobs/:id/{refund|payout}-requests/:requestId/counterparty-{approve|reject}
+const useAnswerRequestMutation = () =>
+	useJobWrite(({ id, kind, requestId, decision, declineReason }) =>
+		patch(
+			`/api/jobs/${id}/${kind}-requests/${requestId}/counterparty-${decision}`,
+			declineReason ? { declineReason } : undefined
+		)
+	);
+
 const JobServices = {
 	mine: useMyJobsQuery,
 	get: useJobQuery,
@@ -151,6 +162,7 @@ const JobServices = {
 	dispute: useDisputeMutation,
 	requestRefund: useRequestRefundMutation,
 	requestPayout: useRequestPayoutMutation,
+	answerRequest: useAnswerRequestMutation,
 };
 
 export default JobServices;

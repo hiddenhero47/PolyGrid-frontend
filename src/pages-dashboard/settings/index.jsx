@@ -5,6 +5,7 @@ import AccountTypeSection from './elements/account-type-section';
 import PasswordSection from './elements/password-section';
 import TwoFactorSection from './elements/two-factor-section';
 import PayoutSection from './elements/payout-section';
+import ConnectSection from './elements/connect-section';
 import SessionsSection from './elements/sessions-section';
 
 // frontend-plan §B.2 — Account Settings, one page in sections.
@@ -21,6 +22,7 @@ function AccountSettings() {
 			<PasswordSection />
 			<TwoFactorSection />
 			<PayoutSection />
+			<ConnectSection />
 			<SessionsSection />
 		</>
 	);

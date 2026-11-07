@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useDispatch, useSelector } from 'react-redux';
 import { axiosCall } from '../index-client';
 import { setUser, logout } from '../../../store/slice/auth';
@@ -38,6 +38,30 @@ const useUpdateProfileMutation = () => {
 		onSuccess: (res) => merge(res.user),
 	});
 };
+
+// GET /api/users/me — the user as the backend has it now, for changes
+// made elsewhere (Stripe's webhook finishing Connect onboarding).
+const useSyncUserQuery = () => {
+	const merge = useMergeUser();
+	return useQuery({
+		queryKey: ['me'],
+		queryFn: async () => {
+			const res = await axiosCall({ url: '/api/users/me', method: 'GET' });
+			merge(res);
+			return res;
+		},
+		staleTime: 0,
+	});
+};
+
+// POST /api/users/me/connect/onboard → { onboardingUrl }: Stripe's hosted
+// form, a fresh link every time. Needs user.country.
+const useStartConnectMutation = () =>
+	useMutation({
+		mutationFn: () =>
+			axiosCall({ url: '/api/users/me/connect/onboard', method: 'POST' }),
+		onSuccess: (res) => window.location.assign(res.onboardingUrl),
+	});
 
 // PUT /api/users/profile { oldPassword, password }. The backend rotates
 // the session id on a password change, so every token (this one too)
@@ -145,6 +169,8 @@ const useLogoutEverywhereMutation = () => {
 
 const AccountServices = {
 	updateProfile: useUpdateProfileMutation,
+	syncUser: useSyncUserQuery,
+	startConnect: useStartConnectMutation,
 	changePassword: useChangePasswordMutation,
 	setAccountType: useSetAccountTypeMutation,
 	updatePayout: useUpdatePayoutMutation,

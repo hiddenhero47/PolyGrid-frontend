@@ -15,6 +15,7 @@ import { toast } from '../../layouts/toast/toast-handler';
 import Modal from '../../components/modal/index_modal';
 import ConfirmModal from '../../components/modal/confirm-modal';
 import ReasonModal from '../../components/modal/reason-modal';
+import StatusBadge from '../../components/status-badge';
 import EmptyState from '../../components/empty-state';
 import Pagination from '../../components/pagination';
 import SegmentedControl from '../../components/segmented-control';
@@ -33,6 +34,12 @@ const who = (party) =>
 
 // What each tab is about: who asks, how the amount is worked out, what
 // approving does.
+const ANSWER_BADGES = {
+	pending: { label: 'Other side hasn’t answered', tone: 'warning' },
+	approved: { label: 'Other side approved', tone: 'success' },
+	rejected: { label: 'Other side rejected', tone: 'error' },
+};
+
 const KINDS = {
 	refunds: {
 		label: 'Refunds',
@@ -126,16 +133,38 @@ function RefundsPayouts() {
 			: []),
 	];
 
+	// The other side approves first. Going ahead without them is allowed,
+	// but it's on the record with a reason.
 	const onApprove = async (row) => {
 		const amount = kind.amount(row);
-		const ok = await confirmRef.current.ask({
-			title: `Approve this ${tab === 'refunds' ? 'refund' : 'payout'}?`,
-			text: kind.approveText(row, amount),
-			confirmLabel: 'Approve',
-		});
-		if (!ok) return;
+		const noun = tab === 'refunds' ? 'refund' : 'payout';
+		const approved =
+			kind.request(row)?.counterpartyApproval?.status === 'approved';
+		let bypassReason;
+		if (approved) {
+			const ok = await confirmRef.current.ask({
+				title: `Approve this ${noun}?`,
+				text: kind.approveText(row, amount),
+				confirmLabel: 'Approve',
+			});
+			if (!ok) return;
+		} else {
+			bypassReason = await reasonRef.current.ask({
+				eyebrow: 'Approve without the other side',
+				title: `The ${kind.other} hasn’t approved this ${noun}`,
+				text: `${kind.approveText(row, amount)} This is recorded as your decision, not the ${kind.other}’s.`,
+				label: 'Why are you going ahead?',
+				required: true,
+				confirmLabel: 'Approve anyway',
+			});
+			if (!bypassReason) return;
+		}
 		approve.mutate(
-			{ jobId: idOf(row.jobId), requestId: idOf(kind.request(row)) },
+			{
+				jobId: idOf(row.jobId),
+				requestId: idOf(kind.request(row)),
+				bypassReason,
+			},
 			{
 				onSuccess: () =>
 					toast.success('Approved — the requester has been emailed'),
@@ -313,6 +342,18 @@ function RefundsPayouts() {
 											Other side: {other?.fullName || '—'}
 											{other?.email ? ` · ${other.email}` : ''}
 										</p>
+										<div>
+											<StatusBadge
+												status={request?.counterpartyApproval?.status}
+												map={ANSWER_BADGES}
+											/>
+										</div>
+										{request?.counterpartyApproval?.declineReason && (
+											<p className="text-sm text-(--pg-text-primary)">
+												Their reason:{' '}
+												{request.counterpartyApproval.declineReason}
+											</p>
+										)}
 
 										{amount <= 0 && (
 											<p className="text-sm font-semibold text-(--pg-status-warning)">

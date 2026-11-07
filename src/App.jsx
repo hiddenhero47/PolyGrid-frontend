@@ -1,5 +1,10 @@
 import React, { lazy, Suspense } from 'react';
-import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
+import {
+	Navigate,
+	Route,
+	BrowserRouter as Router,
+	Routes,
+} from 'react-router-dom';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import GlobalStyleInjector from './global.style';
 import ThemeRoot from './layouts/theme-root';
@@ -11,6 +16,7 @@ import DashboardLayout from './layouts/dashboard-layout';
 import AppToast from './layouts/toast/index-toast';
 import RealtimeBridge from './layouts/realtime-bridge';
 import { PROFILE_TYPE } from './utilities/app-const';
+import { ROUTES } from './utilities/app-routes';
 // pages
 import Home from './pages/home';
 import BrowseConsultants from './pages/engineering';
@@ -274,6 +280,26 @@ function App() {
 								<Route path="messages/:id" element={<Messages />} />
 								<Route path="contacts" element={<Contacts />} />
 							</Route>
+
+							{/* Where Stripe's hosted onboarding sends people back to */}
+							<Route
+								path="/connect/return"
+								element={
+									<Navigate
+										to={`${ROUTES.DASHBOARD_SETTINGS}?connect=return`}
+										replace
+									/>
+								}
+							/>
+							<Route
+								path="/connect/refresh"
+								element={
+									<Navigate
+										to={`${ROUTES.DASHBOARD_SETTINGS}?connect=refresh`}
+										replace
+									/>
+								}
+							/>
 
 							<Route element={<WrapperLayout />}>
 								<Route path="*" element={<NotFound />} />

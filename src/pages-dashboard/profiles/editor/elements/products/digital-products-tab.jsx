@@ -6,8 +6,11 @@ import {
 	LuCloudOff,
 	LuRotateCw,
 	LuFiles,
+	LuWallet,
 } from 'react-icons/lu';
 import ProductServices from '../../../../../features/services/custom-hooks/products';
+import { toast } from '../../../../../layouts/toast/toast-handler';
+import ConfirmModal from '../../../../../components/modal/confirm-modal';
 import EmptyState from '../../../../../components/empty-state';
 import StatusBadge from '../../../../../components/status-badge';
 import Pagination from '../../../../../components/pagination';
@@ -26,12 +29,29 @@ import { ProductRow } from './index.style';
 // and subscribed.
 function DigitalProductsTab() {
 	const modalRef = useRef(null);
+	const confirmRef = useRef(null);
+	const payout = ProductServices.requestCreatorPayout();
 	const [page, setPage] = useState(1);
 	const [openId, setOpenId] = useState(null);
 	const { data, isPending, isError, refetch } =
 		ProductServices.myDigitalProducts({ page });
 	const items = data?.data || [];
 	const open = items.find((p) => p.id === openId) || null;
+
+	const requestPayout = async () => {
+		const ok = await confirmRef.current.ask({
+			title: 'Request a payout?',
+			text: 'This bundles every sale that hasn’t been paid out yet, minus the platform fee, into one payout. It’s sent to the account in your settings.',
+			confirmLabel: 'Request payout',
+		});
+		if (ok)
+			payout.mutate(undefined, {
+				onSuccess: ({ systemPayout, purchasesBundled }) =>
+					toast.success(
+						`${formatMoney(systemPayout.amount, systemPayout.currency)} requested from ${purchasesBundled} sale${purchasesBundled === 1 ? '' : 's'}`
+					),
+			});
+	};
 
 	const show = (id = null) => {
 		setOpenId(id);
@@ -47,9 +67,20 @@ function DigitalProductsTab() {
 						: 'Files'}{' '}
 					· new files are reviewed by our team before they go on sale.
 				</p>
-				<AppButton size="sm" icon={<LuPlus />} onClick={() => show()}>
-					Sell a file
-				</AppButton>
+				<div className="flex flex-wrap gap-2">
+					<AppButton
+						size="sm"
+						variant="secondary"
+						icon={<LuWallet />}
+						disabled={payout.isPending}
+						onClick={requestPayout}
+					>
+						{payout.isPending ? 'Requesting…' : 'Request payout'}
+					</AppButton>
+					<AppButton size="sm" icon={<LuPlus />} onClick={() => show()}>
+						Sell a file
+					</AppButton>
+				</div>
 			</div>
 
 			{isError ? (
@@ -134,6 +165,7 @@ function DigitalProductsTab() {
 				product={open}
 				onClose={() => setOpenId(null)}
 			/>
+			<ConfirmModal refName={confirmRef} />
 		</>
 	);
 }
