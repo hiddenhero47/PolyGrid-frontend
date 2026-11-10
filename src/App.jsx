@@ -55,6 +55,7 @@ import NewJobOpening from './pages-dashboard/siteforce/new';
 import JobOpeningDetail from './pages-dashboard/siteforce/detail';
 import Orders from './pages-dashboard/orders';
 import Checkout from './pages-dashboard/orders/checkout';
+import PaymentReturn from './pages-dashboard/payment-return';
 import Purchases from './pages-dashboard/purchases';
 import Messages from './pages-dashboard/messages';
 import Contacts from './pages-dashboard/contacts';
@@ -64,6 +65,7 @@ import AdminPlans from './pages-admin/plans';
 import AdminSubscriptions from './pages-admin/subscriptions';
 import AdminUsers from './pages-admin/users';
 import DigitalReview from './pages-admin/digital-review';
+import PayoutKycQueue from './pages-admin/payout-kyc';
 import AdminDisputes from './pages-admin/disputes';
 import RefundsPayouts from './pages-admin/refunds-payouts';
 import PaymentsLedger from './pages-admin/payments';
@@ -200,6 +202,7 @@ function App() {
 								<Route path="moderation" element={<Moderation />} />
 								<Route path="system-settings" element={<SystemSettings />} />
 								<Route path="digital-products" element={<DigitalReview />} />
+								<Route path="payout-identity" element={<PayoutKycQueue />} />
 							</Route>
 
 							{/* User Dashboard — frontend-plan §B (any signed-in account) */}
@@ -276,6 +279,10 @@ function App() {
 								<Route path="orders" element={<Orders />} />
 								<Route path="orders/checkout/:storeId" element={<Checkout />} />
 								<Route path="purchases" element={<Purchases />} />
+								<Route
+									path="payments/return/:kind/:id?"
+									element={<PaymentReturn />}
+								/>
 								<Route path="messages" element={<Messages />} />
 								<Route path="messages/:id" element={<Messages />} />
 								<Route path="contacts" element={<Contacts />} />

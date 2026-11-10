@@ -32,6 +32,8 @@ function RealtimeBridge() {
 
 		const onNotification = (notification) => {
 			queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_KEY });
+			if (notification.type === 'payout_kyc_decided')
+				queryClient.invalidateQueries({ queryKey: ['my-payout-kyc'] });
 			toast.info(notification.message, {
 				title: 'New notification',
 				actionText: 'View',

@@ -5,6 +5,7 @@ import AccountTypeSection from './elements/account-type-section';
 import PasswordSection from './elements/password-section';
 import TwoFactorSection from './elements/two-factor-section';
 import PayoutSection from './elements/payout-section';
+import PayoutKycSection from './elements/payout-kyc-section';
 import ConnectSection from './elements/connect-section';
 import SessionsSection from './elements/sessions-section';
 
@@ -22,6 +23,7 @@ function AccountSettings() {
 			<PasswordSection />
 			<TwoFactorSection />
 			<PayoutSection />
+			<PayoutKycSection />
 			<ConnectSection />
 			<SessionsSection />
 		</>

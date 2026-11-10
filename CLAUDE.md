@@ -489,7 +489,13 @@ card, top bar card, page card) in PolyGrid colors, after the Stitch
   Starts closed on an empty database until deployment setup seeds it
   (`INITIAL_SYSTEM_SETTINGS` in the backend's `deploymentSetup.ts`).
   Reviewers read it, only the super admin saves. The page warns when
-  payments are closed or a threshold can never be reached.
+  payments are closed or a threshold can never be reached. "By country"
+  picks each supported country's payment provider
+  (`countryProviderOverrides`: Stripe default / Paystack) and payout
+  identity check (`countryKycProviders`: ID photos default / Dojah BVN /
+  NIN); a default is stored as no key. With any Paystack country it shows
+  `usdToNgnRate` — Paystack can't charge USD, so the backend charges naira
+  at this rate (0 = off, Paystack payments fail; the page warns).
 - Money is **USD only** (`PLATFORM_CURRENCY` in `app-const.js`, mirrors
   the backend's `currencyReference.ts`) — forms send it, never ask.
 
@@ -657,6 +663,18 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   banner and pending rows in Payments) calls
   `POST /api/payments/:id/refresh`; the backend also sweeps them every
   15 minutes.
+- Paystack (countries routed to it in Payment settings): the intent
+  answers `{ provider: 'paystack', clientSecret: <authorization_url> }`.
+  Every intent sends `callbackPath` (`paymentReturnPath(kind, id)` in
+  `custom-hooks/payments.js`, a path only — the backend adds
+  `FRONTEND_URL`); callers do `if (leaveForProvider(res)) return;` before
+  opening the Stripe modal, which redirects to Paystack's page. Paystack
+  sends the buyer back to `/dashboard/payments/return/:kind/:id?`
+  (`pages-dashboard/payment-return`) with `?reference=polygrid_payment_<id>`;
+  that page calls `/refresh` and shows complete / held / pending / failed.
+  Gateway errors come back as 502 `PAYMENT_PROVIDER_ERROR` with a readable
+  message. Paystack's checkout sits behind a Cloudflare bot check, so a
+  headless browser can't pay through it — a person does that step.
 - Portfolio items are editable (details only — images are managed in
   the project's dialog): `PATCH …/me/portfolio/:itemId`.
 - The profile hub asks `GET /api/users/me/profiles` which profiles exist,
@@ -672,6 +690,19 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   (identity check → QR → first code turns it on; turning off needs a
   code), payout account, log out everywhere. Hooks:
   `custom-hooks/account.js` — writes go straight into the auth slice.
+- Payout identity (KYC) — no refund or payout can be approved until the
+  person receiving it is verified (backend 400 `PAYOUT_KYC_REQUIRED`,
+  a silent code — pages say it in their own words). Hooks
+  `custom-hooks/payout-kyc.js`; `GET /me/payout-kyc` → `{ record, track }`,
+  the backend picks the track from the user's country: `automated`
+  (BVN / NIN, instant answer from Dojah) or `document` (ID front, back,
+  face — an admin reviews). Settings → `elements/payout-kyc-section.jsx`
+  (`#payout-kyc-settings`, where the `payout_kyc_decided` notification
+  leads); `pages-dashboard/elements/payout-kyc-notice.jsx` sits next to
+  refund / payout requests until verified. Admin: `/admin/payout-identity`
+  (`pages-admin/payout-kyc`, menu badge = pending; customer care reads
+  only), and Refunds & payouts rows show `beneficiaryKycStatus` and
+  disable Approve until it's verified.
 - `components/modal/confirm-identity-modal.jsx` — frontend-plan §2's
   confirm-with-password-or-2FA pattern: `await ref.current.ask({ action })`
   → `{ currentPassword }` | `{ otpToken }` | null.

@@ -9,6 +9,7 @@ import {
 	LuWallet,
 	LuBell,
 	LuShieldAlert,
+	LuFingerprint,
 } from 'react-icons/lu';
 import { ROUTES } from './app-routes';
 
@@ -83,6 +84,12 @@ const NOTIFICATION_META = {
 		icon: LuWallet,
 		tone: 'info',
 		to: jobLink,
+	},
+	// an admin approved or rejected your payout identity photos
+	payout_kyc_decided: {
+		icon: LuFingerprint,
+		tone: 'info',
+		to: () => `${ROUTES.DASHBOARD_SETTINGS}#payout-kyc-settings`,
 	},
 	// a large payment went on a security hold, or came off it
 	payment_on_hold: {

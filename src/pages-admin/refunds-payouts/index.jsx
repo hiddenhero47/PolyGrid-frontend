@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ROUTES } from '../../utilities/app-routes';
+import { PAYOUT_KYC_BADGES } from '../../utilities/app-const';
 import { useSelector } from 'react-redux';
 import {
 	LuCheck,
@@ -34,6 +36,13 @@ const who = (party) =>
 
 // What each tab is about: who asks, how the amount is worked out, what
 // approving does.
+// The backend adds the person who'd receive the money's payout identity
+// status; approving fails unless it's verified. undefined = not sent.
+const kycBlocked = (row) =>
+	row.beneficiaryKycStatus === undefined
+		? undefined
+		: row.beneficiaryKycStatus !== 'verified';
+
 const ANSWER_BADGES = {
 	pending: { label: 'Other side hasn’t answered', tone: 'warning' },
 	approved: { label: 'Other side approved', tone: 'success' },
@@ -168,6 +177,13 @@ function RefundsPayouts() {
 			{
 				onSuccess: () =>
 					toast.success('Approved — the requester has been emailed'),
+				onError: (error) => {
+					if (error.silentCode === 'PAYOUT_KYC_REQUIRED')
+						toast.warning(
+							`The ${kind.requester} hasn’t passed the payout identity check yet, so this can’t be approved.`,
+							{ title: 'Identity not verified' }
+						);
+				},
 			}
 		);
 	};
@@ -342,12 +358,41 @@ function RefundsPayouts() {
 											Other side: {other?.fullName || '—'}
 											{other?.email ? ` · ${other.email}` : ''}
 										</p>
-										<div>
+										<div className="flex flex-wrap gap-2">
 											<StatusBadge
 												status={request?.counterpartyApproval?.status}
 												map={ANSWER_BADGES}
 											/>
+											{kycBlocked(row) !== undefined && (
+												<StatusBadge
+													label={
+														row.beneficiaryKycStatus === 'verified'
+															? 'Identity verified'
+															: `Identity: ${(PAYOUT_KYC_BADGES[row.beneficiaryKycStatus]?.label || 'not started').toLowerCase()}`
+													}
+													tone={
+														PAYOUT_KYC_BADGES[row.beneficiaryKycStatus]?.tone ||
+														'neutral'
+													}
+												/>
+											)}
 										</div>
+										{kycBlocked(row) && (
+											<p className="text-sm font-semibold text-(--pg-status-warning)">
+												The {kind.requester} hasn’t passed the payout identity
+												check, so this can’t be approved yet.{' '}
+												{row.beneficiaryKycStatus === 'pending' ? (
+													<Link
+														to={ROUTES.ADMIN_PAYOUT_KYC}
+														className="underline"
+													>
+														Their ID photos are waiting for review
+													</Link>
+												) : (
+													'They’re asked to do it in Settings.'
+												)}
+											</p>
+										)}
 										{request?.counterpartyApproval?.declineReason && (
 											<p className="text-sm text-(--pg-text-primary)">
 												Their reason:{' '}
@@ -378,7 +423,7 @@ function RefundsPayouts() {
 													<AppButton
 														icon={<LuCheck />}
 														onClick={() => onApprove(row)}
-														disabled={approve.isPending || amount <= 0}
+														disabled={approve.isPending || amount <= 0 || kycBlocked(row)}
 													>
 														Approve {formatMoney(amount || 0)}
 													</AppButton>

@@ -11,6 +11,7 @@ import PlanServices from '../../features/services/custom-hooks/plans';
 import PaymentServices, {
 	refreshSubscription,
 	withStepUp,
+	leaveForProvider,
 } from '../../features/services/custom-hooks/payments';
 import PageHeader from '../../layouts/dashboard-shell/sub-components/page-header';
 import { toast } from '../../layouts/toast/toast-handler';
@@ -203,6 +204,7 @@ function MySubscription() {
 						toast.success(`${humanize(plan.planTier)} plan is active`);
 						return;
 					}
+					if (leaveForProvider(res)) return;
 					setCheckout({
 						plan,
 						clientSecret: res.clientSecret,

@@ -23,6 +23,7 @@ import {
 import JobServices, { jobKey } from '../../features/services/custom-hooks/jobs';
 import PaymentServices, {
 	withStepUp,
+	leaveForProvider,
 } from '../../features/services/custom-hooks/payments';
 import MessageServices from '../../features/services/custom-hooks/messages';
 import PageHeader from '../../layouts/dashboard-shell/sub-components/page-header';
@@ -50,6 +51,7 @@ import ReasonModal from '../../components/modal/reason-modal';
 import StagesModal from './elements/stages-modal';
 import FundModal from './elements/fund-modal';
 import PaymentHoldNotice from '../elements/payment-hold-notice';
+import PayoutKycNotice from '../elements/payout-kyc-notice';
 import EditJobModal from './elements/edit-modal';
 import { BackLink, Panel, eyebrowClass } from '../elements/panels';
 
@@ -364,6 +366,7 @@ function JobDetail() {
 			{
 				onSuccess: (res) => {
 					fundRef.current.close();
+					if (leaveForProvider(res)) return;
 					setCheckout({
 						amount,
 						clientSecret: res.clientSecret,
@@ -808,6 +811,14 @@ function JobDetail() {
 								>
 									Request payout · {formatMoney(availableToPayOut, currency)}
 								</AppButton>
+							)}
+							{((me === 'client' &&
+								(pendingRefund ||
+									(heldInEscrow > 0 &&
+										['active', 'disputed'].includes(job.status)))) ||
+								(me === 'provider' &&
+									(pendingPayout || availableToPayOut > 0))) && (
+								<PayoutKycNotice />
 							)}
 							{me === 'provider' && availableToPayOut > 0 && !pendingPayout && (
 								<p className="text-xs text-(--pg-text-secondary)">

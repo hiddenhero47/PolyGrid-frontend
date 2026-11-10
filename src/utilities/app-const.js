@@ -103,6 +103,25 @@ export const VERIFICATION_STATUS = {
 	REJECTED: 'rejected',
 };
 
+// src/models/payoutKycModel.ts — the identity check before any refund or
+// payout to a person can be approved.
+export const PAYOUT_KYC_STATUS = {
+	PENDING: 'pending',
+	VERIFIED: 'verified',
+	FAILED: 'failed',
+};
+
+export const PAYOUT_KYC_BADGES = {
+	pending: { label: 'Being reviewed', tone: 'warning' },
+	verified: { label: 'Verified', tone: 'success' },
+	failed: { label: 'Not verified', tone: 'error' },
+};
+
+export const PAYOUT_KYC_ID_TYPES = [
+	{ value: 'bvn', label: 'BVN' },
+	{ value: 'nin', label: 'NIN' },
+];
+
 export const PROFILE_TYPE_LABELS = {
 	ConsultancyProfile: 'Consultant',
 	StoreProfile: 'Store',

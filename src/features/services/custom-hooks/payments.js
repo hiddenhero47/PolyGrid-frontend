@@ -5,6 +5,7 @@ import {
 	keepPreviousData,
 } from '@tanstack/react-query';
 import { axiosCall } from '../index-client';
+import { ROUTES } from '../../../utilities/app-routes';
 
 // polygrid-backend paymentRoutes.ts
 
@@ -25,6 +26,25 @@ export const withStepUp = (mutation, idRef, action) => (variables, options) =>
 		},
 	});
 
+// The backend picks the payment provider from the buyer's country
+// (SystemSettings.countryProviderOverrides). Stripe answers with a
+// clientSecret for our card form; Paystack's answer reuses that field for
+// its hosted checkout page, so the buyer leaves the site and Paystack
+// sends them back to FRONTEND_URL + `callbackPath` (+ ?trxref=&reference=
+// polygrid_payment_<id>) — the payment-return page. The backend builds the
+// full address itself (only a path is accepted), and Stripe ignores it, so
+// every intent sends one.
+export const paymentReturnPath = (kind, id) =>
+	`${ROUTES.DASHBOARD_PAYMENT_RETURN}/${kind}${id ? `/${id}` : ''}`;
+
+// true when the buyer is being sent to the provider's own page (stop
+// there: no card form to open).
+export const leaveForProvider = (res) => {
+	if (res?.provider !== 'paystack' || !res.clientSecret) return false;
+	window.location.assign(res.clientSecret);
+	return true;
+};
+
 // POST /api/payments/intent { targetType: 'Subscription', planTier,
 // autoRenew? } — subscribe to a plan.
 //   price 0 → activated on the spot: { requiresPayment: false, status:
@@ -41,7 +61,13 @@ const useSubscribeMutation = () => {
 			axiosCall({
 				url: '/api/payments/intent',
 				method: 'POST',
-				data: { targetType: 'Subscription', planTier, autoRenew, ...identity },
+				data: {
+					targetType: 'Subscription',
+					planTier,
+					autoRenew,
+					callbackPath: paymentReturnPath('subscription'),
+					...identity,
+				},
 			}),
 		onSuccess: (res) => {
 			if (!res.requiresPayment) refreshSubscription(queryClient);
@@ -111,7 +137,13 @@ const useFundJobMutation = () =>
 			axiosCall({
 				url: '/api/payments/intent',
 				method: 'POST',
-				data: { targetType: 'Job', targetId: jobId, amount, ...identity },
+				data: {
+					targetType: 'Job',
+					targetId: jobId,
+					amount,
+					callbackPath: paymentReturnPath('job', jobId),
+					...identity,
+				},
 			}),
 	});
 

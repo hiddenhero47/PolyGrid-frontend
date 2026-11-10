@@ -5,6 +5,7 @@ import { LuDownload, LuShieldCheck, LuShoppingBag } from 'react-icons/lu';
 import PurchaseServices from '../../../features/services/custom-hooks/purchases';
 import PaymentServices, {
 	withStepUp,
+	leaveForProvider,
 } from '../../../features/services/custom-hooks/payments';
 import { toast } from '../../../layouts/toast/toast-handler';
 import CheckoutModal from '../../../components/checkout-modal';
@@ -63,6 +64,7 @@ function BuyDigital({ product }) {
 						navigate(purchasesTo);
 						return;
 					}
+					if (leaveForProvider(res)) return;
 					if (!res.clientSecret) {
 						refreshPurchases();
 						toast.success('It’s yours — find it in Purchases');

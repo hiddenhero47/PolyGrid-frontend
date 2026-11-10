@@ -20,12 +20,15 @@ const BASE_URL = import.meta.env.DEV
 // the login form shows a code prompt instead. EMAIL_NOT_VERIFIED comes
 // from loginUser: the form shows the "check your email" screen.
 // IDENTITY_REQUIRED: a large payment needs a password / 2FA check first —
-// see withStepUp in custom-hooks/payments.js.
+// see withStepUp in custom-hooks/payments.js. PAYOUT_KYC_REQUIRED: the
+// person receiving a refund / payout hasn't passed the payout identity
+// check — the page says so in its own words.
 const SILENT_CODES = [
 	'2FA_REQUIRED',
 	'2FA_INVALID',
 	'EMAIL_NOT_VERIFIED',
 	'IDENTITY_REQUIRED',
+	'PAYOUT_KYC_REQUIRED',
 ];
 
 export const getErrorMessage = (error) =>

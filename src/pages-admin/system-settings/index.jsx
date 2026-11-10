@@ -52,7 +52,28 @@ const AMOUNTS = [
 		label: 'Manual review above (USD)',
 		hint: 'The buyer confirms their password or 2FA code, and an admin must release the hold.',
 	},
+	{
+		section: 'paystack',
+		name: 'usdToNgnRate',
+		label: 'Naira per US dollar',
+		hint: 'Paystack can’t charge in dollars, so it charges the price in naira at this rate. 0 means off, and Paystack payments fail.',
+	},
 ];
+
+// Per-country choices: a country missing from a map gets the default
+// (Stripe for payments, ID photos reviewed by an admin for payout
+// identity). Backend: SystemSettings.countryProviderOverrides /
+// countryKycProviders.
+const PAYMENT_PROVIDERS = [
+	{ value: '', label: 'Stripe (default)' },
+	{ value: 'paystack', label: 'Paystack' },
+];
+const KYC_PROVIDERS = [
+	{ value: '', label: 'ID photos, reviewed by an admin (default)' },
+	{ value: 'dojah', label: 'BVN / NIN check with Dojah' },
+];
+const keep = (map = {}, countries = []) =>
+	Object.fromEntries(Object.entries(map).filter(([c, v]) => v && countries.includes(c)));
 
 const validation = yup.object(
 	Object.fromEntries(
@@ -69,9 +90,18 @@ const validation = yup.object(
 
 // What's wrong with these values, in words. Payments stop dead when closed;
 // a threshold at or above the per-payment maximum can never be reached.
+const usesPaystack = (values) =>
+	values.supportedCountries.some(
+		(c) => values.countryProviderOverrides[c] === 'paystack'
+	);
+
 const warningsFor = (values) => {
 	const max = Number(values.maxTransactionAmount);
 	const list = [];
+	if (usesPaystack(values) && !Number(values.usdToNgnRate))
+		list.push(
+			'Paystack payments will fail: set the naira rate under “By country”, or switch those countries to Stripe.'
+		);
 	if (!values.supportedCountries.length || !max)
 		list.push(
 			'Payments are closed: nobody can pay until there’s a supported country and a maximum per payment.'
@@ -106,6 +136,8 @@ function SystemSettings() {
 				AMOUNTS.map(({ name }) => [name, settings.data?.[name] ?? ''])
 			),
 			supportedCountries: settings.data?.supportedCountries || [],
+			countryProviderOverrides: settings.data?.countryProviderOverrides || {},
+			countryKycProviders: settings.data?.countryKycProviders || {},
 		},
 		validationSchema: validation,
 		onSubmit: (values) =>
@@ -115,6 +147,15 @@ function SystemSettings() {
 						AMOUNTS.map(({ name }) => [name, Number(values[name])])
 					),
 					supportedCountries: values.supportedCountries,
+					// only for countries still on the list
+					countryProviderOverrides: keep(
+						values.countryProviderOverrides,
+						values.supportedCountries
+					),
+					countryKycProviders: keep(
+						values.countryKycProviders,
+						values.supportedCountries
+					),
 				},
 				{ onSuccess: () => toast.success('Payment settings saved') }
 			),
@@ -138,6 +179,12 @@ function SystemSettings() {
 
 	const chosen = form.values.supportedCountries;
 	const setCountries = (next) => form.setFieldValue('supportedCountries', next);
+	const setChoice = (field, code, value) => {
+		const next = { ...form.values[field] };
+		if (value) next[code] = value;
+		else delete next[code];
+		form.setFieldValue(field, next);
+	};
 	const warnings = warningsFor(form.values);
 
 	const amountFields = (section) =>
@@ -246,6 +293,57 @@ function SystemSettings() {
 						)}
 					</div>
 				</AdminSection>
+
+				{chosen.length > 0 && (
+					<AdminSection>
+						<div className="sc_sectionHead">
+							<h3 className="sc_sectionTitle">By country</h3>
+						</div>
+						<p className="mb-5 text-sm text-(--pg-text-secondary)">
+							Who takes the payment from buyers in each country, and how
+							people there prove who they are before a refund or payout.
+							Paystack checkout happens on Paystack’s own page; its refunds
+							and payouts are sent by hand.
+						</p>
+						<div className="flex flex-col gap-6">
+							{chosen.map((code) => (
+								<div
+									key={code}
+									className="grid items-start gap-4 border-t border-(--pg-card-border) pt-5 first:border-t-0 first:pt-0 sm:grid-cols-[140px_1fr_1fr]"
+								>
+									<p className="pt-2 font-semibold text-(--pg-text-primary)">
+										{countryName(code)}
+									</p>
+									<CustomSelect
+										id={`provider-${code}`}
+										label="Payments"
+										options={PAYMENT_PROVIDERS}
+										disabled={!canEdit}
+										value={form.values.countryProviderOverrides[code] || ''}
+										onChange={(value) =>
+											setChoice('countryProviderOverrides', code, value)
+										}
+									/>
+									<CustomSelect
+										id={`kyc-${code}`}
+										label="Payout identity"
+										options={KYC_PROVIDERS}
+										disabled={!canEdit}
+										value={form.values.countryKycProviders[code] || ''}
+										onChange={(value) =>
+											setChoice('countryKycProviders', code, value)
+										}
+									/>
+								</div>
+							))}
+						</div>
+						{usesPaystack(form.values) && (
+							<div className="mt-6 grid items-start gap-5 border-t border-(--pg-card-border) pt-5 sm:grid-cols-2">
+								{amountFields('paystack')}
+							</div>
+						)}
+					</AdminSection>
+				)}
 
 				{canEdit && (
 					<div className="mt-8">

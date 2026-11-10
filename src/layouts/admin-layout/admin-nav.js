@@ -13,6 +13,7 @@ import {
 	LuClipboardList,
 	LuMessageSquareWarning,
 	LuSlidersHorizontal,
+	LuFingerprint,
 } from 'react-icons/lu';
 import { ROUTES } from '../../utilities/app-routes';
 import { REVIEW_ROLES, MANAGE_ROLES } from '../../utilities/app-const';
@@ -55,6 +56,13 @@ export const ADMIN_NAV = [
 				icon: LuFileCheck,
 				roles: REVIEW_ROLES,
 				countKey: 'pendingDigital',
+			},
+			{
+				label: 'Payout identity',
+				to: ROUTES.ADMIN_PAYOUT_KYC,
+				icon: LuFingerprint,
+				roles: REVIEW_ROLES,
+				countKey: 'pendingPayoutKyc',
 			},
 			{
 				label: 'Disputes',

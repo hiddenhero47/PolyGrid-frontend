@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 import {
 	LuPlus,
 	LuFileText,
@@ -16,11 +17,13 @@ import StatusBadge from '../../../../../components/status-badge';
 import Pagination from '../../../../../components/pagination';
 import { AppButton } from '../../../../../components/button';
 import { DIGITAL_PRODUCT_CATEGORY_LABELS } from '../../../../../utilities/app-const';
+import { ROUTES } from '../../../../../utilities/app-routes';
 import {
 	formatMoney,
 	humanize,
 } from '../../../../../utilities/basic-functions';
 import DigitalProductModal from './digital-product-modal';
+import PayoutKycNotice from '../../../../elements/payout-kyc-notice';
 import { ProductRow } from './index.style';
 
 // A creator's files (GET /api/digital-creator-profiles/me/products —
@@ -30,6 +33,7 @@ import { ProductRow } from './index.style';
 function DigitalProductsTab() {
 	const modalRef = useRef(null);
 	const confirmRef = useRef(null);
+	const navigate = useNavigate();
 	const payout = ProductServices.requestCreatorPayout();
 	const [page, setPage] = useState(1);
 	const [openId, setOpenId] = useState(null);
@@ -50,6 +54,18 @@ function DigitalProductsTab() {
 					toast.success(
 						`${formatMoney(systemPayout.amount, systemPayout.currency)} requested from ${purchasesBundled} sale${purchasesBundled === 1 ? '' : 's'}`
 					),
+				onError: (error) => {
+					if (error.silentCode === 'PAYOUT_KYC_REQUIRED')
+						toast.warning(
+							'Confirm your identity in Settings first, then request the payout again.',
+							{
+								title: 'Identity check needed',
+								actionText: 'Go to Settings',
+								onAction: () =>
+									navigate(`${ROUTES.DASHBOARD_SETTINGS}#payout-kyc-settings`),
+							}
+						);
+				},
 			});
 	};
 
@@ -60,6 +76,7 @@ function DigitalProductsTab() {
 
 	return (
 		<>
+			<PayoutKycNotice className="mb-4" />
 			<div className="mb-4 flex flex-wrap items-center justify-between gap-3">
 				<p className="text-[15px] text-(--pg-text-secondary)">
 					{data

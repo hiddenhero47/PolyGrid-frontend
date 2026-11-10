@@ -4,6 +4,7 @@ import {
 	useQueryClient,
 	keepPreviousData,
 } from '@tanstack/react-query';
+import { paymentReturnPath } from './payments';
 import { axiosCall } from '../index-client';
 
 // Digital purchases (frontend-plan §B.14): bought straight through
@@ -41,6 +42,7 @@ const useBuyMutation = () =>
 				data: {
 					targetType: 'DigitalPurchase',
 					targetId: productId,
+					callbackPath: paymentReturnPath('purchase'),
 					...identity,
 				},
 			}),

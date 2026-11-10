@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { LuShieldOff } from 'react-icons/lu';
 import { selectIsAuthenticated } from '../../store/slice/auth';
+import PayoutKycServices from '../../features/services/custom-hooks/payout-kyc';
 import AdminServices from '../../features/services/custom-hooks/admin';
 import AdminMoneyServices from '../../features/services/custom-hooks/admin-money';
 import AdminModerationServices from '../../features/services/custom-hooks/admin-moderation';
@@ -35,6 +36,10 @@ function AdminLayout() {
 	);
 
 	const { data: pendingDigital } = AdminServices.getDigitalReview(
+		{ status: 'pending', page: 1, limit: 1 },
+		{ enabled: allowed }
+	);
+	const { data: pendingKyc } = PayoutKycServices.getRecords(
 		{ status: 'pending', page: 1, limit: 1 },
 		{ enabled: allowed }
 	);
@@ -89,6 +94,7 @@ function AdminLayout() {
 			counts={{
 				pendingVerifications: pending?.pagination?.total || 0,
 				pendingDigital: pendingDigital?.pagination?.total || 0,
+				pendingPayoutKyc: pendingKyc?.pagination?.total || 0,
 				openDisputes: disputes?.pagination?.total || 0,
 				openReports: reports?.pagination?.total || 0,
 				paymentsForReview: forReview?.pagination?.total || 0,
