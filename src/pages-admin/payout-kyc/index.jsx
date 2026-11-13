@@ -34,7 +34,7 @@ import {
 	PAYOUT_KYC_BADGES,
 	PAYOUT_KYC_STATUS,
 } from '../../utilities/app-const';
-import { countryName, formatDate } from '../../utilities/basic-functions';
+import { countryName, formatDate, displayName } from '../../utilities/basic-functions';
 
 const LIMIT = 10;
 const TABS = [
@@ -187,7 +187,7 @@ function PayoutKycQueue() {
 						const person =
 							record.user && typeof record.user === 'object' ? record.user : {};
 						const ownerId = person._id || person.id || record.user;
-						const name = person.fullName || 'This person';
+						const name = displayName(person) || 'This person';
 						const isDocument = record.method === 'document';
 						const reviewable =
 							canManage &&
@@ -200,11 +200,11 @@ function PayoutKycQueue() {
 								aria-labelledby={`kyc-${record._id}`}
 							>
 								<div className="sc_who">
-									<ProfileAvatar name={person.fullName} size={48} />
+									<ProfileAvatar name={displayName(person)} size={48} />
 									<div className="min-w-0 flex-1">
 										<div className="flex flex-wrap items-center gap-2.5">
 											<h3 id={`kyc-${record._id}`} className="sc_name">
-												{person.fullName || `User ${String(ownerId).slice(-6)}`}
+												{displayName(person) || `User ${String(ownerId).slice(-6)}`}
 											</h3>
 											<Chip $accent>
 												{isDocument

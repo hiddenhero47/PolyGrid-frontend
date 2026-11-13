@@ -9,6 +9,7 @@ import ProfileAvatar from '../../../components/profile-avatar';
 import { AppButton } from '../../../components/button';
 import { ROUTES } from '../../../utilities/app-routes';
 import { idOf } from '../../elements/listing-helpers';
+import { displayName } from '../../../utilities/basic-functions';
 
 // Pick a contact to message — you can only message contacts.
 function NewConversationModal({ refName, onPick, busy }) {
@@ -40,7 +41,7 @@ function NewConversationModal({ refName, onPick, busy }) {
 				) : (
 					<ul className="flex max-h-105 flex-col gap-1 overflow-y-auto">
 						{rows.map((c) => {
-							const name = c.fullName || c.email;
+							const name = displayName(c) || c.email;
 							return (
 								<li key={idOf(c.user)}>
 									<button
@@ -64,7 +65,7 @@ function NewConversationModal({ refName, onPick, busy }) {
 											<span className="block truncate font-semibold text-(--pg-text-primary)">
 												{name}
 											</span>
-											{c.fullName && (
+											{displayName(c) && (
 												<span className="block truncate text-xs text-(--pg-text-secondary)">
 													{c.email}
 												</span>

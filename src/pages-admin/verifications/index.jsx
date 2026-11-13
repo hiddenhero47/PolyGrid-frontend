@@ -16,7 +16,7 @@ import {
 	PROFILE_TYPE_LABELS,
 	VERIFICATION_STATUS,
 } from '../../utilities/app-const';
-import { enumToOptions } from '../../utilities/basic-functions';
+import { enumToOptions, displayName } from '../../utilities/basic-functions';
 import SegmentedControl from '../../components/segmented-control';
 import VerificationCard from './elements/verification-card';
 import RejectModal from './elements/reject-modal';
@@ -84,7 +84,7 @@ function AdminVerifications() {
 		approve.mutate(verification._id, {
 			onSuccess: () =>
 				toast.success(
-					`${verification.user?.fullName || 'Profile'} is verified`
+					`${displayName(verification.user) || 'Profile'} is verified`
 				),
 		});
 
@@ -228,7 +228,7 @@ function AdminVerifications() {
 			>
 				<Modal.Card
 					eyebrow="Under review"
-					title={viewing?.user?.fullName || 'Profile'}
+					title={displayName(viewing?.user) || 'Profile'}
 					subtitle={viewing?.user?.email}
 				>
 					{viewing && (

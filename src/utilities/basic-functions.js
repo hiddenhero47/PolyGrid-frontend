@@ -78,3 +78,20 @@ export const specialtyLabel = (value) =>
 // worker skill / SiteForce job category value → label (same enum)
 export const skillLabel = (value) =>
 	LABOR_SKILL_LABELS[value] || humanize(value);
+
+// A person's legal name, from the backend's `fullName` — an object
+// { firstName, lastName } since the identity change (still read as a
+// string for anything cached from before it). Only the person themselves
+// and staff reviewing identity see this; everywhere else shows
+// displayName().
+export const legalName = (user) => {
+	const name = user?.fullName;
+	if (typeof name === 'string') return name;
+	return [name?.firstName, name?.lastName].filter(Boolean).join(' ');
+};
+
+// The name PolyGrid shows for a person: their `userName` (a display name,
+// not unique), else their legal name. Populated users (job parties,
+// reviewers, contacts, message participants…) carry only `userName`.
+export const displayName = (user) =>
+	(user && typeof user === 'object' && (user.userName || legalName(user))) || '';

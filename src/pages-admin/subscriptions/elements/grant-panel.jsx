@@ -16,6 +16,7 @@ import {
 	formatDate,
 	formatMoney,
 	humanize,
+	displayName,
 } from '../../../utilities/basic-functions';
 import { ROUTES } from '../../../utilities/app-routes';
 
@@ -90,7 +91,7 @@ function GrantPanel({ userId, user, onClose }) {
 					onSuccess: () => {
 						resetForm();
 						toast.success(
-							`${humanize(planTier)} plan granted${user?.fullName ? ` to ${user.fullName}` : ''}`
+							`${humanize(planTier)} plan granted${displayName(user) ? ` to ${displayName(user)}` : ''}`
 						);
 					},
 				}
@@ -105,7 +106,7 @@ function GrantPanel({ userId, user, onClose }) {
 			<div className="flex items-start gap-4">
 				<ProfileAvatar
 					avatar={user?.avatar}
-					name={user?.fullName || '?'}
+					name={displayName(user) || '?'}
 					size={52}
 				/>
 				<div className="min-w-0 flex-1">
@@ -116,7 +117,7 @@ function GrantPanel({ userId, user, onClose }) {
 						id="grant-heading"
 						className="mt-1 truncate text-lg font-semibold text-(--pg-text-primary)"
 					>
-						{user?.fullName || `User ${userId}`}
+						{displayName(user) || `User ${userId}`}
 					</h3>
 					{user?.email && (
 						<p className="mt-0.5 inline-flex items-center gap-1.5 text-sm text-(--pg-text-secondary)">

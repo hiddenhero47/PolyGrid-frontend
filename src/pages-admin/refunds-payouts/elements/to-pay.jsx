@@ -24,6 +24,7 @@ import {
 	countryName,
 	formatDate,
 	formatMoney,
+	displayName,
 } from '../../../utilities/basic-functions';
 
 const STATUSES = [
@@ -66,8 +67,8 @@ function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 		const ok = await confirmRef.current.ask({
 			title: `Send ${formatMoney(row.amount, row.currency)} through Stripe?`,
 			text: isRefund(row)
-				? `This refunds the card ${row.recipient?.fullName || 'the client'} paid with, right now. It can’t be undone.`
-				: `This transfers the money to ${row.recipient?.fullName || 'the recipient'}’s Stripe account, right now. It can’t be undone.`,
+				? `This refunds the card ${displayName(row.recipient) || 'the client'} paid with, right now. It can’t be undone.`
+				: `This transfers the money to ${displayName(row.recipient) || 'the recipient'}’s Stripe account, right now. It can’t be undone.`,
 			confirmLabel: 'Send now',
 		});
 		if (ok)
@@ -83,7 +84,7 @@ function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 	const onPaid = async (row) => {
 		const transferReference = await reasonRef.current.ask({
 			eyebrow: 'Mark as paid',
-			title: `${formatMoney(row.amount, row.currency)} to ${row.recipient?.fullName || 'the recipient'}`,
+			title: `${formatMoney(row.amount, row.currency)} to ${displayName(row.recipient) || 'the recipient'}`,
 			text: 'Only once the transfer has actually gone out. Add the bank’s reference so it can be traced later — the recipient sees it in their email.',
 			label: 'Transfer reference (optional)',
 			confirmLabel: 'Mark paid',
@@ -101,7 +102,7 @@ function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 	const onFailed = async (row) => {
 		const failureReason = await reasonRef.current.ask({
 			eyebrow: 'Mark as failed',
-			title: `${formatMoney(row.amount, row.currency)} to ${row.recipient?.fullName || 'the recipient'}`,
+			title: `${formatMoney(row.amount, row.currency)} to ${displayName(row.recipient) || 'the recipient'}`,
 			text: 'The recipient is emailed this reason — e.g. the account number was rejected, so they should update their payout account.',
 			label: 'What went wrong',
 			required: true,
@@ -176,7 +177,7 @@ function ToPay({ status, page, onStatus, onPage, onOpenJob }) {
 									<div className="min-w-0 flex-1">
 										<h3 id={`sp-${row.id}`} className="sc_name">
 											{row.requestType === 'refund' ? 'Refund' : 'Payout'} to{' '}
-											{row.recipient?.fullName || 'recipient'}
+											{displayName(row.recipient) || 'recipient'}
 										</h3>
 										<div className="sc_meta">
 											{row.recipient?.email && (

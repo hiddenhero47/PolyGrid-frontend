@@ -4,12 +4,14 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { LuLandmark, LuPencil } from 'react-icons/lu';
 import AccountServices from '../../../features/services/custom-hooks/account';
+import PayoutKycServices from '../../../features/services/custom-hooks/payout-kyc';
 import ReferenceServices from '../../../features/services/custom-hooks/reference';
 import { toast } from '../../../layouts/toast/toast-handler';
 import ConfirmIdentityModal from '../../../components/modal/confirm-identity-modal';
 import { AppButton } from '../../../components/button';
 import { CustomInput, CustomSelect } from '../../../components/form-components';
-import { countryName } from '../../../utilities/basic-functions';
+import { countryName, legalName } from '../../../utilities/basic-functions';
+import { PAYOUT_KYC_STATUS } from '../../../utilities/app-const';
 import SettingsCard from './settings-card';
 
 const mask = (number = '') =>
@@ -17,23 +19,29 @@ const mask = (number = '') =>
 
 // Where payouts for completed jobs and sales are sent — needed before a
 // payout request can be approved. Behind the confirm-identity check.
-// PUT /api/users/payout-account.
+// PUT /api/users/payout-account. Only once payout identity is verified
+// (400 PAYOUT_KYC_REQUIRED otherwise), in the person's own legal name
+// (PAYOUT_ACCOUNT_NAME_MISMATCH) and country
+// (PAYOUT_ACCOUNT_COUNTRY_MISMATCH) — so the bank country is fixed to it.
 function PayoutSection() {
 	const { user } = useSelector((state) => state.auth);
 	const account = user?.payoutAccount;
 	const idRef = useRef(null);
 	const [editing, setEditing] = useState(!account);
 	const save = AccountServices.updatePayout();
+	const kyc = PayoutKycServices.getMine({ enabled: Boolean(user) });
+	const verified = kyc.data?.record?.status === PAYOUT_KYC_STATUS.VERIFIED;
+	const name = legalName(user);
 	const { data: countries = [] } = ReferenceServices.getCountries();
 
 	const form = useFormik({
 		enableReinitialize: true,
 		initialValues: {
-			accountName: account?.accountName || user?.fullName || '',
+			accountName: account?.accountName || name,
 			accountNumber: account?.accountNumber || '',
 			bankName: account?.bankName || '',
 			bankCode: account?.bankCode || '',
-			country: account?.country || '',
+			country: account?.country || user?.country || '',
 		},
 		validationSchema: yup.object({
 			accountName: yup.string().trim().required('Name on the account'),
@@ -64,6 +72,20 @@ function PayoutSection() {
 					setEditing(false);
 					toast.success('Payout account saved');
 				},
+				onError: (error) => {
+					if (error.silentCode === 'PAYOUT_ACCOUNT_NAME_MISMATCH')
+						form.setFieldError(
+							'accountName',
+							`It must be in your legal name, ${name}`
+						);
+					else if (error.silentCode === 'PAYOUT_ACCOUNT_COUNTRY_MISMATCH')
+						form.setFieldError(
+							'country',
+							`The bank must be in your country, ${countryName(user?.country)}`
+						);
+					else if (error.silentCode === 'PAYOUT_KYC_REQUIRED')
+						toast.warning('Verify your payout identity first.');
+				},
 			});
 		},
 	});
@@ -75,7 +97,25 @@ function PayoutSection() {
 			title="Payout account"
 			description="Where we send your earnings from completed jobs and sales. Changing it asks you to confirm it’s you."
 		>
-			{account && !editing ? (
+			{kyc.isSuccess && !verified && (!account || editing) ? (
+				<p className="flex items-start gap-2 rounded-xl bg-(--pg-surface-background) px-4 py-3 text-sm text-(--pg-text-secondary)">
+					<LuLandmark
+						aria-hidden="true"
+						className="mt-0.5 shrink-0 text-(--pg-text-highlight)"
+					/>
+					<span>
+						Verify your identity under{' '}
+						<a
+							href="#payout-kyc-settings"
+							className="font-semibold text-(--pg-text-link) hover:underline"
+						>
+							Payout identity
+						</a>{' '}
+						first. The account must then be in your legal name
+						{name ? ` (${name})` : ''} and your country.
+					</span>
+				</p>
+			) : account && !editing ? (
 				<div className="flex flex-wrap items-center gap-4 rounded-2xl border border-(--pg-card-border) bg-(--pg-surface-background) p-5">
 					<span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-(--pg-icon-background) text-lg text-(--pg-icon-color)">
 						<LuLandmark aria-hidden="true" />
@@ -108,6 +148,7 @@ function PayoutSection() {
 							label="Name on the account"
 							name="accountName"
 							required
+							hint={name ? `Must match your legal name, ${name}.` : undefined}
 							value={form.values.accountName}
 							onChange={form.handleChange}
 							onBlur={form.handleBlur}
@@ -141,6 +182,8 @@ function PayoutSection() {
 						label="Bank country"
 						name="country"
 						required
+						disabled={Boolean(user?.country)}
+						hint={user?.country ? 'Your own country, as in your profile.' : undefined}
 						placeholder="Choose a country"
 						options={countries.map((c) => ({
 							value: c.isoCode,

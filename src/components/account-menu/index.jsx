@@ -16,6 +16,7 @@ import ProfileAvatar from '../profile-avatar';
 import { SUPPORTS_ANCHOR, anchorName } from '../form-components/helpers';
 import { ROUTES, homeForUser } from '../../utilities/app-routes';
 import { MenuTrigger, MenuPanel } from './index.style';
+import { displayName } from '../../utilities/basic-functions';
 
 const EDGE = 12;
 
@@ -78,14 +79,14 @@ function AccountMenu({ showName = true, compactLabel }) {
 				popoverTarget={panelId}
 				aria-haspopup="true"
 				aria-expanded={open}
-				aria-label={`Account menu for ${user?.fullName || 'you'}`}
+				aria-label={`Account menu for ${displayName(user) || 'you'}`}
 				style={{ anchorName: anchor }}
 			>
-				<ProfileAvatar avatar={user?.avatar} name={user?.fullName} size={36} />
+				<ProfileAvatar avatar={user?.avatar} name={displayName(user)} size={36} />
 				{showName && (
 					<span className="hidden min-w-0 sm:block">
 						<span className="block truncate text-sm font-semibold text-(--pg-text-primary)">
-							{user?.fullName}
+							{displayName(user)}
 						</span>
 						{compactLabel && (
 							<span className="font-label block text-[10.5px] font-semibold tracking-[0.14em] text-(--pg-text-highlight) uppercase">
@@ -109,7 +110,7 @@ function AccountMenu({ showName = true, compactLabel }) {
 				style={{ positionAnchor: anchor }}
 			>
 				<div className="sc_who">
-					<span className="sc_whoName">{user?.fullName}</span>
+					<span className="sc_whoName">{displayName(user)}</span>
 					<span className="sc_whoEmail">{user?.email}</span>
 				</div>
 				<nav aria-label="Account">

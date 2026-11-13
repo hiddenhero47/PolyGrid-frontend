@@ -8,9 +8,11 @@ import { PAYOUT_KYC_STATUS } from '../../utilities/app-const';
 
 // Next to anything that asks PolyGrid for money back or out (refund and
 // payout requests): an admin can't approve one until the person receiving
-// it has passed the payout identity check, so say so up front. Shows
-// nothing once they're verified.
-function PayoutKycNotice({ className = '' }) {
+// it has passed the payout identity check, so say so up front.
+// purpose="hire": next to anything that creates or confirms a job, which
+// the backend refuses until the person acting is verified (clients too).
+// Shows nothing once they're verified.
+function PayoutKycNotice({ className = '', purpose = 'payout' }) {
 	const { data } = PayoutKycServices.getMine();
 	if (!data) return null;
 	const status = data.record?.status;
@@ -37,8 +39,16 @@ function PayoutKycNotice({ className = '' }) {
 			<span>
 				{status === PAYOUT_KYC_STATUS.PENDING ? (
 					<>
-						We’re still checking your ID. Money can be sent to you once that’s
-						done ({settings}).
+						We’re still checking your ID.{' '}
+						{purpose === 'hire'
+							? 'You can start or accept jobs once that’s done'
+							: 'Money can be sent to you once that’s done'}{' '}
+						({settings}).
+					</>
+				) : purpose === 'hire' ? (
+					<>
+						Before you can start or accept a job, we need to confirm who you
+						are, so any refund or payout reaches you. {settings}.
 					</>
 				) : (
 					<>
@@ -53,6 +63,7 @@ function PayoutKycNotice({ className = '' }) {
 
 PayoutKycNotice.propTypes = {
 	className: PropTypes.string,
+	purpose: PropTypes.oneOf(['payout', 'hire']),
 };
 
 export default PayoutKycNotice;

@@ -22,13 +22,19 @@ const BASE_URL = import.meta.env.DEV
 // IDENTITY_REQUIRED: a large payment needs a password / 2FA check first —
 // see withStepUp in custom-hooks/payments.js. PAYOUT_KYC_REQUIRED: the
 // person receiving a refund / payout hasn't passed the payout identity
-// check — the page says so in its own words.
+// check — the page says so in its own words (the job, tender and SiteForce
+// pages through pages-dashboard/elements/hire-gate.js, which also covers
+// starting a job). PAYOUT_KYC_VERIFIED_LOCK, PAYOUT_ACCOUNT_NAME_MISMATCH,
+// PAYOUT_ACCOUNT_COUNTRY_MISMATCH: Settings explains them at the field.
 const SILENT_CODES = [
 	'2FA_REQUIRED',
 	'2FA_INVALID',
 	'EMAIL_NOT_VERIFIED',
 	'IDENTITY_REQUIRED',
 	'PAYOUT_KYC_REQUIRED',
+	'PAYOUT_KYC_VERIFIED_LOCK',
+	'PAYOUT_ACCOUNT_NAME_MISMATCH',
+	'PAYOUT_ACCOUNT_COUNTRY_MISMATCH',
 ];
 
 export const getErrorMessage = (error) =>

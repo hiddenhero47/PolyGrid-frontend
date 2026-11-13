@@ -15,7 +15,7 @@ import {
 	MANAGE_ROLES,
 	paymentBadge,
 } from '../../utilities/app-const';
-import { formatDate, formatMoney } from '../../utilities/basic-functions';
+import { formatDate, formatMoney, displayName } from '../../utilities/basic-functions';
 
 const REQUEST_BADGES = {
 	pending: { label: 'Pending', tone: 'warning' },
@@ -29,7 +29,7 @@ const label =
 // populated { fullName, email } (queues) or the job's { user } summary
 const person = (party) => {
 	const u = typeof party?.userId === 'object' ? party.userId : party?.user;
-	return { name: u?.fullName || 'Unknown', email: u?.email };
+	return { name: displayName(u) || 'Unknown', email: u?.email };
 };
 
 function Fact({ name, value }) {

@@ -21,7 +21,7 @@ import { SkeletonBar } from '../../components/table/index.style';
 import { ReviewCard } from '../verifications/elements/index.style';
 import JobReview from '../elements/job-review';
 import { JOB_TYPE_LABELS, MANAGE_ROLES } from '../../utilities/app-const';
-import { formatDate, formatMoney } from '../../utilities/basic-functions';
+import { formatDate, formatMoney, displayName } from '../../utilities/basic-functions';
 
 const LIMIT = 10;
 
@@ -155,7 +155,7 @@ function Disputes() {
 												{role}
 											</dt>
 											<dd className="font-semibold text-(--pg-text-primary)">
-												{p?.fullName || '—'}
+												{displayName(p) || '—'}
 											</dd>
 											{p?.email && (
 												<dd>
@@ -173,7 +173,7 @@ function Disputes() {
 
 								<div className="rounded-xl bg-(--pg-surface-card) p-4">
 									<p className="text-xs text-(--pg-text-secondary)">
-										Raised by {by?.fullName || 'a party'}
+										Raised by {displayName(by) || 'a party'}
 										{byRole && ` (the ${byRole})`}
 									</p>
 									<p className="mt-1 text-[15px] whitespace-pre-line text-(--pg-text-primary)">

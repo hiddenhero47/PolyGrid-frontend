@@ -38,7 +38,7 @@ import CheckoutModal from '../../components/checkout-modal';
 import { AppButton } from '../../components/button';
 import { Chip } from '../../pages/home/elements/index.style';
 import { JOB_STATUS_BADGES, JOB_TYPE_LABELS } from '../../utilities/app-const';
-import { formatDate, formatMoney } from '../../utilities/basic-functions';
+import { formatDate, formatMoney, displayName } from '../../utilities/basic-functions';
 import { ROUTES } from '../../utilities/app-routes';
 import {
 	myRoleIn,
@@ -52,6 +52,7 @@ import StagesModal from './elements/stages-modal';
 import FundModal from './elements/fund-modal';
 import PaymentHoldNotice from '../elements/payment-hold-notice';
 import PayoutKycNotice from '../elements/payout-kyc-notice';
+import { useHireGateError } from '../elements/hire-gate';
 import EditJobModal from './elements/edit-modal';
 import { BackLink, Panel, eyebrowClass } from '../elements/panels';
 
@@ -86,6 +87,7 @@ function JobDetail() {
 	const { data: job, isPending, isError, error, refetch } = JobServices.get(id);
 
 	const confirm = JobServices.confirm();
+	const hireGateError = useHireGateError();
 	const cancel = JobServices.cancel();
 	const update = JobServices.update();
 	const propose = JobServices.proposeStages();
@@ -261,6 +263,7 @@ function JobDetail() {
 	const run = (mutation, vars, message) =>
 		mutation.mutate(vars, {
 			onSuccess: () => message && toast.success(message),
+			onError: hireGateError,
 		});
 
 	const onConfirm = async () => {
@@ -435,6 +438,9 @@ function JobDetail() {
 					>
 						{confirm.isPending ? 'Confirming…' : 'Confirm job'}
 					</AppButton>
+				)}
+				{pending && !job[me]?.isConfirmed && (
+					<PayoutKycNotice purpose="hire" className="w-full" />
 				)}
 				{pending && isCreator && (
 					<>
@@ -845,7 +851,7 @@ function JobDetail() {
 									<li key={role} className="flex flex-col gap-2">
 										<div className="flex items-center gap-3">
 											<ProfileAvatar
-												name={person?.fullName || partyName(job, role, me)}
+												name={displayName(person) || partyName(job, role, me)}
 												avatar={person?.avatar}
 												size={40}
 											/>
@@ -853,7 +859,7 @@ function JobDetail() {
 												<p className="truncate text-sm font-semibold text-(--pg-text-primary)">
 													{role === me
 														? 'You'
-														: person?.fullName || partyName(job, role, me)}
+														: displayName(person) || partyName(job, role, me)}
 												</p>
 												<p className="text-xs text-(--pg-text-secondary) capitalize">
 													{role}

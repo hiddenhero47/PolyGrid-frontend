@@ -10,7 +10,7 @@ import {
 // polygrid-backend src/routes/userRoutes.ts. Login answers with
 // toPublicUser() + token, which setSession stores.
 
-// POST /api/users  { fullName, email, password, phoneNumber? } — no token:
+// POST /api/users  { firstName?, lastName?, userName?, email, password, phoneNumber? } — no token:
 // the account can't sign in until its email is verified.
 const useRegisterMutation = () =>
 	useMutation({

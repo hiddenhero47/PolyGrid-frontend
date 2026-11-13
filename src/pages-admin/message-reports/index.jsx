@@ -21,7 +21,7 @@ import { AppButton } from '../../components/button';
 import { SkeletonBar } from '../../components/table/index.style';
 import { ReviewCard } from '../verifications/elements/index.style';
 import { MANAGE_ROLES } from '../../utilities/app-const';
-import { formatDate } from '../../utilities/basic-functions';
+import { formatDate, displayName } from '../../utilities/basic-functions';
 
 const LIMIT = 10;
 const TABS = [
@@ -148,7 +148,7 @@ function MessageReports() {
 								<div className="sc_who">
 									<div className="min-w-0 flex-1">
 										<h3 id={`rep-${report.id}`} className="sc_name">
-											Reported by {reporter?.fullName || 'a user'}
+											Reported by {displayName(reporter) || 'a user'}
 										</h3>
 										<div className="sc_meta">
 											{reporter?.email && (
@@ -194,8 +194,8 @@ function MessageReports() {
 												>
 													<span className="text-xs font-normal">
 														{formatDate(m.createdAt, true)}
-														{reported && sender?.fullName
-															? ` · ${sender.fullName}${sender.email ? ` (${sender.email})` : ''}`
+														{reported && displayName(sender)
+															? ` · ${displayName(sender)}${sender.email ? ` (${sender.email})` : ''}`
 															: ''}{' '}
 														·{' '}
 													</span>
@@ -215,8 +215,8 @@ function MessageReports() {
 										</p>
 										{message && (
 											<p className="mt-2 text-xs text-(--pg-text-secondary)">
-												{sender?.fullName
-													? `${sender.fullName}${sender.email ? ` · ${sender.email}` : ''} · `
+												{displayName(sender)
+													? `${displayName(sender)}${sender.email ? ` · ${sender.email}` : ''} · `
 													: 'Sent '}
 												{formatDate(message.createdAt, true)}
 											</p>
@@ -227,7 +227,7 @@ function MessageReports() {
 								{report.status === 'resolved' ? (
 									<p className="text-sm text-(--pg-text-secondary)">
 										Resolved {formatDate(report.resolvedAt, true)}
-										{resolver?.fullName ? ` by ${resolver.fullName}` : ''}
+										{displayName(resolver) ? ` by ${displayName(resolver)}` : ''}
 										{removed ? ' · message removed' : ' · message kept'}
 										{report.resolutionNote ? ` — ${report.resolutionNote}` : ''}
 									</p>

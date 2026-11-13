@@ -1,3 +1,4 @@
+import { displayName } from '../../../utilities/basic-functions';
 // Small pure helpers shared by the job pages.
 
 const idOf = (value) => String(value?._id || value?.id || value || '');
@@ -19,7 +20,7 @@ export const partyName = (job, role, myRole) => {
 	const party = job?.[role] || {};
 	const user =
 		party.user || (typeof party.userId === 'object' ? party.userId : null);
-	return user?.fullName || (role === 'client' ? 'The client' : 'The provider');
+	return displayName(user) || (role === 'client' ? 'The client' : 'The provider');
 };
 
 export const partyUser = (job, role) => {

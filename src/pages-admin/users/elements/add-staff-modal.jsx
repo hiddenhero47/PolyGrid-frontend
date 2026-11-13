@@ -38,20 +38,23 @@ function AddStaffModal({ refName }) {
 	const create = AdminServices.createStaff();
 	const form = useFormik({
 		initialValues: {
-			fullName: '',
+			firstName: '',
+			lastName: '',
 			email: '',
 			password: '',
 			role: SYSTEM_ROLE.ADMIN,
 		},
 		validationSchema: yup.object({
-			fullName: yup.string().trim().required('Their full name'),
+			firstName: yup.string().trim().required('Their first name'),
+			lastName: yup.string().trim().required('Their last name'),
 			email: emailField(),
 			password: newPasswordField(),
 		}),
 		onSubmit: (values, { resetForm }) =>
 			create.mutate(
 				{
-					fullName: values.fullName.trim(),
+					firstName: values.firstName.trim(),
+					lastName: values.lastName.trim(),
 					email: values.email.trim().toLowerCase(),
 					password: values.password,
 					role: values.role,
@@ -60,7 +63,7 @@ function AddStaffModal({ refName }) {
 					onSuccess: () => {
 						resetForm();
 						refName.current.close();
-						toast.success(`${values.fullName.trim()} can now sign in`, {
+						toast.success(`${values.firstName.trim()} ${values.lastName.trim()} can now sign in`, {
 							title: 'Staff account created',
 						});
 					},
@@ -104,16 +107,21 @@ function AddStaffModal({ refName }) {
 					onSubmit={form.handleSubmit}
 					className="flex flex-col gap-5"
 				>
-					<CustomInput
-						label="Full name"
-						name="fullName"
-						required
-						value={form.values.fullName}
-						onChange={form.handleChange}
-						onBlur={form.handleBlur}
-						isError={err('fullName')}
-						errormessage={form.errors.fullName}
-					/>
+					<div className="grid gap-4 sm:grid-cols-2">
+						{['firstName', 'lastName'].map((name) => (
+							<CustomInput
+								key={name}
+								label={name === 'firstName' ? 'First name' : 'Last name'}
+								name={name}
+								required
+								value={form.values[name]}
+								onChange={form.handleChange}
+								onBlur={form.handleBlur}
+								isError={err(name)}
+								errormessage={form.errors[name]}
+							/>
+						))}
+					</div>
 					<CustomInput
 						label="Email"
 						name="email"

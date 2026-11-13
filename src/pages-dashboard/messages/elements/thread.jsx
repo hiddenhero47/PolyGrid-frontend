@@ -11,6 +11,7 @@ import { AppButton } from '../../../components/button';
 import { ROUTES } from '../../../utilities/app-routes';
 import { idOf } from '../../elements/listing-helpers';
 import ReasonModal from '../../../components/modal/reason-modal';
+import { displayName } from '../../../utilities/basic-functions';
 
 const MAX_BODY = 4000;
 
@@ -92,12 +93,12 @@ function Thread({ conversationId, other }) {
 					<LuArrowLeft aria-hidden="true" />
 				</Link>
 				<ProfileAvatar
-					name={other?.fullName || ''}
+					name={displayName(other) || ''}
 					avatar={other?.avatar ? { url: other.avatar } : undefined}
 					size={38}
 				/>
 				<span className="truncate font-semibold text-(--pg-text-primary)">
-					{other?.fullName || 'Conversation'}
+					{displayName(other) || 'Conversation'}
 				</span>
 			</div>
 

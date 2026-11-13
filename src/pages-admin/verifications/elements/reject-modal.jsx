@@ -6,6 +6,7 @@ import Modal from '../../../components/modal/index_modal';
 import { AppButton } from '../../../components/button';
 import { CustomTextarea } from '../../../components/form-components';
 import { PROFILE_TYPE_LABELS } from '../../../utilities/app-const';
+import { displayName } from '../../../utilities/basic-functions';
 
 // PATCH /api/verifications/:id/reject { reason } — the reason is required
 // and is what the user is told, so it's worded for them.
@@ -31,7 +32,7 @@ function RejectModal({ refName, verification, onSubmit, isPending }) {
 		>
 			<Modal.Card
 				eyebrow="Reject verification"
-				title={verification?.user?.fullName || 'Reject'}
+				title={displayName(verification?.user) || 'Reject'}
 				subtitle={
 					verification &&
 					`${PROFILE_TYPE_LABELS[verification.profileType] || verification.profileType} profile — the user sees this reason and can resubmit.`

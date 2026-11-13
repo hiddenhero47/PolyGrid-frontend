@@ -13,7 +13,7 @@ import {
 	JOB_STATUS_BADGES,
 	JOB_TYPE_LABELS,
 } from '../../utilities/app-const';
-import { formatDate, formatMoney } from '../../utilities/basic-functions';
+import { formatDate, formatMoney, displayName } from '../../utilities/basic-functions';
 
 const LIMIT = 20;
 const STATUS_OPTIONS = Object.values(JOB_STATUS).map((value) => ({
@@ -21,7 +21,7 @@ const STATUS_OPTIONS = Object.values(JOB_STATUS).map((value) => ({
 	label: JOB_STATUS_BADGES[value]?.label || value,
 }));
 
-const party = (p) => p?.user?.fullName || '—';
+const party = (p) => displayName(p?.user) || '—';
 
 // Find any job (admin / super_admin) — by title or either party's name /
 // email, and by status — and open it: its money, history and payments,

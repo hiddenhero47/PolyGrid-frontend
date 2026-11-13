@@ -38,12 +38,14 @@ import {
 	OPENING_STATUS_BADGES,
 	PORTFOLIO_ACCEPT,
 } from '../../utilities/app-const';
-import { formatDate, skillLabel } from '../../utilities/basic-functions';
+import { formatDate, skillLabel, displayName } from '../../utilities/basic-functions';
 import { ROUTES, workerPath } from '../../utilities/app-routes';
 import { BackLink, Fact, FileList, Panel } from '../elements/panels';
 import { idOf, isPast, payText, placeText } from '../elements/listing-helpers';
 import ReasonModal from '../../components/modal/reason-modal';
 import EditOpeningModal from './elements/edit-opening-modal';
+import PayoutKycNotice from '../elements/payout-kyc-notice';
+import { useHireGateError } from '../elements/hire-gate';
 
 const jobPath = (id) => `${ROUTES.DASHBOARD_JOBS}/${id}`;
 
@@ -58,6 +60,9 @@ function ApplicationsPanel({ opening, onAccept, onReject, busy }) {
 			title={`Applications (${rows.length})`}
 			icon={<LuUsers aria-hidden="true" />}
 		>
+			{open && rows.length > 0 && (
+				<PayoutKycNotice purpose="hire" className="mb-4" />
+			)}
 			{apps.isPending ? (
 				<AppLoader />
 			) : apps.isError ? (
@@ -94,16 +99,16 @@ function ApplicationsPanel({ opening, onAccept, onReject, busy }) {
 												target="_blank"
 												className="text-[15px] font-semibold text-(--pg-text-primary) hover:underline"
 											>
-												{worker.headline || applicant?.fullName || 'Worker'}
+												{worker.headline || displayName(applicant) || 'Worker'}
 											</Link>
 										) : (
 											<span className="text-[15px] font-semibold text-(--pg-text-primary)">
-												{applicant?.fullName || 'Worker'}
+												{displayName(applicant) || 'Worker'}
 											</span>
 										)}
 										<div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-(--pg-text-secondary)">
-											{applicant?.fullName && worker?.headline && (
-												<span>{applicant.fullName}</span>
+											{displayName(applicant) && worker?.headline && (
+												<span>{displayName(applicant)}</span>
 											)}
 											{worker?.ratingCount > 0 && (
 												<RatingStars
@@ -281,6 +286,7 @@ function JobOpeningDetail() {
 	const updateApp = SiteForceServices.updateApplication();
 	const withdraw = SiteForceServices.withdrawApplication();
 	const accept = SiteForceServices.accept();
+	const hireGateError = useHireGateError();
 	const reject = SiteForceServices.reject();
 
 	const confirmRef = useRef(null);
@@ -362,7 +368,7 @@ function JobOpeningDetail() {
 	const onAccept = async (app, worker, applicant) => {
 		const left = opening.workersNeeded - (opening.filledCount || 0);
 		const ok = await confirmRef.current.ask({
-			title: `Accept ${worker?.headline || applicant?.fullName || 'this worker'}?`,
+			title: `Accept ${worker?.headline || displayName(applicant) || 'this worker'}?`,
 			text: `A job is created at ${payText(opening)} for them to confirm, and they get the exact location.${left <= 1 ? ' That fills the last place — other pending applications are turned down.' : ` ${left - 1} more place${left - 1 === 1 ? '' : 's'} left after this.`}`,
 			confirmLabel: 'Accept',
 		});
@@ -375,6 +381,7 @@ function JobOpeningDetail() {
 							actionText: 'Open job',
 							onAction: () => res?.job?._id && navigate(jobPath(res.job._id)),
 						}),
+					onError: hireGateError,
 				}
 			);
 	};

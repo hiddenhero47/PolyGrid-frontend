@@ -144,7 +144,7 @@ const useUserWrite = (request) => {
 	});
 };
 
-// POST /api/users/admin-create { fullName, email, password } — always
+// POST /api/users/admin-create { firstName, lastName, userName?, email, password } — always
 // creates an `admin`; another role is a role change straight after.
 const useCreateStaffMutation = () =>
 	useUserWrite(async ({ role, ...data }) => {

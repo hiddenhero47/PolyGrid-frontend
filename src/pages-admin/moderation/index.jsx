@@ -38,7 +38,7 @@ import {
 	PROFILE_TYPE,
 	PROFILE_TYPE_LABELS,
 } from '../../utilities/app-const';
-import { enumToOptions, formatDate } from '../../utilities/basic-functions';
+import { enumToOptions, formatDate, displayName } from '../../utilities/basic-functions';
 
 const LIMIT = 10;
 const PROFILE_OPTIONS = enumToOptions(PROFILE_TYPE, PROFILE_TYPE_LABELS);
@@ -190,7 +190,7 @@ function ProfilesTab({ params, update, canManage, onView, onReviews }) {
 								</div>
 								<p className="mt-1 text-sm text-(--pg-text-secondary)">
 									{[
-										p.owner?.fullName,
+										displayName(p.owner),
 										p.owner?.email,
 										p.ratingCount
 											? `${p.ratingAverage?.toFixed(1)}★ (${p.ratingCount})`
@@ -291,7 +291,7 @@ function ReviewsTab({ params, update, canManage, onView }) {
 	const onHide = async (r) => {
 		const reason = await reasonRef.current.ask({
 			eyebrow: 'Hide review',
-			title: `${r.rating}★ from ${r.reviewer?.fullName || 'a reviewer'}`,
+			title: `${r.rating}★ from ${displayName(r.reviewer) || 'a reviewer'}`,
 			text: 'It leaves the public profile and its rating stops counting toward the average. You can unhide it later.',
 			label: 'Reason (optional, staff only)',
 			confirmLabel: 'Hide',
@@ -372,7 +372,7 @@ function ReviewsTab({ params, update, canManage, onView }) {
 										<div className="flex flex-wrap items-center gap-3">
 											<RatingStars value={r.rating} size={15} />
 											<h3 id={`rev-${r.id}`} className="sc_name">
-												{reviewer?.fullName || 'Reviewer'}
+												{displayName(reviewer) || 'Reviewer'}
 											</h3>
 										</div>
 										<div className="sc_meta">
@@ -410,7 +410,7 @@ function ReviewsTab({ params, update, canManage, onView }) {
 								{r.isHidden && (
 									<p className="text-sm text-(--pg-text-secondary)">
 										Hidden {formatDate(r.hiddenAt, true)}
-										{hider?.fullName ? ` by ${hider.fullName}` : ''}
+										{displayName(hider) ? ` by ${displayName(hider)}` : ''}
 										{r.hiddenReason ? ` — ${r.hiddenReason}` : ''}
 									</p>
 								)}

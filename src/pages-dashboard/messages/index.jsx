@@ -11,6 +11,7 @@ import { ROUTES } from '../../utilities/app-routes';
 import { timeAgo } from '../../utilities/notifications';
 import Thread from './elements/thread';
 import NewConversationModal from './elements/new-conversation-modal';
+import { displayName } from '../../utilities/basic-functions';
 
 // frontend-plan §B.16 — Messages: conversations on the left, the open
 // thread on the right (one or the other on small screens).
@@ -82,7 +83,7 @@ function Messages() {
 										}
 									>
 										<ProfileAvatar
-											name={c.otherParticipant?.fullName || ''}
+											name={displayName(c.otherParticipant) || ''}
 											avatar={
 												c.otherParticipant?.avatar
 													? { url: c.otherParticipant.avatar }
@@ -95,7 +96,7 @@ function Messages() {
 												<span
 													className={`truncate text-[15px] text-(--pg-text-primary) ${c.unreadCount ? 'font-bold' : 'font-semibold'}`}
 												>
-													{c.otherParticipant?.fullName || 'Someone'}
+													{displayName(c.otherParticipant) || 'Someone'}
 												</span>
 												{c.lastMessageAt && (
 													<span className="shrink-0 text-[11px] text-(--pg-text-secondary)">

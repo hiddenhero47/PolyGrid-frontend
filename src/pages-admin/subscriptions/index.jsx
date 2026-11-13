@@ -9,7 +9,7 @@ import ProfileAvatar from '../../components/profile-avatar';
 import { AppButton } from '../../components/button';
 import { CustomSelect } from '../../components/form-components';
 import { SYSTEM_ROLE, SYSTEM_ROLE_LABELS } from '../../utilities/app-const';
-import { enumToOptions, formatDate } from '../../utilities/basic-functions';
+import { enumToOptions, formatDate, displayName } from '../../utilities/basic-functions';
 import GrantPanel from './elements/grant-panel';
 import UserSearch from '../elements/user-search';
 
@@ -61,16 +61,16 @@ function AdminSubscriptions() {
 	const fields = [
 		{
 			Header: 'User',
-			accessor: 'fullName',
+			accessor: 'userName',
 			Cell: ({ row }) => (
 				<span className="flex items-center gap-3">
 					<ProfileAvatar
 						avatar={row.original.avatar}
-						name={row.original.fullName}
+						name={displayName(row.original)}
 						size={36}
 					/>
 					<span className="min-w-0">
-						<span className="block font-semibold">{row.original.fullName}</span>
+						<span className="block font-semibold">{displayName(row.original)}</span>
 						<span className="block text-sm text-(--pg-text-secondary)">
 							{row.original.email}
 						</span>

@@ -10,7 +10,7 @@ import StatusBadge from '../../../components/status-badge';
 import { AppButton } from '../../../components/button';
 import { CustomSelect } from '../../../components/form-components';
 import { SYSTEM_ROLE, SYSTEM_ROLE_LABELS } from '../../../utilities/app-const';
-import { formatDate } from '../../../utilities/basic-functions';
+import { formatDate, displayName } from '../../../utilities/basic-functions';
 
 // The roles a super admin can hand out (super_admin itself is never
 // assignable from here — there's exactly one).
@@ -31,7 +31,7 @@ function ManageUserModal({ refName, user, onClose }) {
 	const pickRole = async (systemRole) => {
 		if (!user || systemRole === user.systemRole) return;
 		const ok = await confirmRef.current.ask({
-			title: `Make ${user.fullName} ${SYSTEM_ROLE_LABELS[systemRole].toLowerCase()}?`,
+			title: `Make ${displayName(user)} ${SYSTEM_ROLE_LABELS[systemRole].toLowerCase()}?`,
 			text:
 				systemRole === SYSTEM_ROLE.USER
 					? 'They lose access to the Admin Dashboard.'
@@ -53,8 +53,8 @@ function ManageUserModal({ refName, user, onClose }) {
 	const toggleSuspension = async () => {
 		const ok = await confirmRef.current.ask({
 			title: suspended
-				? `Reinstate ${user.fullName}?`
-				: `Suspend ${user.fullName}?`,
+				? `Reinstate ${displayName(user)}?`
+				: `Suspend ${displayName(user)}?`,
 			text: suspended
 				? 'They can sign in and use PolyGrid again.'
 				: 'They can’t sign in or use PolyGrid until reinstated. Their profiles stay as they are.',
@@ -83,14 +83,14 @@ function ManageUserModal({ refName, user, onClose }) {
 				{user && (
 					<Modal.Card
 						eyebrow="Manage user"
-						title={user.fullName}
+						title={displayName(user)}
 						subtitle={user.email}
 					>
 						<div className="flex flex-col gap-6">
 							<div className="flex items-center gap-4">
 								<ProfileAvatar
 									avatar={user.avatar}
-									name={user.fullName}
+									name={displayName(user)}
 									size={52}
 								/>
 								<div className="flex flex-wrap gap-2">

@@ -15,7 +15,7 @@ import {
 	AdminSection as Section,
 } from '../../pages-admin/elements/index.style';
 import { ROUTES } from '../../utilities/app-routes';
-import { formatDate, humanize } from '../../utilities/basic-functions';
+import { formatDate, humanize, displayName } from '../../utilities/basic-functions';
 import { PROFILE_TYPES } from '../elements/profile-types';
 import GoLive from '../elements/go-live';
 import Activity from './elements/activity';
@@ -40,7 +40,7 @@ function DashboardHome() {
 		<>
 			<PageHeader
 				eyebrow="Dashboard"
-				title={`${greeting()}, ${user?.fullName?.split(' ')[0] || 'there'}`}
+				title={`${greeting()}, ${displayName(user)?.split(' ')[0] || 'there'}`}
 				subtitle="What’s waiting on you, your profiles and your plan — at a glance."
 			/>
 

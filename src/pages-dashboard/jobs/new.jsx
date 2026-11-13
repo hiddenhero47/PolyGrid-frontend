@@ -24,6 +24,8 @@ import { enumToOptions } from '../../utilities/basic-functions';
 import { ROUTES } from '../../utilities/app-routes';
 import StageEditor from './elements/stage-editor';
 import { stagesTotal } from './elements/job-helpers';
+import PayoutKycNotice from '../elements/payout-kyc-notice';
+import { useHireGateError } from '../elements/hire-gate';
 
 const OBJECT_ID = /^[a-f\d]{24}$/i;
 const TYPE_OPTIONS = enumToOptions(JOB_TYPE, JOB_TYPE_LABELS);
@@ -59,6 +61,7 @@ function NewJob() {
 	const [params] = useSearchParams();
 	const { user } = useSelector((state) => state.auth);
 	const create = JobServices.create();
+	const hireGateError = useHireGateError();
 
 	const counterpartyId = OBJECT_ID.test(params.get('with') || '')
 		? params.get('with')
@@ -99,6 +102,7 @@ function NewJob() {
 					toast.success(`Sent — ${counterpartyName} needs to confirm it`);
 					navigate(`${ROUTES.DASHBOARD_JOBS}/${job._id}`, { replace: true });
 				},
+				onError: hireGateError,
 			});
 		},
 	});
@@ -137,6 +141,7 @@ function NewJob() {
 				title={`Work with ${counterpartyName}`}
 				subtitle="Set out the work, the total and how it’s paid. They confirm it, then it becomes active — the client funds it and each stage is paid out once it’s verified."
 			/>
+			<PayoutKycNotice purpose="hire" className="mb-6 max-w-215" />
 			<form
 				noValidate
 				onSubmit={form.handleSubmit}

@@ -27,7 +27,7 @@ import { ReviewCard } from '../verifications/elements/index.style';
 import JobReview from '../elements/job-review';
 import ToPay from './elements/to-pay';
 import { MANAGE_ROLES } from '../../utilities/app-const';
-import { formatDate, formatMoney } from '../../utilities/basic-functions';
+import { formatDate, formatMoney, displayName } from '../../utilities/basic-functions';
 
 const LIMIT = 10;
 const idOf = (v) => String(v?._id || v?.id || v || '');
@@ -319,7 +319,7 @@ function RefundsPayouts() {
 													<span>
 														Asked by{' '}
 														<strong className="text-(--pg-text-primary)">
-															{requester?.fullName || 'the ' + kind.requester}
+															{displayName(requester) || 'the ' + kind.requester}
 														</strong>{' '}
 														(the {kind.requester})
 													</span>
@@ -355,7 +355,7 @@ function RefundsPayouts() {
 										)}
 
 										<p className="text-sm text-(--pg-text-secondary)">
-											Other side: {other?.fullName || '—'}
+											Other side: {displayName(other) || '—'}
 											{other?.email ? ` · ${other.email}` : ''}
 										</p>
 										<div className="flex flex-wrap gap-2">

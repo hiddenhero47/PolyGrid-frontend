@@ -12,7 +12,8 @@ import {
 // resetPasswordSchema) — same fields, never looser.
 
 export const registerValidation = yup.object({
-	fullName: yup.string().trim().required('Your full name is required'),
+	firstName: yup.string().trim().max(50, 'That’s too long'),
+	lastName: yup.string().trim().max(50, 'That’s too long'),
 	email: emailField(),
 	phoneNumber: phoneField(),
 	password: newPasswordField(),

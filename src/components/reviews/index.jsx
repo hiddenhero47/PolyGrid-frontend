@@ -12,6 +12,7 @@ import EmptyState from '../empty-state';
 import AppLoader from '../loader';
 import { REVIEW_ROLES } from '../../utilities/app-const';
 import { ROUTES } from '../../utilities/app-routes';
+import { displayName } from '../../utilities/basic-functions';
 
 // The one reviews block every profile page embeds (frontend-plan §2):
 // summary (denormalized ratingAverage / ratingCount) + paginated list from
@@ -112,11 +113,11 @@ function ReviewsBlock({
 				<List>
 					{reviews.map((review) => (
 						<li key={review.id}>
-							<ProfileAvatar name={review.reviewer?.fullName} size={40} />
+							<ProfileAvatar name={displayName(review.reviewer)} size={40} />
 							<div className="min-w-0 flex-1">
 								<div className="flex flex-wrap items-center justify-between gap-2">
 									<span className="sc_name">
-										{review.reviewer?.fullName || 'PolyGrid member'}
+										{displayName(review.reviewer) || 'PolyGrid member'}
 									</span>
 									<span className="sc_date">
 										{new Date(review.createdAt).toLocaleDateString('en-GB', {

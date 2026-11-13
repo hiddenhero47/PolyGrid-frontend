@@ -20,7 +20,7 @@ import {
 	PAYOUT_KYC_ID_TYPES,
 	PAYOUT_KYC_STATUS,
 } from '../../../utilities/app-const';
-import { formatDate } from '../../../utilities/basic-functions';
+import { formatDate, legalName } from '../../../utilities/basic-functions';
 import SettingsCard from './settings-card';
 
 const SECTION_ID = 'payout-kyc-settings';
@@ -110,8 +110,12 @@ function PayoutKycSection() {
 		(form.touched.files?.[type] || form.submitCount > 0) &&
 		form.errors.files?.[type];
 
+	const name = legalName(user);
+	// signing up without a name files it as "John Doe" — nothing to check
+	const needsName = !name || name === 'John Doe';
 	const showForm =
 		user?.country &&
+		!needsName &&
 		mine.isSuccess &&
 		(!record || status === PAYOUT_KYC_STATUS.FAILED);
 
@@ -132,6 +136,25 @@ function PayoutKycSection() {
 					<p className="text-sm text-(--pg-text-secondary)">
 						Set your country under Profile first. It decides how we check
 						your identity.
+					</p>
+				)}
+				{user?.country && needsName && !record && (
+					<p className="text-sm text-(--pg-text-secondary)">
+						Add your legal name under{' '}
+						<a
+							href="#profile-settings"
+							className="font-semibold text-(--pg-text-link) hover:underline"
+						>
+							Profile
+						</a>{' '}
+						first, exactly as it is on your ID. That’s the name we check.
+					</p>
+				)}
+				{showForm && (
+					<p className="text-sm text-(--pg-text-secondary)">
+						We check against your legal name, <strong>{name}</strong>. If
+						that’s not exactly as on your ID, fix it under Profile first: it’s
+						locked once you’re verified.
 					</p>
 				)}
 
@@ -198,7 +221,7 @@ function PayoutKycSection() {
 									inputMode="numeric"
 									autoComplete="off"
 									maxLength={11}
-									hint={`11 digits. The name on it must match your account name, ${user.fullName}.`}
+									hint={`11 digits. The name on it must match your legal name, ${name}.`}
 									value={form.values.idNumber}
 									onChange={form.handleChange}
 									onBlur={form.handleBlur}

@@ -10,7 +10,7 @@ import ProfileAvatar from '../../components/profile-avatar';
 import { AppButton } from '../../components/button';
 import { CustomSelect } from '../../components/form-components';
 import { SYSTEM_ROLE, SYSTEM_ROLE_LABELS } from '../../utilities/app-const';
-import { enumToOptions, formatDate } from '../../utilities/basic-functions';
+import { enumToOptions, formatDate, displayName } from '../../utilities/basic-functions';
 import UserSearch from '../elements/user-search';
 import AddStaffModal from './elements/add-staff-modal';
 import ManageUserModal from './elements/manage-user-modal';
@@ -60,17 +60,17 @@ function AdminUsers() {
 	const fields = [
 		{
 			Header: 'User',
-			accessor: 'fullName',
+			accessor: 'userName',
 			Cell: ({ row }) => (
 				<span className="flex items-center gap-3">
 					<ProfileAvatar
 						avatar={row.original.avatar}
-						name={row.original.fullName}
+						name={displayName(row.original)}
 						size={36}
 					/>
 					<span className="min-w-0">
 						<span className="block font-semibold">
-							{row.original.fullName}
+							{displayName(row.original)}
 							{row.original._id === me?.id && (
 								<span className="ml-2 text-xs font-normal text-(--pg-text-secondary)">
 									(you)

@@ -24,6 +24,7 @@ import {
 	countryName,
 	formatDate,
 	formatMoney,
+	displayName,
 } from '../../utilities/basic-functions';
 import { ROUTES } from '../../utilities/app-routes';
 import { ListingCard } from '../elements/panels';
@@ -109,7 +110,7 @@ function StoreOrderRow({ order }) {
 	return (
 		<ListingCard
 			to={jobPath(idOf(order.job))}
-			title={buyer?.fullName || 'Buyer'}
+			title={displayName(buyer) || 'Buyer'}
 			facts={[
 				itemsText(order.items),
 				`to ${destinationText(order.shippingDestination)}`,

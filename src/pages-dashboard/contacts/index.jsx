@@ -19,7 +19,7 @@ import ConfirmModal from '../../components/modal/confirm-modal';
 import { AppButton } from '../../components/button';
 import { CustomInput } from '../../components/form-components';
 import { SkeletonBar } from '../../components/table/index.style';
-import { formatDate } from '../../utilities/basic-functions';
+import { formatDate, displayName } from '../../utilities/basic-functions';
 import { ROUTES } from '../../utilities/app-routes';
 import { Panel } from '../elements/panels';
 import { idOf } from '../elements/listing-helpers';
@@ -63,7 +63,7 @@ function Contacts() {
 	const onRemove = async (contact) => {
 		const ok = await confirmRef.current.ask({
 			title: 'Remove this contact?',
-			text: `${contact.fullName || contact.email} leaves your list. You stay in theirs, and you can’t message them until you’re reconnected.`,
+			text: `${displayName(contact) || contact.email} leaves your list. You stay in theirs, and you can’t message them until you’re reconnected.`,
 			confirmLabel: 'Remove',
 		});
 		if (ok)
@@ -140,7 +140,7 @@ function Contacts() {
 					) : (
 						<ul className="flex flex-col gap-3">
 							{rows.map((c) => {
-								const name = c.fullName || c.email;
+								const name = displayName(c) || c.email;
 								return (
 									<li
 										key={idOf(c.user)}
@@ -162,7 +162,7 @@ function Contacts() {
 												{name}
 											</p>
 											<p className="truncate text-sm text-(--pg-text-secondary)">
-												{c.fullName ? `${c.email} · ` : ''}Connected{' '}
+												{displayName(c) ? `${c.email} · ` : ''}Connected{' '}
 												{formatDate(c.connectedAt)}
 											</p>
 										</div>

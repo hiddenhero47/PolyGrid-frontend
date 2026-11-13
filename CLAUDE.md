@@ -321,7 +321,14 @@ toast, `error.silentCode` — and the page asks for the 6-digit code,
 generic answer) and reset (`/reset-password`; the emailed link is
 `/reset-password/:token`). A successful login stores the session with
 `setSession` (user + token). **The backend's user id field is `id`,
-not `_id`.** `AuthServices.logout()` also clears the query cache.
+not `_id`.** **Names:** `user.fullName` is the legal name, an object
+`{ firstName, lastName }` (only the person and identity reviewers see it);
+`user.userName` is a display name (not unique) and the only name populated
+users carry (job parties, reviewers, contacts, participants…). Show people
+with `displayName(user)`, the legal name with `legalName(user)`
+(`utilities/basic-functions`) — never read `fullName` directly. Sign-up
+asks for first / last name optionally (without them the backend files
+"John Doe" and the page sends the email's local part as `userName`). `AuthServices.logout()` also clears the query cache.
 `layouts/auth-layout` sends signed-in users away from these pages
 (except reset). Yup rules in `features/validations/auth-validation.js`
 mirror `polygrid-backend/src/validators/user/userValidator.ts`.
@@ -703,6 +710,20 @@ bar. A `popover="auto"` panel with CSS anchor positioning, right-aligned
   (`pages-admin/payout-kyc`, menu badge = pending; customer care reads
   only), and Refunds & payouts rows show `beneficiaryKycStatus` and
   disable Approve until it's verified.
+- Identity lock: while payout identity is verified, first name, last name
+  and country are locked (PUT /profile 400 `PAYOUT_KYC_VERIFIED_LOCK`);
+  Settings → Profile's "Change name or country" revokes it
+  (`PayoutKycServices.revoke`, `DELETE /me/payout-kyc` + identity), which
+  also deletes the payout account. Changing them before that asks for the
+  password / 2FA (sent with the PUT). The payout account needs verified
+  identity, the legal name (`PAYOUT_ACCOUNT_NAME_MISMATCH`) and the user's
+  own country (`PAYOUT_ACCOUNT_COUNTRY_MISMATCH`). Creating or confirming
+  a job, awarding a bid and accepting a SiteForce worker need verified
+  identity too — clients included, so refunds can reach them (400
+  `PAYOUT_KYC_REQUIRED` → `useHireGateError()` in
+  `pages-dashboard/elements/hire-gate.js`; `<PayoutKycNotice
+  purpose="hire">` says so before the button). A store whose owner isn't
+  verified answers 404 to orders.
 - `components/modal/confirm-identity-modal.jsx` — frontend-plan §2's
   confirm-with-password-or-2FA pattern: `await ref.current.ask({ action })`
   → `{ currentPassword }` | `{ otpToken }` | null.

@@ -15,6 +15,7 @@ import { ROUTES, homeForUser } from '../../utilities/app-routes';
 import AuthHeader from './elements/auth-header';
 import CheckEmail from './elements/check-email';
 import { AuthSwitch } from './elements/index.style';
+import { displayName } from '../../utilities/basic-functions';
 
 const CODE_LENGTH = 6;
 
@@ -32,7 +33,7 @@ function Login() {
 	const [codeError, setCodeError] = useState('');
 
 	const finish = (user) => {
-		toast.success(`Welcome back, ${user.fullName?.split(' ')[0] || ''}`.trim());
+		toast.success(`Welcome back, ${displayName(user).split(' ')[0]}`.trim());
 		navigate(location.state?.from || homeForUser(user), { replace: true });
 	};
 

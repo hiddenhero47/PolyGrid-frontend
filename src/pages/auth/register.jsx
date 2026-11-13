@@ -42,7 +42,8 @@ function Register() {
 		setFieldValue,
 	} = useFormik({
 		initialValues: {
-			fullName: '',
+			firstName: '',
+			lastName: '',
 			email: '',
 			phoneNumber: { number: '', country: guessCountry() },
 			password: '',
@@ -50,10 +51,18 @@ function Register() {
 			terms: false,
 		},
 		validationSchema: registerValidation,
-		onSubmit: ({ fullName, email, phoneNumber, password }) => {
+		onSubmit: ({ firstName, lastName, email, phoneNumber, password }) => {
+			const first = firstName.trim();
+			const last = lastName.trim();
 			register(
 				{
-					fullName: fullName.trim(),
+					// Names are optional so signing up stays quick. Without them
+					// the backend files the legal name as "John Doe" until it's
+					// set in Settings, so give people something better to be
+					// shown as: their email's local part.
+					...(first && { firstName: first }),
+					...(last && { lastName: last }),
+					...(!first && !last && { userName: email.trim().split('@')[0] }),
 					email: email.trim(),
 					password,
 					// optional — only sent if they filled it in
@@ -99,18 +108,34 @@ function Register() {
 			/>
 
 			<form noValidate onSubmit={handleSubmit} className="flex flex-col gap-5">
-				<CustomInput
-					label="Full name"
-					name="fullName"
-					autoComplete="name"
-					placeholder="e.g. Ada Okafor"
-					required
-					value={values.fullName}
-					onChange={handleChange}
-					onBlur={handleBlur}
-					isError={err('fullName')}
-					errormessage={errors.fullName}
-				/>
+				<div className="grid gap-4 sm:grid-cols-2">
+					<CustomInput
+						label="First name"
+						name="firstName"
+						autoComplete="given-name"
+						placeholder="e.g. Ada"
+						value={values.firstName}
+						onChange={handleChange}
+						onBlur={handleBlur}
+						isError={err('firstName')}
+						errormessage={errors.firstName}
+					/>
+					<CustomInput
+						label="Last name"
+						name="lastName"
+						autoComplete="family-name"
+						placeholder="e.g. Okafor"
+						value={values.lastName}
+						onChange={handleChange}
+						onBlur={handleBlur}
+						isError={err('lastName')}
+						errormessage={errors.lastName}
+					/>
+					<p className="-mt-2 text-xs text-(--pg-text-secondary) sm:col-span-2">
+						Optional. Use the name on your ID: it’s the name we pay or refund
+						you under. You can add it later in Settings.
+					</p>
+				</div>
 				<CustomInput
 					label="Email"
 					name="email"

@@ -37,6 +37,7 @@ import {
 	formatDate,
 	formatMoney,
 	specialtyLabel,
+	displayName,
 } from '../../utilities/basic-functions';
 import { ROUTES, contractorPath } from '../../utilities/app-routes';
 import { BackLink, Fact, FileList, Panel } from '../elements/panels';
@@ -48,6 +49,8 @@ import {
 } from '../elements/listing-helpers';
 import BidModal from './elements/bid-modal';
 import EditProjectModal from './elements/edit-project-modal';
+import PayoutKycNotice from '../elements/payout-kyc-notice';
+import { useHireGateError } from '../elements/hire-gate';
 
 const jobPath = (id) => `${ROUTES.DASHBOARD_JOBS}/${id}`;
 
@@ -62,6 +65,9 @@ function BidsPanel({ project, onAward, awarding }) {
 			title={`Bids (${rows.length})`}
 			icon={<LuGavel aria-hidden="true" />}
 		>
+			{open && rows.length > 0 && (
+				<PayoutKycNotice purpose="hire" className="mb-4" />
+			)}
 			{bids.isPending ? (
 				<AppLoader />
 			) : bids.isError ? (
@@ -107,7 +113,7 @@ function BidsPanel({ project, onAward, awarding }) {
 											</span>
 										)}
 										<div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-(--pg-text-secondary)">
-											{bidder?.fullName && <span>{bidder.fullName}</span>}
+											{displayName(bidder) && <span>{displayName(bidder)}</span>}
 											{contractor?.ratingCount > 0 && (
 												<RatingStars
 													value={contractor.ratingAverage}
@@ -176,6 +182,7 @@ function TenderProjectDetail() {
 	const removeFile = TenderServices.removeFile();
 	const cancel = TenderServices.cancel();
 	const award = TenderServices.award();
+	const hireGateError = useHireGateError();
 	const submitBid = TenderServices.submitBid();
 	const updateBid = TenderServices.updateBid();
 	const withdrawBid = TenderServices.withdrawBid();
@@ -268,6 +275,7 @@ function TenderProjectDetail() {
 							actionText: 'Open job',
 							onAction: () => res?.job?._id && navigate(jobPath(res.job._id)),
 						}),
+					onError: hireGateError,
 				}
 			);
 	};

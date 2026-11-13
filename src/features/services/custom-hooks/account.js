@@ -13,8 +13,11 @@ const useMergeUser = () => {
 	return (changes) => dispatch(setUser({ ...user, ...changes }));
 };
 
-// PUT /api/users/profile — { fullName?, phoneNumber? } and/or an avatar
-// image. With an avatar it's multipart (`data` JSON + the file).
+// PUT /api/users/profile — { firstName?, lastName?, userName?, country?,
+// phoneNumber? } and/or an avatar. Changing firstName / lastName / country
+// also needs { currentPassword | otpToken }, and is refused while payout
+// identity is verified (400 PAYOUT_KYC_VERIFIED_LOCK — revoke it first).
+// With an avatar it's multipart (`data` JSON + the file).
 // Answers { message, user, avatarWarnings? }.
 const useUpdateProfileMutation = () => {
 	const merge = useMergeUser();

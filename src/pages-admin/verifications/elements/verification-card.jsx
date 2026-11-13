@@ -27,6 +27,7 @@ import {
 	countryName,
 	formatDate,
 	humanize,
+	displayName,
 } from '../../../utilities/basic-functions';
 import { ROUTES } from '../../../utilities/app-routes';
 import { ReviewCard, DocChip } from './index.style';
@@ -107,11 +108,11 @@ function VerificationCard({
 	return (
 		<ReviewCard aria-labelledby={`verification-${verification._id}`}>
 			<div className="sc_who">
-				<ProfileAvatar name={user.fullName} size={48} />
+				<ProfileAvatar name={displayName(user)} size={48} />
 				<div className="min-w-0 flex-1">
 					<div className="flex flex-wrap items-center gap-2.5">
 						<h3 id={`verification-${verification._id}`} className="sc_name">
-							{user.fullName || 'Unknown user'}
+							{displayName(user) || 'Unknown user'}
 						</h3>
 						<Chip $accent>
 							{PROFILE_TYPE_LABELS[verification.profileType] ||

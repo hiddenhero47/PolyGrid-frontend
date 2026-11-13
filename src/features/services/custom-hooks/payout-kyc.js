@@ -66,6 +66,24 @@ const useSubmitMutation = () => {
 	});
 };
 
+// DELETE /api/users/me/payout-kyc { currentPassword | otpToken } — gives up
+// a verified check so the legal name or country can change again (they're
+// locked while verified). The backend also removes the saved payout
+// account; the caller clears it from the signed-in user.
+const useRevokeMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (identity) =>
+			axiosCall({
+				url: '/api/users/me/payout-kyc',
+				method: 'DELETE',
+				data: identity,
+			}),
+		onSuccess: () =>
+			queryClient.invalidateQueries({ queryKey: ['my-payout-kyc'] }),
+	});
+};
+
 // GET /api/payout-kyc?status=&page=&limit= (REVIEW_ROLES) → { data, pagination }
 const useGetRecordsQuery = ({ status, page = 1, limit = 10 }, options = {}) =>
 	useQuery({
@@ -99,6 +117,7 @@ const useDecideMutation = () => {
 const PayoutKycServices = {
 	getMine: useGetMineQuery,
 	submit: useSubmitMutation,
+	revoke: useRevokeMutation,
 	getRecords: useGetRecordsQuery,
 	decide: useDecideMutation,
 };

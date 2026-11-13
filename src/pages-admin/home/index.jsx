@@ -29,7 +29,7 @@ import {
 	VERIFICATION_STATUS,
 } from '../../utilities/app-const';
 import { ROUTES } from '../../utilities/app-routes';
-import { formatMoney } from '../../utilities/basic-functions';
+import { formatMoney, displayName } from '../../utilities/basic-functions';
 import DailyBars from './elements/daily-bars';
 import { StatTile, StatTileLink, AdminSection } from '../elements/index.style';
 
@@ -155,7 +155,7 @@ function AdminHome() {
 		<>
 			<AdminPageHeader
 				eyebrow="Overview"
-				title={`${greeting()}, ${user?.fullName?.split(' ')[0] || 'admin'}`}
+				title={`${greeting()}, ${displayName(user)?.split(' ')[0] || 'admin'}`}
 				subtitle="Queues that need a decision come first, then the platform at a glance."
 				actions={
 					<AppButton
